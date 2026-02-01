@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,8 +10,20 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AdminSidebar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const pathname = usePathname();
     const { t, locale, switchLanguage } = useLanguage();
+
+    // Detect screen size
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const toggleLanguage = () => {
         switchLanguage(locale === "en" ? "ar" : "en");
@@ -47,7 +59,7 @@ export default function AdminSidebar() {
 
             {/* Backdrop Overlay for Mobile */}
             <AnimatePresence>
-                {isMobileMenuOpen && (
+                {isMobileMenuOpen && isMobile && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -63,13 +75,10 @@ export default function AdminSidebar() {
             <motion.div
                 initial={false}
                 animate={{
-                    x: isMobileMenuOpen ? 0 : "-100%"
+                    x: isMobile ? (isMobileMenuOpen ? 0 : "-100%") : 0
                 }}
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className={cn(
-                    "w-64 h-screen glass-strong border-r border-white/10 flex flex-col fixed left-0 top-0 z-50",
-                    "md:translate-x-0" // Always visible on desktop
-                )}
+                className="w-64 h-screen glass-strong border-r border-white/10 flex flex-col fixed left-0 top-0 z-50"
             >
                 <div className="p-6 border-b border-white/10 flex items-center justify-between">
                     <h2 className="text-xl font-bold bg-gradient-to-r from-[var(--color-neon-blue)] to-[var(--color-quantum-purple)] bg-clip-text text-transparent">
