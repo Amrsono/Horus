@@ -8,6 +8,8 @@ interface AuthContextType {
     user: User | null;
     session: Session | null;
     loading: boolean;
+    signUp: (email: string, password: string) => Promise<{ error: any; needsVerification: boolean }>;
+    signIn: (email: string, password: string) => Promise<{ error: any }>;
     signOut: () => Promise<void>;
 }
 
@@ -44,6 +46,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => subscription.unsubscribe();
     }, []);
 
+    const signUp = async (email: string, password: string) => {
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                emailRedirectTo: `${window.location.origin}/auth/callback`,
+            }
+        });
+
+        if (error) {
+            return { error, needsVerification: false };
+        }
+
+        // Check if email confirmation is required
+        const needsVerification = data.user && !data.session;
+        return { error: null, needsVerification: !!needsVerification };
+    };
+
+    const signIn = async (email: string, password: string) => {
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        return { error };
+    };
+
     const signOut = async () => {
         await supabase.auth.signOut();
         setUser(null);
@@ -51,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, session, loading, signOut }}>
+        <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
             {children}
         </AuthContext.Provider>
     );

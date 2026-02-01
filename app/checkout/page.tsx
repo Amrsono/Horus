@@ -4,38 +4,108 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, CheckCircle, CreditCard, Banknote, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, CheckCircle, CreditCard, Banknote, ShieldCheck, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/cartStore";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export default function CheckoutPage() {
     const { items, totalPrice, clearCart } = useCartStore();
     const { t, locale } = useLanguage();
+    const { user, loading: authLoading } = useAuth();
+    const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [activePaymentMethod, setActivePaymentMethod] = useState<'cash' | 'card'>('cash');
     const [isProcessing, setIsProcessing] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [formData, setFormData] = useState({
+        name: "",
+        address: "",
+        city: "",
+        zip: ""
+    });
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    const handlePlaceOrder = (e: React.FormEvent) => {
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (mounted && !authLoading && !user) {
+            router.push("/login?redirect=/checkout");
+        }
+    }, [mounted, authLoading, user, router]);
+
+    const handlePlaceOrder = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) return;
+
         setIsProcessing(true);
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            // Create order in database
+            const { data: order, error: orderError } = await supabase
+                .from('orders')
+                .insert({
+                    user_id: user.id,
+                    guest_email: user.email,
+                    total_amount: totalPrice(),
+                    status: 'pending',
+                    shipping_address: {
+                        name: formData.name,
+                        address: formData.address,
+                        city: formData.city,
+                        zip: formData.zip
+                    }
+                })
+                .select()
+                .single();
+
+            if (orderError) throw orderError;
+
+            // Create order items
+            const orderItems = items.map(item => ({
+                order_id: order.id,
+                product_id: item.id,
+                product_name: item.name,
+                quantity: item.quantity,
+                price_at_purchase: typeof item.price === 'number' ? item.price : 0
+            }));
+
+            const { error: itemsError } = await supabase
+                .from('order_items')
+                .insert(orderItems);
+
+            if (itemsError) throw itemsError;
+
+            // Success!
             setIsProcessing(false);
             setIsSuccess(true);
             clearCart();
-        }, 2000);
+        } catch (error) {
+            console.error("Error creating order:", error);
+            alert("Failed to place order. Please try again.");
+            setIsProcessing(false);
+        }
     };
 
-    if (!mounted) return null;
+    if (!mounted || authLoading) {
+        return (
+            <div className="min-h-screen bg-[var(--color-obsidian)] flex items-center justify-center">
+                <Loader2 className="w-12 h-12 animate-spin text-[var(--color-neon-blue)]" />
+            </div>
+        );
+    }
+
+    // Don't render checkout if not logged in (will redirect)
+    if (!user) {
+        return null;
+    }
 
     if (isSuccess) {
         return (
@@ -86,25 +156,54 @@ export default function CheckoutPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold ml-1">{t.checkout.form.name}</label>
-                                    <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors" />
+                                    <input
+                                        required
+                                        type="text"
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors"
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold ml-1">{t.checkout.form.email}</label>
-                                    <input required type="email" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors" />
+                                    <input
+                                        type="email"
+                                        value={user.email || ""}
+                                        disabled
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 opacity-60 cursor-not-allowed"
+                                    />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-bold ml-1">{t.checkout.form.address}</label>
-                                <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors" />
+                                <input
+                                    required
+                                    type="text"
+                                    value={formData.address}
+                                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors"
+                                />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold ml-1">{t.checkout.form.city}</label>
-                                    <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors" />
+                                    <input
+                                        required
+                                        type="text"
+                                        value={formData.city}
+                                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors"
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold ml-1">{t.checkout.form.zip}</label>
-                                    <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors" />
+                                    <input
+                                        required
+                                        type="text"
+                                        value={formData.zip}
+                                        onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors"
+                                    />
                                 </div>
                             </div>
                         </form>
@@ -209,7 +308,10 @@ export default function CheckoutPage() {
                                 className="w-full py-4 bg-[var(--color-neon-blue)] text-black font-bold uppercase tracking-wider rounded-lg hover:bg-[var(--color-electric-cyan)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {isProcessing ? (
-                                    <span className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Processing...
+                                    </>
                                 ) : (
                                     t.checkout.place_order
                                 )}

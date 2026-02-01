@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -14,7 +14,7 @@ export default function RegisterPage() {
     const [fullName, setFullName] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
+    const { signUp } = useAuth();
     const router = useRouter();
 
     const handleRegister = async (e: React.FormEvent) => {
@@ -22,22 +22,17 @@ export default function RegisterPage() {
         setLoading(true);
         setError(null);
 
-        const { error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: fullName,
-                },
-            },
-        });
+        const { error, needsVerification } = await signUp(email, password);
 
         if (error) {
             setError(error.message);
             setLoading(false);
+        } else if (needsVerification) {
+            // Redirect to email verification page
+            router.push("/auth/verify-email");
         } else {
-            setSuccess(true);
-            setLoading(false);
+            // User is logged in immediately (no email verification required)
+            router.push("/");
         }
     };
 
@@ -68,78 +63,60 @@ export default function RegisterPage() {
                         </div>
                     )}
 
-                    {success ? (
-                        <div className="text-center space-y-4">
-                            <div className="w-16 h-16 bg-[var(--color-cyber-green)]/20 rounded-full flex items-center justify-center mx-auto text-[var(--color-cyber-green)]">
-                                <Mail className="w-8 h-8" />
+                    <form onSubmit={handleRegister} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300 ml-1">Full Name</label>
+                            <div className="relative">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <input
+                                    type="text"
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-[var(--color-quantum-purple)] focus:ring-1 focus:ring-[var(--color-quantum-purple)] transition-all"
+                                    placeholder="Agent Name"
+                                    required
+                                />
                             </div>
-                            <h3 className="text-xl font-bold text-white">Verification Sent</h3>
-                            <p className="text-gray-400">
-                                Check your neural feed (email) to activate your account.
-                            </p>
-                            <Link
-                                href="/login"
-                                className="inline-block mt-4 text-[var(--color-neon-blue)] hover:text-[var(--color-electric-cyan)]"
-                            >
-                                Proceed to Login
-                            </Link>
                         </div>
-                    ) : (
-                        <form onSubmit={handleRegister} className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300 ml-1">Full Name</label>
-                                <div className="relative">
-                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                    <input
-                                        type="text"
-                                        value={fullName}
-                                        onChange={(e) => setFullName(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-[var(--color-quantum-purple)] focus:ring-1 focus:ring-[var(--color-quantum-purple)] transition-all"
-                                        placeholder="Agent Name"
-                                        required
-                                    />
-                                </div>
-                            </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300 ml-1">Email</label>
-                                <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                    <input
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-[var(--color-quantum-purple)] focus:ring-1 focus:ring-[var(--color-quantum-purple)] transition-all"
-                                        placeholder="agent@horus.sys"
-                                        required
-                                    />
-                                </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300 ml-1">Email</label>
+                            <div className="relative">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-[var(--color-quantum-purple)] focus:ring-1 focus:ring-[var(--color-quantum-purple)] transition-all"
+                                    placeholder="agent@horus.sys"
+                                    required
+                                />
                             </div>
+                        </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                    <input
-                                        type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-[var(--color-quantum-purple)] focus:ring-1 focus:ring-[var(--color-quantum-purple)] transition-all"
-                                        placeholder="••••••••"
-                                        required
-                                    />
-                                </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-[var(--color-quantum-purple)] focus:ring-1 focus:ring-[var(--color-quantum-purple)] transition-all"
+                                    placeholder="••••••••"
+                                    required
+                                />
                             </div>
+                        </div>
 
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full bg-[var(--color-quantum-purple)] text-white font-bold py-3 rounded-xl hover:bg-[var(--color-plasma-pink)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                            >
-                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Request Access"}
-                            </button>
-                        </form>
-                    )}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-[var(--color-quantum-purple)] text-white font-bold py-3 rounded-xl hover:bg-[var(--color-plasma-pink)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        >
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Request Access"}
+                        </button>
+                    </form>
 
                     <p className="mt-8 text-center text-gray-400 text-sm">
                         Already registered?{" "}
