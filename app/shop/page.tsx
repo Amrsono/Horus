@@ -18,6 +18,9 @@ interface Product {
     image_url: string | null;
     stock: number;
     description?: string;
+    on_sale?: boolean;
+    sale_price?: number;
+    sale_badge_text?: string;
 }
 
 export default function ShopPage() {
@@ -93,7 +96,7 @@ export default function ShopPage() {
         addItem({
             id: product.id,
             name: product.name,
-            price: product.price,
+            price: (product.on_sale && product.sale_price) ? product.sale_price : product.price,
             image: product.image_url || "/placeholder.jpg",
             category: product.category
         });
@@ -258,9 +261,22 @@ export default function ShopPage() {
                                                     {product.name}
                                                 </h3>
                                                 <div className="flex items-end justify-between mt-4">
-                                                    <span className="text-2xl font-mono font-bold text-[var(--color-plasma-pink)]">
-                                                        {product.price} <span className="text-sm text-gray-400">EGP</span>
-                                                    </span>
+                                                    <div className="flex flex-col">
+                                                        {product.on_sale && product.sale_price ? (
+                                                            <>
+                                                                <span className="text-sm text-gray-400 line-through decoration-red-500/50">
+                                                                    {product.price} EGP
+                                                                </span>
+                                                                <span className="text-2xl font-mono font-bold text-[var(--color-plasma-pink)]">
+                                                                    {product.sale_price} <span className="text-sm text-gray-400">EGP</span>
+                                                                </span>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-2xl font-mono font-bold text-[var(--color-plasma-pink)]">
+                                                                {product.price} <span className="text-sm text-gray-400">EGP</span>
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <button
                                                         onClick={() => handleAddToCart(product)}
                                                         className="w-10 h-10 rounded-full bg-white/10 hover:bg-[var(--color-neon-blue)] flex items-center justify-center text-white hover:text-black transition-all hover:scale-110 active:scale-95"
@@ -269,6 +285,13 @@ export default function ShopPage() {
                                                     </button>
                                                 </div>
                                             </div>
+
+                                            {/* Sale Badge */}
+                                            {product.on_sale && (
+                                                <div className="absolute top-4 right-4 bg-[var(--color-plasma-pink)] text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg animate-pulse">
+                                                    {product.sale_badge_text || 'SALE'}
+                                                </div>
+                                            )}
                                         </motion.div>
                                     ))}
                                 </AnimatePresence>
