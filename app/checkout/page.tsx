@@ -74,7 +74,7 @@ export default function CheckoutPage() {
                 product_id: item.id,
                 product_name: item.name,
                 quantity: item.quantity,
-                price_at_purchase: typeof item.price === 'number' ? item.price : 0
+                price_at_purchase: typeof item.price === 'string' ? parseFloat(item.price) : item.price
             }));
 
             const { error: itemsError } = await supabase

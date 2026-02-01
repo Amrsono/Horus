@@ -95,7 +95,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                             </div>
                                             <div className="flex items-center justify-between mt-2">
                                                 <p className="font-mono text-[var(--color-plasma-pink)]">
-                                                    {formatCurrency(item.price)}
+                                                    {formatCurrency(typeof item.price === 'string' ? parseFloat(item.price) : item.price)}
                                                 </p>
 
                                                 <div className="flex items-center gap-3 bg-white/5 rounded-full px-2 py-1">
