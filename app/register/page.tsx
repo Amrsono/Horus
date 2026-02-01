@@ -55,6 +55,9 @@ export default function RegisterPage() {
                         <Link href="/" className="inline-flex items-center text-gray-400 hover:text-white mb-6 text-sm transition-colors">
                             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
                         </Link>
+                        <div className="flex justify-center mb-6">
+                            <img src="/horus-eye-logo.png" alt="Horus" className="w-16 h-16 object-contain" />
+                        </div>
                         <h1 className="text-3xl font-bold text-white mb-2">Join the Network</h1>
                         <p className="text-gray-400">Create an account</p>
                     </div>

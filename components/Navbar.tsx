@@ -64,12 +64,15 @@ export default function Navbar() {
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="group">
-                        <h1 className="text-2xl font-bold tracking-tighter">
-                            <span className="text-white group-hover:neon-text-blue transition-all duration-300">
-                                HORUS
-                            </span>
-                            <span className="text-gradient ml-2 neon-text-purple">SMOKING</span>
-                        </h1>
+                        <div className="flex items-center gap-2">
+                            <img src="/horus-eye-logo.png" alt="Horus Logo" className="w-10 h-10 object-contain" />
+                            <h1 className="text-2xl font-bold tracking-tighter">
+                                <span className="text-white group-hover:neon-text-blue transition-all duration-300">
+                                    HORUS
+                                </span>
+                                <span className="text-gradient ml-2 neon-text-purple">SMOKING</span>
+                            </h1>
+                        </div>
                     </Link>
 
                     {/* Desktop Navigation */}

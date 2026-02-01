@@ -115,9 +115,9 @@ export default function CheckoutPage() {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="w-24 h-24 rounded-full bg-[var(--color-neon-blue)]/20 flex items-center justify-center mb-6"
+                        className="w-32 h-32 rounded-full bg-[var(--color-neon-blue)]/10 flex items-center justify-center mb-6 border border-[var(--color-neon-blue)]/30 shadow-[0_0_30px_rgba(var(--color-neon-blue-rgb),0.2)]"
                     >
-                        <CheckCircle className="w-12 h-12 text-[var(--color-neon-blue)]" />
+                        <img src="/horus-eye-logo.png" alt="Success" className="w-20 h-20 object-contain" />
                     </motion.div>
                     <h1 className="text-4xl font-black mb-4">{t.checkout.success}</h1>
                     <p className="text-gray-400 mb-8 max-w-md">

@@ -52,7 +52,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         {/* Header */}
                         <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/20">
                             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <ShoppingBag className="w-5 h-5 text-[var(--color-neon-blue)]" />
+                                <img src="/horus-eye-logo.png" alt="Horus" className="w-6 h-6 object-contain" />
                                 {t.cart.title}
                             </h2>
                             <button

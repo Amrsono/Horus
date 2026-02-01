@@ -13,9 +13,12 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     <div className="md:col-span-1">
                         <Link href="/" className="inline-block mb-6">
-                            <h2 className="text-2xl font-bold text-white tracking-tighter">
-                                HORUS <span className="text-[var(--color-neon-blue)]">SMOKING</span>
-                            </h2>
+                            <div className="flex items-center gap-2">
+                                <img src="/horus-eye-logo.png" alt="Horus Logo" className="w-8 h-8 object-contain" />
+                                <h2 className="text-2xl font-bold text-white tracking-tighter">
+                                    HORUS <span className="text-[var(--color-neon-blue)]">SMOKING</span>
+                                </h2>
+                            </div>
                         </Link>
                         <p className="text-sm leading-relaxed mb-6">
                             {t.footer.description}
