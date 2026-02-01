@@ -8,6 +8,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/lib/supabase";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 interface Product {
     id: string;
@@ -89,15 +90,17 @@ export default function ProductsSection() {
                         </motion.h3>
                     </div>
 
-                    <motion.button
-                        initial={{ opacity: 0, x: 20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        className="group flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-                    >
-                        {t.products.view_all}
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </motion.button>
+                    <Link href="/shop">
+                        <motion.button
+                            initial={{ opacity: 0, x: 20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="group flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                        >
+                            {t.products.view_all}
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </motion.button>
+                    </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[300px]">
