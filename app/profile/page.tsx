@@ -3,26 +3,136 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { useCartStore } from "@/store/cartStore";
 import Navbar from "@/components/Navbar";
-import { motion } from "framer-motion";
-import { User, Package, Award, LogOut, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { User, Package, Award, LogOut, Loader2, X, ShoppingCart, MapPin } from "lucide-react";
+
+interface OrderItem {
+    product_id: string;
+    product_name: string;
+    quantity: number;
+    price_at_purchase: number;
+}
+
+interface Order {
+    id: string;
+    created_at: string;
+    total_amount: number;
+    status: string;
+    shipping_address: any;
+    order_items: OrderItem[];
+}
 
 export default function ProfilePage() {
     const { user, loading, signOut } = useAuth();
     const router = useRouter();
-    const [mockOrders] = useState([
-        { id: "ORD-8821", date: "2077-01-15", status: "Delivered", total: "1,250 EGP", items: 3 },
-        { id: "ORD-9932", date: "2077-02-01", status: "Processing", total: "450 EGP", items: 1 },
-    ]);
-    // Mock loyalty points stored in user metadata usually, but hardcoding for demo if not present
-    const loyaltyPoints = 1250;
+    const { addItem } = useCartStore();
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [loadingOrders, setLoadingOrders] = useState(true);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [reordering, setReordering] = useState(false);
 
     useEffect(() => {
         if (!loading && !user) {
             router.push("/login");
         }
     }, [user, loading, router]);
+
+    useEffect(() => {
+        if (user) {
+            fetchOrders();
+        }
+    }, [user]);
+
+    const fetchOrders = async () => {
+        if (!user) return;
+
+        setLoadingOrders(true);
+        const { data, error } = await supabase
+            .from('orders')
+            .select(`
+                id,
+                created_at,
+                total_amount,
+                status,
+                shipping_address,
+                order_items (
+                    product_id,
+                    product_name,
+                    quantity,
+                    price_at_purchase
+                )
+            `)
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+        if (!error && data) {
+            setOrders(data as Order[]);
+        }
+        setLoadingOrders(false);
+    };
+
+    const handleReorder = async (order: Order) => {
+        setReordering(true);
+
+        // Fetch product details for each item
+        for (const item of order.order_items) {
+            const { data: product } = await supabase
+                .from('products')
+                .select('*')
+                .eq('id', item.product_id)
+                .single();
+
+            if (product) {
+                // Add item first (adds with quantity 1)
+                addItem({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image_url || '/placeholder.jpg',
+                    category: product.category || 'Product'
+                });
+
+                // Then update quantity if more than 1
+                if (item.quantity > 1) {
+                    setTimeout(() => {
+                        const { updateQuantity } = useCartStore.getState();
+                        updateQuantity(product.id, item.quantity);
+                    }, 100);
+                }
+            }
+        }
+
+        setReordering(false);
+        setSelectedOrder(null);
+        router.push('/cart');
+    };
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status.toLowerCase()) {
+            case 'delivered':
+                return 'bg-green-500/10 text-green-500';
+            case 'shipped':
+                return 'bg-blue-500/10 text-blue-500';
+            case 'processing':
+                return 'bg-yellow-500/10 text-yellow-500';
+            case 'cancelled':
+                return 'bg-red-500/10 text-red-500';
+            default:
+                return 'bg-gray-500/10 text-gray-500';
+        }
+    };
 
     if (loading || !user) {
         return (
@@ -80,14 +190,14 @@ export default function ProfilePage() {
                                             <Award className="w-5 h-5 text-[var(--color-plasma-pink)]" />
                                             <span>Loyalty Points</span>
                                         </div>
-                                        <span className="font-mono font-bold text-[var(--color-plasma-pink)]">{loyaltyPoints} PTS</span>
+                                        <span className="font-mono font-bold text-[var(--color-plasma-pink)]">1250 PTS</span>
                                     </div>
                                     <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                                         <div className="flex items-center gap-3">
                                             <Package className="w-5 h-5 text-gray-400" />
                                             <span>Total Orders</span>
                                         </div>
-                                        <span className="font-mono font-bold">2</span>
+                                        <span className="font-mono font-bold">{orders.length}</span>
                                     </div>
                                 </div>
                             </div>
@@ -100,43 +210,167 @@ export default function ProfilePage() {
                                 Recent Orders
                             </h2>
 
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm text-gray-400">
-                                    <thead className="text-xs uppercase font-bold tracking-wider text-gray-500 border-b border-white/10">
-                                        <tr>
-                                            <th className="px-4 py-3">Order ID</th>
-                                            <th className="px-4 py-3">Date</th>
-                                            <th className="px-4 py-3">Total</th>
-                                            <th className="px-4 py-3">Status</th>
-                                            <th className="px-4 py-3 text-right">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/5">
-                                        {mockOrders.map((order) => (
-                                            <tr key={order.id} className="hover:bg-white/5 transition-colors">
-                                                <td className="px-4 py-4 font-mono text-white">{order.id}</td>
-                                                <td className="px-4 py-4">{order.date}</td>
-                                                <td className="px-4 py-4 text-white">{order.total}</td>
-                                                <td className="px-4 py-4">
-                                                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider 
-                                                        ${order.status === 'Delivered' ? 'bg-green-500/10 text-green-500' : 'bg-yellow-500/10 text-yellow-500'}`}>
-                                                        {order.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-4 text-right">
-                                                    <button className="text-[var(--color-neon-blue)] hover:text-white transition-colors">
-                                                        View
-                                                    </button>
-                                                </td>
+                            {loadingOrders ? (
+                                <div className="flex justify-center py-12">
+                                    <Loader2 className="w-6 h-6 animate-spin text-[var(--color-neon-blue)]" />
+                                </div>
+                            ) : orders.length === 0 ? (
+                                <div className="text-center py-12 text-gray-400">
+                                    <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                                    <p>No orders yet</p>
+                                </div>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-sm text-gray-400">
+                                        <thead className="text-xs uppercase font-bold tracking-wider text-gray-500 border-b border-white/10">
+                                            <tr>
+                                                <th className="px-4 py-3">Order ID</th>
+                                                <th className="px-4 py-3">Date</th>
+                                                <th className="px-4 py-3">Total</th>
+                                                <th className="px-4 py-3">Status</th>
+                                                <th className="px-4 py-3 text-right">Actions</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </thead>
+                                        <tbody className="divide-y divide-white/5">
+                                            {orders.map((order) => (
+                                                <tr key={order.id} className="hover:bg-white/5 transition-colors">
+                                                    <td className="px-4 py-4 font-mono text-white">#{order.id.slice(0, 8)}</td>
+                                                    <td className="px-4 py-4">{formatDate(order.created_at)}</td>
+                                                    <td className="px-4 py-4 text-white">{order.total_amount.toFixed(0)} EGP</td>
+                                                    <td className="px-4 py-4">
+                                                        <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${getStatusColor(order.status)}`}>
+                                                            {order.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-4 text-right">
+                                                        <div className="flex gap-2 justify-end">
+                                                            <button
+                                                                onClick={() => setSelectedOrder(order)}
+                                                                className="text-[var(--color-neon-blue)] hover:text-white transition-colors"
+                                                            >
+                                                                View
+                                                            </button>
+                                                            <span className="text-gray-600">|</span>
+                                                            <button
+                                                                onClick={() => handleReorder(order)}
+                                                                disabled={reordering}
+                                                                className="text-[var(--color-plasma-pink)] hover:text-white transition-colors disabled:opacity-50"
+                                                            >
+                                                                Re-order
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </motion.div>
             </main>
+
+            {/* Order Details Modal */}
+            <AnimatePresence>
+                {selectedOrder && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="glass-strong p-8 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/10"
+                        >
+                            <div className="flex justify-between items-start mb-6">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-white">Order Details</h2>
+                                    <p className="text-gray-400 mt-1">#{selectedOrder.id.slice(0, 8)}</p>
+                                </div>
+                                <button
+                                    onClick={() => setSelectedOrder(null)}
+                                    className="text-gray-400 hover:text-white transition-colors"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            {/* Order Info */}
+                            <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-white/5 rounded-lg">
+                                <div>
+                                    <p className="text-xs text-gray-500 uppercase">Date</p>
+                                    <p className="text-white font-medium">{formatDate(selectedOrder.created_at)}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 uppercase">Status</p>
+                                    <span className={`inline-block px-2 py-1 rounded text-xs font-bold uppercase ${getStatusColor(selectedOrder.status)}`}>
+                                        {selectedOrder.status}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Order Items */}
+                            <div className="mb-6">
+                                <h3 className="text-lg font-bold text-white mb-4">Items</h3>
+                                <div className="space-y-3">
+                                    {selectedOrder.order_items.map((item, index) => (
+                                        <div key={index} className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                                            <div>
+                                                <p className="text-white font-medium">{item.product_name}</p>
+                                                <p className="text-sm text-gray-400">Qty: {item.quantity}</p>
+                                            </div>
+                                            <p className="text-[var(--color-neon-blue)] font-mono">
+                                                {item.price_at_purchase.toFixed(0)} EGP
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Shipping Address */}
+                            {selectedOrder.shipping_address && (
+                                <div className="mb-6">
+                                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                        <MapPin className="w-5 h-5" />
+                                        Shipping Address
+                                    </h3>
+                                    <div className="p-4 bg-white/5 rounded-lg text-gray-300">
+                                        <p>{selectedOrder.shipping_address.name}</p>
+                                        <p>{selectedOrder.shipping_address.address}</p>
+                                        <p>{selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.zip}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Total */}
+                            <div className="border-t border-white/10 pt-4 mb-6">
+                                <div className="flex justify-between items-center text-xl font-bold">
+                                    <span className="text-white">Total</span>
+                                    <span className="text-[var(--color-neon-blue)]">{selectedOrder.total_amount.toFixed(0)} EGP</span>
+                                </div>
+                            </div>
+
+                            {/* Re-order Button */}
+                            <button
+                                onClick={() => handleReorder(selectedOrder)}
+                                disabled={reordering}
+                                className="w-full py-3 bg-[var(--color-plasma-pink)] text-white font-bold rounded-lg hover:bg-[var(--color-plasma-pink)]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                {reordering ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Adding to Cart...
+                                    </>
+                                ) : (
+                                    <>
+                                        <ShoppingCart className="w-5 h-5" />
+                                        Re-order All Items
+                                    </>
+                                )}
+                            </button>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

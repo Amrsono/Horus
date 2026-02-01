@@ -25,16 +25,40 @@ export default function CustomersPage() {
     const fetchCustomers = async () => {
         setIsLoading(true);
 
-        const { data: ordersData, error } = await supabase
+        // Fetch all registered users from auth
+        const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+
+        // Fetch all orders
+        const { data: ordersData, error: ordersError } = await supabase
             .from('orders')
             .select('guest_email, total_amount, created_at');
 
-        if (error) {
-            console.error("Error fetching customers:", error);
-        } else if (ordersData) {
-            // Aggregate orders by customer email
-            const customerMap = new Map<string, { orders: number; spent: number; lastActive: string }>();
+        if (usersError) {
+            console.error("Error fetching users:", usersError);
+        }
 
+        if (ordersError) {
+            console.error("Error fetching orders:", ordersError);
+        }
+
+        // Create a map of all customers
+        const customerMap = new Map<string, { orders: number; spent: number; lastActive: string }>();
+
+        // Add all registered users to the map
+        if (users) {
+            users.forEach(user => {
+                if (user.email) {
+                    customerMap.set(user.email, {
+                        orders: 0,
+                        spent: 0,
+                        lastActive: user.created_at || new Date().toISOString()
+                    });
+                }
+            });
+        }
+
+        // Aggregate orders by customer email
+        if (ordersData) {
             ordersData.forEach(order => {
                 const email = order.guest_email || 'Unknown';
                 const existing = customerMap.get(email) || { orders: 0, spent: 0, lastActive: order.created_at };
@@ -47,17 +71,16 @@ export default function CustomersPage() {
                         : existing.lastActive
                 });
             });
-
-            const customersArray = Array.from(customerMap.entries()).map(([email, data]) => ({
-                email,
-                totalOrders: data.orders,
-                totalSpent: data.spent,
-                lastActive: data.lastActive
-            })).sort((a, b) => b.totalSpent - a.totalSpent);
-
-            setCustomers(customersArray);
         }
 
+        const customersArray = Array.from(customerMap.entries()).map(([email, data]) => ({
+            email,
+            totalOrders: data.orders,
+            totalSpent: data.spent,
+            lastActive: data.lastActive
+        })).sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime());
+
+        setCustomers(customersArray);
         setIsLoading(false);
     };
 
