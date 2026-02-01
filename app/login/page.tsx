@@ -52,7 +52,7 @@ export default function LoginPage() {
                             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
                         </Link>
                         <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-                        <p className="text-gray-400">Access your Horus terminal</p>
+                        <p className="text-gray-400">Access Horus Smoking Now</p>
                     </div>
 
                     {error && (
