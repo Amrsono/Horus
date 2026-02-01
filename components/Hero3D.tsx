@@ -105,9 +105,10 @@ export default function Hero3D() {
 
                     <div className="flex flex-col md:flex-row gap-4 pointer-events-auto">
                         <Link
-                            href="/shop"
+                            href="/products"
                             className="group relative px-8 py-4 bg-[var(--color-neon-blue)] text-black font-bold uppercase tracking-wider overflow-hidden rounded-sm hover-lift"
                         >
+
                             <span className="relative z-10">{t.hero.cta_primary}</span>
                             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                         </Link>
