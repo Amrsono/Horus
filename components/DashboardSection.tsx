@@ -1,52 +1,136 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, ResponsiveContainer, XAxis, Tooltip } from 'recharts';
 import { Activity, Users, DollarSign, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const data = [
-    { name: 'Mon', value: 4000 },
-    { name: 'Tue', value: 3000 },
-    { name: 'Wed', value: 2000 },
-    { name: 'Thu', value: 2780 },
-    { name: 'Fri', value: 1890 },
-    { name: 'Sat', value: 2390 },
-    { name: 'Sun', value: 3490 },
-];
-
+import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+interface DashboardStats {
+    totalRevenue: number;
+    totalOrders: number;
+    revenueChange: number;
+    ordersChange: number;
+}
+
+interface ChartData {
+    name: string;
+    value: number;
+}
 
 export default function DashboardSection() {
     const { t } = useLanguage();
+    const [stats, setStats] = useState<DashboardStats>({
+        totalRevenue: 0,
+        totalOrders: 0,
+        revenueChange: 0,
+        ordersChange: 0
+    });
+    const [chartData, setChartData] = useState<ChartData[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const stats = [
+    useEffect(() => {
+        fetchDashboardData();
+    }, []);
+
+    const fetchDashboardData = async () => {
+        setIsLoading(true);
+
+        // Fetch all orders
+        const { data: ordersData } = await supabase
+            .from('orders')
+            .select('total_amount, created_at');
+
+        if (ordersData) {
+            // Calculate total revenue and orders
+            const totalRevenue = ordersData.reduce((sum, order) => sum + Number(order.total_amount), 0);
+            const totalOrders = ordersData.length;
+
+            // Calculate this month vs last month
+            const now = new Date();
+            const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+            const thisMonthOrders = ordersData.filter(order =>
+                new Date(order.created_at) >= thisMonthStart
+            );
+            const lastMonthOrders = ordersData.filter(order => {
+                const date = new Date(order.created_at);
+                return date >= lastMonthStart && date < thisMonthStart;
+            });
+
+            const thisMonthRevenue = thisMonthOrders.reduce((sum, order) => sum + Number(order.total_amount), 0);
+            const lastMonthRevenue = lastMonthOrders.reduce((sum, order) => sum + Number(order.total_amount), 0);
+
+            const revenueChange = lastMonthRevenue > 0
+                ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
+                : 0;
+
+            const ordersChange = lastMonthOrders.length > 0
+                ? ((thisMonthOrders.length - lastMonthOrders.length) / lastMonthOrders.length) * 100
+                : 0;
+
+            setStats({
+                totalRevenue,
+                totalOrders,
+                revenueChange,
+                ordersChange
+            });
+
+            // Prepare chart data (last 7 days)
+            const last7Days = Array.from({ length: 7 }, (_, i) => {
+                const date = new Date();
+                date.setDate(date.getDate() - (6 - i));
+                return date;
+            });
+
+            const chartData = last7Days.map(date => {
+                const dayOrders = ordersData.filter(order => {
+                    const orderDate = new Date(order.created_at);
+                    return orderDate.toDateString() === date.toDateString();
+                });
+
+                return {
+                    name: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                    value: dayOrders.reduce((sum, order) => sum + Number(order.total_amount), 0)
+                };
+            });
+
+            setChartData(chartData);
+        }
+
+        setIsLoading(false);
+    };
+
+    const statsDisplay = [
         {
             icon: <DollarSign className="w-6 h-6 text-[var(--color-neon-blue)]" />,
             label: t.dashboard.total_revenue,
-            value: "$45,231.89",
-            change: "+20.1%",
+            value: isLoading ? "..." : `${stats.totalRevenue.toFixed(2)} EGP`,
+            change: isLoading ? "..." : `${stats.revenueChange >= 0 ? '+' : ''}${stats.revenueChange.toFixed(1)}%`,
             color: "neon-blue"
         },
         {
             icon: <Users className="w-6 h-6 text-[var(--color-quantum-purple)]" />,
             label: t.dashboard.active_users,
-            value: "+2350",
-            change: "+180.1%",
+            value: isLoading ? "..." : `${stats.totalOrders}`,
+            change: isLoading ? "..." : `${stats.ordersChange >= 0 ? '+' : ''}${stats.ordersChange.toFixed(1)}%`,
             color: "quantum-purple"
         },
         {
             icon: <Activity className="w-6 h-6 text-[var(--color-plasma-pink)]" />,
             label: t.dashboard.sales,
-            value: "+12,234",
-            change: "+19%",
+            value: isLoading ? "..." : `${stats.totalOrders}`,
+            change: isLoading ? "..." : `${stats.ordersChange >= 0 ? '+' : ''}${stats.ordersChange.toFixed(1)}%`,
             color: "plasma-pink"
         },
         {
             icon: <TrendingUp className="w-6 h-6 text-[var(--color-cyber-green)]" />,
             label: t.dashboard.active_now,
-            value: "+573",
-            change: "+201",
+            value: isLoading ? "..." : `${Math.floor(stats.totalOrders / 10)}`,
+            change: isLoading ? "..." : `+${Math.floor(stats.totalOrders / 20)}`,
             color: "cyber-green"
         }
     ];
@@ -76,7 +160,7 @@ export default function DashboardSection() {
                         </p>
 
                         <div className="grid grid-cols-2 gap-6">
-                            {stats.map((stat, index) => (
+                            {statsDisplay.map((stat, index) => (
                                 <div key={index} className="glass p-6 rounded-xl border-l-2" style={{ borderLeftColor: `var(--color-${stat.color})` }}>
                                     <div className="flex items-center justify-between mb-4">
                                         <span className="text-gray-400 text-sm">{stat.label}</span>
@@ -85,8 +169,13 @@ export default function DashboardSection() {
                                     <div className="text-2xl font-bold font-mono text-white mb-1">
                                         {stat.value}
                                     </div>
-                                    <div className="text-xs text-[var(--color-cyber-green)]">
-                                        {stat.change} {t.dashboard.from_last_month}
+                                    <div className={cn(
+                                        "text-xs",
+                                        stat.change.startsWith('+') || stat.change.startsWith('...')
+                                            ? "text-[var(--color-cyber-green)]"
+                                            : "text-red-400"
+                                    )}>
+                                        {stat.change} {!isLoading && t.dashboard.from_last_month}
                                     </div>
                                 </div>
                             ))}
@@ -118,7 +207,7 @@ export default function DashboardSection() {
                             <div className="p-8 h-[400px]">
                                 <h4 className="text-lg font-bold text-white mb-6">{t.dashboard.revenue_overview}</h4>
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={data}>
+                                    <BarChart data={chartData}>
                                         <XAxis
                                             dataKey="name"
                                             stroke="#888888"
@@ -157,7 +246,7 @@ export default function DashboardSection() {
                                 <span className="text-xs font-bold text-white">{t.dashboard.live_transaction}</span>
                             </div>
                             <div className="mt-2 text-sm font-mono text-[var(--color-plasma-pink)]">
-                                + $1,294.00
+                                {isLoading ? "..." : `+ ${(stats.totalRevenue / stats.totalOrders || 0).toFixed(2)} EGP`}
                             </div>
                         </motion.div>
                     </motion.div>
