@@ -13,7 +13,7 @@ interface Customer {
 }
 
 export default function CustomersPage() {
-    const { t } = useLanguage();
+    const { t, locale, formatCurrency } = useLanguage();
     const [searchTerm, setSearchTerm] = useState("");
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -141,9 +141,9 @@ export default function CustomersPage() {
                                     </td>
                                 </tr>
                             ) : filteredCustomers.length === 0 ? (
-                                <tr>
+                                <tr key="no-customers">
                                     <td colSpan={5} className="text-center py-8 text-gray-500">
-                                        No customers found.
+                                        {t.admin.customers.table.no_customers}
                                     </td>
                                 </tr>
                             ) : (
@@ -158,7 +158,7 @@ export default function CustomersPage() {
                                                     <div className="font-semibold text-white">{customer.email}</div>
                                                     <div className="text-xs flex items-center gap-1">
                                                         <Mail className="w-3 h-3" />
-                                                        Customer
+                                                        {t.admin.customers.role.customer}
                                                     </div>
                                                 </div>
                                             </div>
@@ -169,13 +169,13 @@ export default function CustomersPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="text-[var(--color-plasma-pink)] font-mono font-bold">
-                                                {customer.totalSpent.toFixed(2)} EGP
+                                                {formatCurrency(customer.totalSpent)}
                                             </div>
                                             <div className="text-xs">Lifetime Value</div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div>{new Date(customer.lastActive).toLocaleDateString()}</div>
-                                            <div className="text-xs">{new Date(customer.lastActive).toLocaleTimeString()}</div>
+                                            <div>{new Date(customer.lastActive).toLocaleDateString(locale)}</div>
+                                            <div className="text-xs">{new Date(customer.lastActive).toLocaleTimeString(locale)}</div>
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">

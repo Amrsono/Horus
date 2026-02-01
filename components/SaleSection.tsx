@@ -19,7 +19,7 @@ interface SaleProduct {
 }
 
 export default function SaleSection() {
-    const { t } = useLanguage();
+    const { t, formatCurrency } = useLanguage();
     const addItem = useCartStore((state) => state.addItem);
     const [saleProducts, setSaleProducts] = useState<SaleProduct[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -134,9 +134,11 @@ export default function SaleSection() {
                                 <div className="text-xs text-gray-400 mb-2 uppercase tracking-wider">{item.category}</div>
                                 <h4 className="text-xl font-bold text-white mb-2">{item.name}</h4>
                                 <div className="flex items-center gap-3 mb-4">
-                                    <span className="text-gray-500 line-through text-lg">{item.price.toFixed(0)} EGP</span>
-                                    <span className="text-[var(--color-plasma-pink)] font-mono font-bold text-2xl">
-                                        {(item.sale_price || item.price).toFixed(0)} EGP
+                                    <span className="text-lg text-gray-400 line-through decoration-red-500/50">
+                                        {formatCurrency(item.price)}
+                                    </span>
+                                    <span className="text-3xl font-mono font-bold text-[var(--color-plasma-pink)]">
+                                        {formatCurrency(item.sale_price || item.price)}
                                     </span>
                                 </div>
                                 <button

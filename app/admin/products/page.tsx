@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import ProductFormModal, { Product } from "@/components/admin/ProductFormModal";
 
 export default function ProductsPage() {
-    const { t } = useLanguage();
+    const { t, formatCurrency } = useLanguage();
     const [searchTerm, setSearchTerm] = useState("");
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -127,7 +127,7 @@ export default function ProductsPage() {
                             ) : filteredProducts.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="text-center py-8 text-gray-500">
-                                        No products found.
+                                        {t.admin.products.table.no_products}
                                     </td>
                                 </tr>
                             ) : (
@@ -154,7 +154,7 @@ export default function ProductsPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="text-white font-mono font-bold">${product.price}</div>
+                                            <div className="text-white font-mono font-bold">{formatCurrency(product.price)}</div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
@@ -164,12 +164,12 @@ export default function ProductsPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${product.stock > 50
-                                                    ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                                                    : product.stock > 0
-                                                        ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-                                                        : 'bg-red-500/10 text-red-500 border-red-500/20'
+                                                ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                                : product.stock > 0
+                                                    ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                                                    : 'bg-red-500/10 text-red-500 border-red-500/20'
                                                 }`}>
-                                                {product.stock > 0 ? (product.stock < 20 ? 'Low Stock' : 'In Stock') : 'Out of Stock'}
+                                                {product.stock > 0 ? (product.stock < 20 ? t.admin.products.status.low_stock : t.admin.products.status.in_stock) : t.admin.products.status.out_of_stock}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">

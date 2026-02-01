@@ -16,7 +16,7 @@ import Footer from "@/components/Footer";
 
 export default function CheckoutPage() {
     const { items, totalPrice, clearCart } = useCartStore();
-    const { t, locale } = useLanguage();
+    const { t, formatCurrency } = useLanguage();
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
@@ -121,13 +121,13 @@ export default function CheckoutPage() {
                     </motion.div>
                     <h1 className="text-4xl font-black mb-4">{t.checkout.success}</h1>
                     <p className="text-gray-400 mb-8 max-w-md">
-                        Thank you for your order. Your quantum delivery is properly secured and will be dispatched shortly.
+                        {t.checkout.success_message}
                     </p>
                     <Link
                         href="/"
                         className="px-8 py-3 bg-[var(--color-neon-blue)] text-black font-bold uppercase tracking-wider rounded-lg hover:bg-[var(--color-electric-cyan)] transition-colors"
                     >
-                        Return Home
+                        {t.checkout.return_home}
                     </Link>
                 </div>
                 <Footer />
@@ -272,32 +272,33 @@ export default function CheckoutPage() {
                                         <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-black/30 shrink-0">
                                             <Image src={item.image} alt={item.name} fill className="object-cover" />
                                         </div>
-                                        <div className="flex-1">
-                                            <h4 className="font-bold text-sm line-clamp-1">{item.name}</h4>
-                                            <p className="text-xs text-gray-400">{item.category}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="font-mono text-[var(--color-neon-blue)]">
-                                                {(typeof item.price === 'number' ? item.price : 0).toFixed(0)} EGP
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <p className="font-bold text-white">{item.name}</p>
+                                                <p className="text-sm text-gray-400">{t.profile.modal.qty}: {item.quantity}</p>
                                             </div>
-                                            <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
+                                            <p className="font-mono text-[var(--color-plasma-pink)]">
+                                                {formatCurrency(Number(item.price) * item.quantity)}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="border-t border-white/10 pt-6 space-y-2 mb-8">
+                            <div className="space-y-4 mb-6">
                                 <div className="flex justify-between text-gray-400">
-                                    <span>Subtotal</span>
-                                    <span>{totalPrice().toFixed(0)} EGP</span>
+                                    <span>{t.cart.subtotal}</span>
+                                    <span className="text-white font-mono">{formatCurrency(totalPrice())}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-400">
-                                    <span>Shipping</span>
-                                    <span className="text-[var(--color-neon-blue)]">Free</span>
+                                    <span>{t.cart.shipping}</span>
+                                    <span className="text-[var(--color-neon-blue)]">{t.cart.free}</span>
                                 </div>
-                                <div className="flex justify-between text-white font-bold text-xl pt-4 border-t border-white/10 mt-4">
-                                    <span>Total</span>
-                                    <span>{totalPrice().toFixed(0)} EGP</span>
+                            </div>
+                            <div className="border-t border-white/10 pt-6 mb-8">
+                                <div className="flex justify-between items-center text-xl font-bold">
+                                    <span>{t.cart.total}</span>
+                                    <span className="text-[var(--color-neon-blue)] font-mono">{formatCurrency(totalPrice())}</span>
                                 </div>
                             </div>
 

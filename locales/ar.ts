@@ -55,6 +55,13 @@ export const ar = {
         checkout: "إتمام الشراء",
         subtotal: "المجموع الفرعي",
         remove: "إزالة",
+        order_summary: "ملخص الطلب",
+        shipping: "الشحن",
+        taxes: "الضرائب",
+        total: "الإجمالي",
+        proceed_to_checkout: "متابعة للدفع",
+        free: "مجاني",
+        secure_checkout: "دفع آمن مدعوم بـ درع الكم",
     },
     checkout: {
         title: "إتمام الشراء",
@@ -73,6 +80,8 @@ export const ar = {
             zip: "الرمز البريدي",
         },
         success: "تم الطلب بنجاح!",
+        success_message: "شكراً لطلبك. تم تأمين شحنة حورس الخاصة بك بشكل صحيح وسيتم إرسالها قريباً.",
+        return_home: "العودة للرئيسية",
     },
     sale: {
         section_title: "عرض لفترة محدودة",
@@ -181,7 +190,26 @@ export const ar = {
                 total_spent: "إجمالي الإنفاق",
                 last_active: "آخر نشاط",
                 actions: "إجراءات",
-                joined: "انضم"
+                joined: "انضم",
+                no_customers: "لا يوجد عملاء.",
+                showing: "عرض",
+                of: "من",
+                customers: "عملاء",
+                previous: "السابق",
+                next: "التالي",
+                view_details: "عرض التفاصيل",
+                edit_customer: "تعديل العميل",
+                delete_customer: "حذف العميل"
+            },
+            role: {
+                admin: "مسؤول",
+                customer: "عميل",
+                authenticated: "موثق",
+                guest: "زائر"
+            },
+            status: {
+                active: "نشط",
+                inactive: "غير نشط"
             }
         },
         products: {
@@ -190,6 +218,7 @@ export const ar = {
             add_product: "إضافة منتج جديد",
             search_placeholder: "بحث عن منتجات...",
             category_filter: "الفئة",
+            filters: "تصفية",
             table: {
                 product: "المنتج",
                 category: "الفئة",
@@ -197,7 +226,142 @@ export const ar = {
                 stock: "المخزون",
                 status: "الحالة",
                 actions: "إجراءات",
-                units: "وحدة"
+                units: "وحدة",
+                no_products: "لا توجد منتجات.",
+                edit: "تعديل",
+                delete: "حذف"
+            },
+            status: {
+                in_stock: "متوفر",
+                low_stock: "مخزون منخفض",
+                out_of_stock: "غير متوفر"
+            },
+            categories: {
+                all: "كل الفئات",
+                mods: "مودات",
+                pod_systems: "أنظمة البود",
+                e_liquids: "سوايل إلكترونية",
+                tanks: "توتكات",
+                accessories: "اكسسوارات",
+                devices: "أجهزة",
+                starter_kits: "مجموعات البداية"
+            },
+            form: {
+                edit_product: "تعديل المنتج",
+                add_product: "إضافة منتج جديد",
+                image: {
+                    click_to_upload: "اضغط للتحميل",
+                    uploading: "جار التحميل...",
+                },
+                labels: {
+                    name: "اسم المنتج",
+                    category: "الفئة",
+                    price: "السعر",
+                    stock: "المخزون",
+                    description: "الوصف",
+                    sale_settings: "إعدادات الخصم",
+                    on_sale: "تحديد هذا المنتج كمعروض للبيع",
+                    sale_price: "سعر البيع",
+                    sale_badge: "نص شارة الخصم",
+                    sale_badge_placeholder: "مثال: خصم ٥٠٪"
+                },
+                buttons: {
+                    cancel: "إلغاء",
+                    create: "إنشاء المنتج",
+                    update: "تحديث المنتج",
+                    saving: "جار الحفظ..."
+                },
+                messages: {
+                    error_saving: "فشل حفظ المنتج. راجع وحدة التحكم للتفاصيل."
+                }
+            }
+        },
+        dashboard: {
+            title: "لوحة التحكم",
+            welcome: "مرحباً بك، المشرف",
+            system_online: "النظام متصل",
+            revenue_over_time: "الإيرادات عبر الوقت",
+            recent_orders: "أحدث الطلبات",
+            no_orders: "لا توجد طلبات بعد",
+            stats: {
+                total_revenue: "إجمالي الإيرادات",
+                total_orders: "إجمالي الطلبات",
+                new_customers: "عملاء جدد",
+                growth: "النمو"
+            },
+            labels: {
+                guest: "زائر"
+            }
+        },
+        orders: {
+            title: "الطلبات",
+            subtitle: "إدارة وتتبع طلبات العملاء",
+            search_placeholder: "بحث في الطلبات...",
+            filter_status: "تصفية الحالة",
+            table: {
+                order_id: "رقم الطلب",
+                customer: "العميل",
+                date: "التاريخ",
+                total: "الإجمالي",
+                status: "الحالة",
+                actions: "إجراءات",
+                view_details: "عرض التفاصيل",
+                showing: "عرض",
+                of: "من",
+                orders: "طلبات",
+                previous: "السابق",
+                next: "التالي",
+                no_orders: "لا توجد طلبات."
+            },
+            status: {
+                pending: "قيد الانتظار",
+                processing: "قيد التجهيز",
+                shipped: "تم الشحن",
+                delivered: "تم التوصيل",
+                cancelled: "ملغى",
+                all: "كل الطلبات"
+            },
+            active_filter: "الفلتر النشط",
+            clear: "مسح"
+        },
+        analytics: {
+            title: "التحليلات",
+            subtitle: "أداء المبيعات ومقاييس تفاعل المستخدمين",
+            time_range: "الفترة الزمنية",
+            ranges: {
+                last_7_days: "آخر 7 أيام",
+                last_30_days: "آخر 30 يوم",
+                last_3_months: "آخر 3 أشهر",
+                year_to_date: "منذ بداية العام"
+            },
+            cards: {
+                total_revenue: "إجمالي الإيرادات",
+                total_sales: "إجمالي المبيعات",
+                average_order: "متوسط الطلب",
+                conversion_rate: "معدل التحويل"
+            },
+            charts: {
+                revenue_over_time: "الإيرادات عبر الوقت",
+                orders_by_status: "الطلبات حسب الحالة"
+            },
+            sections: {
+                top_customers: "أفضل العملاء",
+                top_customers_desc: "العملاء الأكثر إنفاقاً",
+                top_products: "المنتجات الأكثر مبيعاً",
+                top_products_desc: "المنتجات الأفضل أداءً",
+                least_products: "المنتجات الأقل مبيعاً",
+                least_products_desc: "منتجات تحتاج إلى اهتمام"
+            },
+            labels: {
+                orders: "طلبات",
+                units_sold: "وحدة مباعة",
+                units: "وحدة",
+                no_data: "لا توجد بيانات متاحة",
+                no_customer_data: "لا توجد بيانات عملاء متاحة",
+                no_product_data: "لا توجد بيانات منتجات متاحة",
+                today: "اليوم",
+                this_month: "هذا الشهر",
+                this_year: "هذا العام"
             }
         }
     }

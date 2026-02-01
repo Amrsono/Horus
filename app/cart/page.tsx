@@ -11,8 +11,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export default function CartPage() {
-    const { items, updateQuantity, removeItem, totalPrice } = useCartStore();
-    const { t } = useLanguage();
+    const { items, removeItem, updateQuantity, totalPrice } = useCartStore();
+    const { t, formatCurrency } = useLanguage();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -103,9 +103,9 @@ export default function CartPage() {
                                             </div>
 
                                             <div className="font-mono text-xl text-[var(--color-plasma-pink)] font-bold">
-                                                {typeof item.price === 'number'
-                                                    ? `${(item.price * item.quantity).toFixed(0)} EGP`
-                                                    : item.price}
+                                                <div className="text-right font-mono font-bold text-white w-24">
+                                                    {formatCurrency(item.price * item.quantity)}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -118,29 +118,29 @@ export default function CartPage() {
                             <div className="glass p-8 rounded-2xl border border-white/10 sticky top-32">
                                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                                     <CreditCard className="w-5 h-5 text-[var(--color-neon-blue)]" />
-                                    Order Summary
+                                    {t.cart.order_summary}
                                 </h2>
 
                                 <div className="space-y-4 mb-6">
                                     <div className="flex justify-between text-gray-400">
-                                        <span>Subtotal</span>
-                                        <span className="text-white font-mono">{totalPrice().toFixed(0)} EGP</span>
+                                        <span>{t.cart.subtotal}</span>
+                                        <span className="text-white font-mono">{formatCurrency(totalPrice())}</span>
                                     </div>
                                     <div className="flex justify-between text-gray-400">
-                                        <span>Shipping</span>
-                                        <span className="text-[var(--color-neon-blue)]">Free</span>
+                                        <span>{t.cart.shipping}</span>
+                                        <span className="text-[var(--color-neon-blue)]">{t.cart.free}</span>
                                     </div>
                                     <div className="flex justify-between text-gray-400">
-                                        <span>Taxes</span>
-                                        <span className="text-white font-mono">0 EGP</span>
+                                        <span>{t.cart.taxes}</span>
+                                        <span className="text-white font-mono">{formatCurrency(0)}</span>
                                     </div>
                                 </div>
 
                                 <div className="border-t border-white/10 pt-6 mb-8">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-lg font-bold">Total</span>
+                                        <span className="text-lg font-bold">{t.cart.total}</span>
                                         <span className="text-2xl font-bold font-mono text-[var(--color-neon-blue)]">
-                                            {totalPrice().toFixed(0)} EGP
+                                            {formatCurrency(totalPrice())}
                                         </span>
                                     </div>
                                 </div>
@@ -149,12 +149,10 @@ export default function CartPage() {
                                     href="/checkout"
                                     className="block w-full py-4 bg-[var(--color-neon-blue)] text-black font-bold text-center uppercase tracking-wider rounded-xl hover:bg-[var(--color-electric-cyan)] transition-all hover:scale-[1.02] active:scale-[0.98]"
                                 >
-                                    Proceed to Checkout
+                                    {t.cart.proceed_to_checkout}
                                 </Link>
 
-                                <p className="text-center text-xs text-gray-500 mt-4">
-                                    Secure Checkout powered by Quantum Shield
-                                </p>
+
                             </div>
                         </div>
                     </div>

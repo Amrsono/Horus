@@ -142,7 +142,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
             onClose();
         } catch (error) {
             console.error("Error saving product:", error);
-            alert("Failed to save product. Check console for details.");
+            alert(t.admin.products.form.messages.error_saving);
         } finally {
             setIsLoading(false);
         }
@@ -153,7 +153,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
             <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between p-6 border-b border-white/10 sticky top-0 bg-[#0a0a0a] z-10">
                     <h2 className="text-xl font-bold text-white">
-                        {productToEdit ? "Edit Product" : "Add New Product"}
+                        {productToEdit ? t.admin.products.form.edit_product : t.admin.products.form.add_product}
                     </h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
                         <X className="w-6 h-6" />
@@ -177,7 +177,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
                             ) : (
                                 <div className="text-center p-4">
                                     <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2 group-hover:text-[var(--color-neon-blue)]" />
-                                    <span className="text-xs text-gray-500">Click to upload</span>
+                                    <span className="text-xs text-gray-500">{t.admin.products.form.image.click_to_upload}</span>
                                 </div>
                             )}
                             <input
@@ -192,7 +192,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-400">Product Name</label>
+                            <label className="text-sm font-medium text-gray-400">{t.admin.products.form.labels.name}</label>
                             <input
                                 type="text"
                                 name="name"
@@ -204,25 +204,25 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-400">Category</label>
+                            <label className="text-sm font-medium text-gray-400">{t.admin.products.form.labels.category}</label>
                             <select
                                 name="category"
                                 value={formData.category}
                                 onChange={handleInputChange}
                                 className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[var(--color-neon-blue)] focus:outline-none"
                             >
-                                <option value="E-Liquids">E-Liquids</option>
-                                <option value="Devices">Devices</option>
-                                <option value="Accessories">Accessories</option>
-                                <option value="Mods">Mods</option>
-                                <option value="Pod Systems">Pod Systems</option>
-                                <option value="Tanks">Tanks</option>
-                                <option value="Starter Kits">Starter Kits</option>
+                                <option value="E-Liquids">{t.admin.products.categories.e_liquids}</option>
+                                <option value="Devices">{t.admin.products.categories.devices}</option>
+                                <option value="Accessories">{t.admin.products.categories.accessories}</option>
+                                <option value="Mods">{t.admin.products.categories.mod}</option>
+                                <option value="Pod Systems">{t.admin.products.categories.pod_systems}</option>
+                                <option value="Tanks">{t.admin.products.categories.tanks}</option>
+                                <option value="Starter Kits">{t.admin.products.categories.starter_kits}</option>
                             </select>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-400">Price ($)</label>
+                            <label className="text-sm font-medium text-gray-400">{t.admin.products.form.labels.price} ($)</label>
                             <input
                                 type="number"
                                 name="price"
@@ -235,7 +235,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-400">Stock</label>
+                            <label className="text-sm font-medium text-gray-400">{t.admin.products.form.labels.stock}</label>
                             <input
                                 type="number"
                                 name="stock"
@@ -248,7 +248,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-400">Description</label>
+                        <label className="text-sm font-medium text-gray-400">{t.admin.products.form.labels.description}</label>
                         <textarea
                             name="description"
                             value={formData.description || ""}
@@ -262,8 +262,8 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
                     <div className="border-t border-white/10 pt-6 space-y-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-sm font-bold text-white">Sale Settings</h3>
-                                <p className="text-xs text-gray-500">Mark this product as on sale</p>
+                                <h3 className="text-sm font-bold text-white">{t.admin.products.form.labels.sale_settings}</h3>
+                                <p className="text-xs text-gray-500">{t.admin.products.form.labels.on_sale}</p>
                             </div>
                             <label className="relative inline-flex items-center cursor-pointer">
                                 <input
@@ -279,7 +279,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
                         {formData.on_sale && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-400">Sale Price (EGP)</label>
+                                    <label className="text-sm font-medium text-gray-400">{t.admin.products.form.labels.sale_price} (EGP)</label>
                                     <input
                                         type="number"
                                         step="0.01"
@@ -289,10 +289,10 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-400">Sale Badge Text</label>
+                                    <label className="text-sm font-medium text-gray-400">{t.admin.products.form.labels.sale_badge}</label>
                                     <input
                                         type="text"
-                                        placeholder="e.g., 50% OFF"
+                                        placeholder={t.admin.products.form.labels.sale_badge_placeholder}
                                         value={formData.sale_badge_text || ""}
                                         onChange={(e) => setFormData(prev => ({ ...prev, sale_badge_text: e.target.value }))}
                                         className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[var(--color-neon-blue)] focus:outline-none"
@@ -308,7 +308,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
                             onClick={onClose}
                             className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-colors"
                         >
-                            Cancel
+                            {t.admin.products.form.buttons.cancel}
                         </button>
                         <button
                             type="submit"
@@ -316,7 +316,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
                             className="flex-1 py-3 bg-[var(--color-neon-blue)] hover:bg-[var(--color-electric-cyan)] text-black rounded-xl font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                            {productToEdit ? "Update Product" : "Create Product"}
+                            {isLoading ? t.admin.products.form.buttons.saving : (productToEdit ? t.admin.products.form.buttons.update : t.admin.products.form.buttons.create)}
                         </button>
                     </div>
                 </form>

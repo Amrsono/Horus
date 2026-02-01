@@ -20,7 +20,10 @@ interface ProductMetric {
     revenue: number;
 }
 
+import { useLanguage } from "@/contexts/LanguageContext";
+
 export default function AnalyticsPage() {
+    const { t, formatCurrency } = useLanguage();
     const [period, setPeriod] = useState<TimePeriod>("month");
     const [isLoading, setIsLoading] = useState(true);
     const [topCustomers, setTopCustomers] = useState<CustomerMetric[]>([]);
@@ -122,9 +125,9 @@ export default function AnalyticsPage() {
     };
 
     const periodLabels = {
-        today: "Today",
-        month: "This Month",
-        year: "This Year"
+        today: t.admin.analytics.labels.today,
+        month: t.admin.analytics.labels.this_month,
+        year: t.admin.analytics.labels.this_year
     };
 
     return (
@@ -136,8 +139,8 @@ export default function AnalyticsPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Analytics</h1>
-                    <p className="text-gray-400">Customer and product performance metrics</p>
+                    <h1 className="text-3xl font-bold text-white mb-2">{t.admin.analytics.title}</h1>
+                    <p className="text-gray-400">{t.admin.analytics.subtitle}</p>
                 </div>
 
                 {/* Period Selector */}
@@ -147,8 +150,8 @@ export default function AnalyticsPage() {
                             key={p}
                             onClick={() => setPeriod(p)}
                             className={`px-4 py-2 rounded-lg font-medium transition-all ${period === p
-                                    ? "bg-[var(--color-neon-blue)] text-black"
-                                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                                ? "bg-[var(--color-neon-blue)] text-black"
+                                : "text-gray-400 hover:text-white hover:bg-white/5"
                                 }`}
                         >
                             {periodLabels[p]}
@@ -170,14 +173,14 @@ export default function AnalyticsPage() {
                                 <Users className="w-6 h-6 text-[var(--color-neon-blue)]" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-white">Top Customers</h3>
-                                <p className="text-sm text-gray-400">Highest spending customers</p>
+                                <h3 className="text-lg font-bold text-white">{t.admin.analytics.sections.top_customers}</h3>
+                                <p className="text-sm text-gray-400">{t.admin.analytics.sections.top_customers_desc}</p>
                             </div>
                         </div>
 
                         <div className="space-y-3">
                             {topCustomers.length === 0 ? (
-                                <p className="text-gray-500 text-center py-8">No customer data available</p>
+                                <p className="text-gray-500 text-center py-8">{t.admin.analytics.labels.no_customer_data}</p>
                             ) : (
                                 topCustomers.map((customer, index) => (
                                     <div
@@ -190,12 +193,12 @@ export default function AnalyticsPage() {
                                             </div>
                                             <div>
                                                 <div className="text-white font-medium">{customer.email}</div>
-                                                <div className="text-xs text-gray-400">{customer.order_count} orders</div>
+                                                <div className="text-xs text-gray-400">{customer.order_count} {t.admin.analytics.labels.orders}</div>
                                             </div>
                                         </div>
                                         <div className="text-right">
                                             <div className="text-[var(--color-neon-blue)] font-mono font-bold">
-                                                {customer.total_spent.toFixed(2)} EGP
+                                                {formatCurrency(customer.total_spent)}
                                             </div>
                                         </div>
                                     </div>
@@ -211,14 +214,14 @@ export default function AnalyticsPage() {
                                 <TrendingUp className="w-6 h-6 text-[var(--color-cyber-green)]" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-white">Top Selling Products</h3>
-                                <p className="text-sm text-gray-400">Best performing products</p>
+                                <h3 className="text-lg font-bold text-white">{t.admin.analytics.sections.top_products}</h3>
+                                <p className="text-sm text-gray-400">{t.admin.analytics.sections.top_products_desc}</p>
                             </div>
                         </div>
 
                         <div className="space-y-3">
                             {topProducts.length === 0 ? (
-                                <p className="text-gray-500 text-center py-8">No product data available</p>
+                                <p className="text-gray-500 text-center py-8">{t.admin.analytics.labels.no_product_data}</p>
                             ) : (
                                 topProducts.map((product, index) => (
                                     <div
@@ -231,12 +234,12 @@ export default function AnalyticsPage() {
                                             </div>
                                             <div>
                                                 <div className="text-white font-medium">{product.product_name}</div>
-                                                <div className="text-xs text-gray-400">{product.units_sold} units sold</div>
+                                                <div className="text-xs text-gray-400">{product.units_sold} {t.admin.analytics.labels.units_sold}</div>
                                             </div>
                                         </div>
                                         <div className="text-right">
                                             <div className="text-[var(--color-cyber-green)] font-mono font-bold">
-                                                {product.revenue.toFixed(2)} EGP
+                                                {formatCurrency(product.revenue)}
                                             </div>
                                         </div>
                                     </div>
@@ -252,14 +255,14 @@ export default function AnalyticsPage() {
                                 <TrendingDown className="w-6 h-6 text-[var(--color-plasma-pink)]" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-white">Least Selling Products</h3>
-                                <p className="text-sm text-gray-400">Products needing attention</p>
+                                <h3 className="text-lg font-bold text-white">{t.admin.analytics.sections.least_products}</h3>
+                                <p className="text-sm text-gray-400">{t.admin.analytics.sections.least_products_desc}</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             {leastProducts.length === 0 ? (
-                                <p className="text-gray-500 text-center py-8 col-span-full">No product data available</p>
+                                <p className="text-gray-500 text-center py-8 col-span-full">{t.admin.analytics.labels.no_product_data}</p>
                             ) : (
                                 leastProducts.map((product, index) => (
                                     <div
@@ -272,7 +275,7 @@ export default function AnalyticsPage() {
                                             </div>
                                             <div>
                                                 <div className="text-white font-medium text-sm">{product.product_name}</div>
-                                                <div className="text-xs text-gray-400">{product.units_sold} units</div>
+                                                <div className="text-xs text-gray-400">{product.units_sold} {t.admin.analytics.labels.units}</div>
                                             </div>
                                         </div>
                                     </div>

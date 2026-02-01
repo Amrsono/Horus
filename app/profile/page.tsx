@@ -29,7 +29,7 @@ interface Order {
 export default function ProfilePage() {
     const { user, loading, signOut } = useAuth();
     const router = useRouter();
-    const { t } = useLanguage();
+    const { t, formatCurrency, formatNumber } = useLanguage();
     const { addItem } = useCartStore();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
@@ -210,14 +210,14 @@ export default function ProfilePage() {
                                             <Award className="w-5 h-5 text-[var(--color-plasma-pink)]" />
                                             <span>{t.profile.loyalty_points}</span>
                                         </div>
-                                        <span className="font-mono font-bold text-[var(--color-plasma-pink)]">1250 PTS</span>
+                                        <span className="font-mono font-bold text-[var(--color-plasma-pink)]">{formatNumber(1250)} PTS</span>
                                     </div>
-                                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
                                         <div className="flex items-center gap-3">
                                             <Package className="w-5 h-5 text-gray-400" />
                                             <span>{t.profile.total_orders}</span>
                                         </div>
-                                        <span className="font-mono font-bold">{orders.length}</span>
+                                        <span className="font-mono font-bold">{formatNumber(orders.length)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -256,7 +256,7 @@ export default function ProfilePage() {
                                                 <tr key={order.id} className="hover:bg-white/5 transition-colors">
                                                     <td className="px-4 py-4 font-mono text-white">#{order.id.slice(0, 8)}</td>
                                                     <td className="px-4 py-4">{formatDate(order.created_at)}</td>
-                                                    <td className="px-4 py-4 text-white">{order.total_amount.toFixed(0)} EGP</td>
+                                                    <td className="px-4 py-4 text-white">{formatCurrency(order.total_amount)}</td>
                                                     <td className="px-4 py-4">
                                                         <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${getStatusColor(order.status)}`}>
                                                             {order.status}
@@ -339,7 +339,7 @@ export default function ProfilePage() {
                                                 <p className="text-sm text-gray-400">{t.profile.modal.qty}: {item.quantity}</p>
                                             </div>
                                             <p className="text-[var(--color-neon-blue)] font-mono">
-                                                {item.price_at_purchase.toFixed(0)} EGP
+                                                {formatCurrency(item.price_at_purchase)}
                                             </p>
                                         </div>
                                     ))}
@@ -365,7 +365,7 @@ export default function ProfilePage() {
                             <div className="border-t border-white/10 pt-4 mb-6">
                                 <div className="flex justify-between items-center text-xl font-bold">
                                     <span className="text-white">{t.profile.modal.total}</span>
-                                    <span className="text-[var(--color-neon-blue)]">{selectedOrder.total_amount.toFixed(0)} EGP</span>
+                                    <span className="text-[var(--color-neon-blue)]">{formatCurrency(selectedOrder.total_amount)}</span>
                                 </div>
                             </div>
 

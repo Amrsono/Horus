@@ -25,7 +25,7 @@ interface Product {
 }
 
 export default function ShopPage() {
-    const { t } = useLanguage();
+    const { t, formatCurrency, formatNumber } = useLanguage();
     const { addItem } = useCartStore();
     const [products, setProducts] = useState<Product[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -177,7 +177,7 @@ export default function ShopPage() {
                             {/* Price Range */}
                             <div>
                                 <h3 className="font-bold text-sm text-[var(--color-neon-blue)] uppercase tracking-wider mb-4">
-                                    Price Range: <span className="text-white">{priceRange[0]} - {priceRange[1]} EGP</span>
+                                    Price Range: <span className="text-white">{formatCurrency(priceRange[0])} - {formatCurrency(priceRange[1])}</span>
                                 </h3>
                                 <input
                                     type="range"
@@ -188,8 +188,8 @@ export default function ShopPage() {
                                     className="w-full accent-[var(--color-neon-blue)] h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
                                 />
                                 <div className="flex justify-between text-xs text-gray-500 mt-2">
-                                    <span>0 EGP</span>
-                                    <span>{maxPrice} EGP</span>
+                                    <span>{formatCurrency(0)}</span>
+                                    <span>{formatCurrency(maxPrice)}</span>
                                 </div>
                             </div>
                         </div>
@@ -267,15 +267,15 @@ export default function ShopPage() {
                                                         {product.on_sale && product.sale_price ? (
                                                             <>
                                                                 <span className="text-sm text-gray-400 line-through decoration-red-500/50">
-                                                                    {product.price} EGP
+                                                                    {formatCurrency(product.price)}
                                                                 </span>
                                                                 <span className="text-2xl font-mono font-bold text-[var(--color-plasma-pink)]">
-                                                                    {product.sale_price} <span className="text-sm text-gray-400">EGP</span>
+                                                                    {formatCurrency(product.sale_price)}
                                                                 </span>
                                                             </>
                                                         ) : (
                                                             <span className="text-2xl font-mono font-bold text-[var(--color-plasma-pink)]">
-                                                                {product.price} <span className="text-sm text-gray-400">EGP</span>
+                                                                {formatCurrency(product.price)}
                                                             </span>
                                                         )}
                                                     </div>

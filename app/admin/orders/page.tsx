@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Search, Filter, MoreHorizontal, Eye, Truck, CheckCircle, XCircle, Loader2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Order {
     id: string;
@@ -23,21 +24,24 @@ const statusColors: Record<string, string> = {
     pending: "plasma-pink",
 };
 
-const statusOptions = [
-    { value: "pending", label: "Pending" },
-    { value: "processing", label: "Processing" },
-    { value: "shipped", label: "Shipped" },
-    { value: "delivered", label: "Delivered" },
-    { value: "cancelled", label: "Cancelled" },
-];
+
 
 export default function OrdersPage() {
+    const { t, locale, formatCurrency } = useLanguage();
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
     const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+
+    const statusOptions = [
+        { value: "pending", label: t.admin.orders.status.pending },
+        { value: "processing", label: t.admin.orders.status.processing },
+        { value: "shipped", label: t.admin.orders.status.shipped },
+        { value: "delivered", label: t.admin.orders.status.delivered },
+        { value: "cancelled", label: t.admin.orders.status.cancelled },
+    ];
 
     useEffect(() => {
         fetchOrders();
@@ -121,8 +125,8 @@ export default function OrdersPage() {
         >
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Orders</h1>
-                    <p className="text-gray-400">Manage customer orders and shipments</p>
+                    <h1 className="text-3xl font-bold text-white mb-2">{t.admin.orders.title}</h1>
+                    <p className="text-gray-400">{t.admin.orders.subtitle}</p>
                 </div>
 
                 <div className="flex items-center gap-4 w-full md:w-auto">
@@ -130,7 +134,7 @@ export default function OrdersPage() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="Search orders..."
+                            placeholder={t.admin.orders.search_placeholder}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full bg-black/20 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[var(--color-neon-blue)]"
@@ -161,7 +165,7 @@ export default function OrdersPage() {
                                                 : "text-gray-300 hover:bg-white/5"
                                         )}
                                     >
-                                        <span>All Orders</span>
+                                        <span>{t.admin.orders.status.all}</span>
                                         <span className="text-xs opacity-60">{getStatusCount("all")}</span>
                                     </button>
                                     {statusOptions.map((status) => (
@@ -200,7 +204,7 @@ export default function OrdersPage() {
                         onClick={() => setStatusFilter("all")}
                         className="text-xs text-gray-400 hover:text-white transition-colors"
                     >
-                        Clear
+                        {t.admin.orders.clear}
                     </button>
                 </div>
             )}
@@ -210,12 +214,12 @@ export default function OrdersPage() {
                     <table className="w-full text-left text-sm text-gray-400">
                         <thead className="bg-white/5 uppercase font-bold text-xs tracking-wider text-gray-300">
                             <tr>
-                                <th className="px-6 py-4">Order ID</th>
-                                <th className="px-6 py-4">Customer</th>
-                                <th className="px-6 py-4">Date</th>
-                                <th className="px-6 py-4">Status</th>
-                                <th className="px-6 py-4">Total</th>
-                                <th className="px-6 py-4 text-right">Actions</th>
+                                <th className="px-6 py-4">{t.admin.orders.table.order_id}</th>
+                                <th className="px-6 py-4">{t.admin.orders.table.customer}</th>
+                                <th className="px-6 py-4">{t.admin.orders.table.date}</th>
+                                <th className="px-6 py-4">{t.admin.orders.table.status}</th>
+                                <th className="px-6 py-4">{t.admin.orders.table.total}</th>
+                                <th className="px-6 py-4 text-right">{t.admin.orders.table.actions}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
@@ -228,7 +232,7 @@ export default function OrdersPage() {
                             ) : filteredOrders.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="text-center py-8 text-gray-500">
-                                        No orders found.
+                                        {t.admin.orders.table.no_orders}
                                     </td>
                                 </tr>
                             ) : (
@@ -243,7 +247,7 @@ export default function OrdersPage() {
                                                 <span className="text-white">{order.guest_email || 'Guest'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">{new Date(order.created_at).toLocaleDateString()}</td>
+                                        <td className="px-6 py-4">{new Date(order.created_at).toLocaleDateString(locale)}</td>
                                         <td className="px-6 py-4">
                                             {editingOrderId === order.id ? (
                                                 <select
@@ -268,11 +272,11 @@ export default function OrdersPage() {
                                                     )}
                                                     style={order.status === "cancelled" ? { color: "#ef4444", backgroundColor: "rgba(239, 68, 68, 0.1)" } : {}}
                                                 >
-                                                    {order.status}
+                                                    {statusOptions.find(s => s.value === order.status)?.label || order.status}
                                                 </button>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 text-white font-mono">{Number(order.total_amount).toFixed(2)} EGP</td>
+                                        <td className="px-6 py-4 text-white font-mono">{formatCurrency(order.total_amount)}</td>
                                         <td className="px-6 py-4 text-right">
                                             <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white">
                                                 <MoreHorizontal className="w-4 h-4" />
@@ -285,10 +289,10 @@ export default function OrdersPage() {
                     </table>
                 </div>
                 <div className="p-4 border-t border-white/5 flex justify-between items-center text-xs text-gray-500">
-                    <span>Showing {filteredOrders.length} of {orders.length} orders</span>
+                    <span>{t.admin.orders.table.showing} {filteredOrders.length} {t.admin.orders.table.of} {orders.length} {t.admin.orders.table.orders}</span>
                     <div className="flex gap-2">
-                        <button className="px-3 py-1 bg-white/5 rounded hover:bg-white/10 disabled:opacity-50">Previous</button>
-                        <button className="px-3 py-1 bg-white/5 rounded hover:bg-white/10">Next</button>
+                        <button className="px-3 py-1 bg-white/5 rounded hover:bg-white/10 disabled:opacity-50">{t.admin.orders.table.previous}</button>
+                        <button className="px-3 py-1 bg-white/5 rounded hover:bg-white/10">{t.admin.orders.table.next}</button>
                     </div>
                 </div>
             </div>

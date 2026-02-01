@@ -17,7 +17,7 @@ export default function Navbar() {
     const [mounted, setMounted] = useState(false);
 
     const totalItems = useCartStore((state) => state.totalItems());
-    const { t, locale, switchLanguage } = useLanguage();
+    const { t, locale, switchLanguage, formatNumber } = useLanguage();
     const { user, signOut } = useAuth();
 
     // Prevent hydration mismatch for persisted store
@@ -128,7 +128,7 @@ export default function Navbar() {
                                     key={totalItems} // Triggers animation on change
                                     className="absolute -top-1 -right-1 w-6 h-6 bg-[var(--color-neon-blue)] text-black text-xs font-bold flex items-center justify-center rounded-full shadow-lg border-2 border-[var(--color-obsidian)]"
                                 >
-                                    {totalItems}
+                                    {formatNumber(totalItems)}
                                 </motion.span>
                             )}
                         </motion.button>

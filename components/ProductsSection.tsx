@@ -20,7 +20,7 @@ interface Product {
 }
 
 export default function ProductsSection() {
-    const { t } = useLanguage();
+    const { t, formatCurrency } = useLanguage();
     const addItem = useCartStore((state) => state.addItem);
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -158,7 +158,7 @@ export default function ProductsSection() {
                                                     {product.name}
                                                 </h4>
                                                 <p className="text-[var(--color-neon-blue)] font-mono font-bold">
-                                                    {product.price} EGP
+                                                    {formatCurrency(product.price)}
                                                 </p>
                                             </div>
                                             <button

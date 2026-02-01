@@ -16,7 +16,7 @@ interface CartDrawerProps {
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     const { items, removeItem, updateQuantity, totalPrice } = useCartStore();
-    const { t, locale } = useLanguage();
+    const { t, locale, formatCurrency } = useLanguage();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -95,9 +95,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                             </div>
                                             <div className="flex items-center justify-between mt-2">
                                                 <p className="font-mono text-[var(--color-plasma-pink)]">
-                                                    {typeof item.price === 'number'
-                                                        ? `${item.price.toFixed(0)} EGP`
-                                                        : item.price}
+                                                    {formatCurrency(item.price)}
                                                 </p>
 
                                                 <div className="flex items-center gap-3 bg-white/5 rounded-full px-2 py-1">
@@ -128,7 +126,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                 <div className="flex justify-between items-center mb-6">
                                     <span className="text-gray-400">{t.cart.subtotal}</span>
                                     <span className="text-2xl font-bold font-mono text-white">
-                                        {totalPrice().toFixed(0)} EGP
+                                        {formatCurrency(totalPrice())}
                                     </span>
                                 </div>
                                 <Link

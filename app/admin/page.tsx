@@ -27,7 +27,10 @@ interface RecentOrder {
 }
 
 
+import { useLanguage } from "@/contexts/LanguageContext";
+
 export default function AdminDashboardPage() {
+    const { t, formatCurrency, formatNumber } = useLanguage();
     const [mounted, setMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState<DashboardStats>({
@@ -132,26 +135,26 @@ export default function AdminDashboardPage() {
 
     const statsDisplay = [
         {
-            label: "Total Revenue",
-            value: `${stats.totalRevenue.toFixed(2)} EGP`,
+            label: t.admin.dashboard.stats.total_revenue,
+            value: formatCurrency(stats.totalRevenue),
             icon: DollarSign,
             color: "neon-blue"
         },
         {
-            label: "Total Orders",
-            value: stats.totalOrders.toString(),
+            label: t.admin.dashboard.stats.total_orders,
+            value: formatNumber(stats.totalOrders),
             icon: ShoppingBag,
             color: "quantum-purple"
         },
         {
-            label: "New Customers",
-            value: stats.newCustomers.toString(),
+            label: t.admin.dashboard.stats.new_customers,
+            value: formatNumber(stats.newCustomers),
             icon: Users,
             color: "plasma-pink"
         },
         {
-            label: "Growth",
-            value: `${stats.growth >= 0 ? '+' : ''}${stats.growth.toFixed(1)}%`,
+            label: t.admin.dashboard.stats.growth,
+            value: `${stats.growth >= 0 ? '+' : ''}${formatNumber(stats.growth, { maximumFractionDigits: 1 })}%`,
             icon: TrendingUp,
             color: "cyber-green"
         },
@@ -165,11 +168,11 @@ export default function AdminDashboardPage() {
         >
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-                    <p className="text-gray-400">Welcome back, Admin</p>
+                    <h1 className="text-3xl font-bold text-white mb-2">{t.admin.dashboard.title}</h1>
+                    <p className="text-gray-400">{t.admin.dashboard.welcome}</p>
                 </div>
                 <div className="px-4 py-2 bg-[var(--color-neon-blue)]/10 border border-[var(--color-neon-blue)] rounded-lg text-[var(--color-neon-blue)] text-sm font-mono">
-                    System Online
+                    {t.admin.dashboard.system_online}
                 </div>
             </div>
 
@@ -188,7 +191,7 @@ export default function AdminDashboardPage() {
                                         <div className={`p-3 rounded-lg bg-[var(--color-${stat.color})]/10 text-[var(--color-${stat.color})]`}>
                                             <Icon className="w-6 h-6" />
                                         </div>
-                                        {stat.label === "Growth" && (
+                                        {stat.label === t.admin.dashboard.stats.growth && (
                                             <span className={`text-xs px-2 py-1 rounded ${stats.growth >= 0
                                                 ? 'text-green-400 bg-green-400/10'
                                                 : 'text-red-400 bg-red-400/10'
@@ -206,7 +209,7 @@ export default function AdminDashboardPage() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div className="glass p-6 rounded-xl border border-white/5">
-                            <h3 className="text-lg font-bold text-white mb-6">Revenue Over Time</h3>
+                            <h3 className="text-lg font-bold text-white mb-6">{t.admin.dashboard.revenue_over_time}</h3>
                             <div className="h-[300px]">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={revenueData}>
@@ -228,10 +231,10 @@ export default function AdminDashboardPage() {
                         </div>
 
                         <div className="glass p-6 rounded-xl border border-white/5">
-                            <h3 className="text-lg font-bold text-white mb-6">Recent Orders</h3>
+                            <h3 className="text-lg font-bold text-white mb-6">{t.admin.dashboard.recent_orders}</h3>
                             <div className="space-y-4">
                                 {recentOrders.length === 0 ? (
-                                    <p className="text-gray-500 text-center py-8">No orders yet</p>
+                                    <p className="text-gray-500 text-center py-8">{t.admin.dashboard.no_orders}</p>
                                 ) : (
                                     recentOrders.map((order) => (
                                         <div key={order.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
@@ -240,12 +243,12 @@ export default function AdminDashboardPage() {
                                                     {order.guest_email?.charAt(0).toUpperCase() || 'G'}
                                                 </div>
                                                 <div>
-                                                    <div className="text-white font-medium">{order.guest_email || 'Guest'}</div>
+                                                    <div className="text-white font-medium">{order.guest_email || t.admin.dashboard.labels.guest}</div>
                                                     <div className="text-xs text-gray-400">#{order.id.slice(0, 8)}</div>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="text-[var(--color-neon-blue)] font-mono">{Number(order.total_amount).toFixed(2)} EGP</div>
+                                                <div className="text-[var(--color-neon-blue)] font-mono">{formatCurrency(order.total_amount)}</div>
                                                 <div className="text-xs text-gray-500">
                                                     {new Date(order.created_at).toLocaleDateString()}
                                                 </div>

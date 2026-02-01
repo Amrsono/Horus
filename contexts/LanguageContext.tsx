@@ -12,6 +12,8 @@ interface LanguageContextType {
     t: Translations;
     switchLanguage: (lang: Locale) => void;
     isRTL: boolean;
+    formatCurrency: (amount: number) => string;
+    formatNumber: (num: number, options?: Intl.NumberFormatOptions) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -39,10 +41,22 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         document.documentElement.lang = lang;
     };
 
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
+            style: 'currency',
+            currency: 'EGP',
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+
+    const formatNumber = (num: number, options?: Intl.NumberFormatOptions) => {
+        return new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-US', options).format(num);
+    };
+
     const t = locale === "en" ? en : ar;
 
     return (
-        <LanguageContext.Provider value={{ locale, t, switchLanguage, isRTL }}>
+        <LanguageContext.Provider value={{ locale, t, switchLanguage, isRTL, formatCurrency, formatNumber }}>
             {children}
         </LanguageContext.Provider>
     );

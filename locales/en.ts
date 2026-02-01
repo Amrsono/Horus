@@ -55,6 +55,13 @@ export const en = {
         checkout: "Checkout",
         subtotal: "Subtotal",
         remove: "Remove",
+        order_summary: "Order Summary",
+        shipping: "Shipping",
+        taxes: "Taxes",
+        total: "Total",
+        proceed_to_checkout: "Proceed to Checkout",
+        free: "Free",
+        secure_checkout: "Secure Checkout powered by Quantum Shield",
     },
     checkout: {
         title: "Checkout",
@@ -73,6 +80,8 @@ export const en = {
             zip: "ZIP Code",
         },
         success: "Order Placed Successfully!",
+        success_message: "Thank you for your order. Your Horus delivery is properly secured and will be dispatched shortly.",
+        return_home: "Return Home",
     },
     sale: {
         section_title: "Limited Time Offer",
@@ -181,7 +190,26 @@ export const en = {
                 total_spent: "Total Spent",
                 last_active: "Last Active",
                 actions: "Actions",
-                joined: "Joined"
+                joined: "Joined",
+                no_customers: "No customers found.",
+                showing: "Showing",
+                of: "of",
+                customers: "customers",
+                previous: "Previous",
+                next: "Next",
+                view_details: "View Details",
+                edit_customer: "Edit Customer",
+                delete_customer: "Delete Customer"
+            },
+            role: {
+                admin: "Admin",
+                customer: "Customer",
+                authenticated: "Authenticated",
+                guest: "Guest"
+            },
+            status: {
+                active: "Active",
+                inactive: "Inactive"
             }
         },
         products: {
@@ -190,6 +218,7 @@ export const en = {
             add_product: "Add New Product",
             search_placeholder: "Search products...",
             category_filter: "Category",
+            filters: "Filters",
             table: {
                 product: "Product",
                 category: "Category",
@@ -197,7 +226,142 @@ export const en = {
                 stock: "Stock",
                 status: "Status",
                 actions: "Actions",
-                units: "units"
+                units: "units",
+                no_products: "No products found.",
+                edit: "Edit",
+                delete: "Delete"
+            },
+            status: {
+                in_stock: "In Stock",
+                low_stock: "Low Stock",
+                out_of_stock: "Out of Stock"
+            },
+            categories: {
+                all: "All Categories",
+                mod: "Mods",
+                pod_systems: "Pod Systems",
+                e_liquids: "E-Liquids",
+                tanks: "Tanks",
+                accessories: "Accessories",
+                devices: "Devices",
+                starter_kits: "Starter Kits"
+            },
+            form: {
+                edit_product: "Edit Product",
+                add_product: "Add New Product",
+                image: {
+                    click_to_upload: "Click to upload",
+                    uploading: "Uploading...",
+                },
+                labels: {
+                    name: "Product Name",
+                    category: "Category",
+                    price: "Price",
+                    stock: "Stock",
+                    description: "Description",
+                    sale_settings: "Sale Settings",
+                    on_sale: "Mark this product as on sale",
+                    sale_price: "Sale Price",
+                    sale_badge: "Sale Badge Text",
+                    sale_badge_placeholder: "e.g., 50% OFF"
+                },
+                buttons: {
+                    cancel: "Cancel",
+                    create: "Create Product",
+                    update: "Update Product",
+                    saving: "Saving..."
+                },
+                messages: {
+                    error_saving: "Failed to save product. Check console a detailed error."
+                }
+            }
+        },
+        dashboard: {
+            title: "Dashboard",
+            welcome: "Welcome back, Admin",
+            system_online: "System Online",
+            revenue_over_time: "Revenue Over Time",
+            recent_orders: "Recent Orders",
+            no_orders: "No orders yet",
+            stats: {
+                total_revenue: "Total Revenue",
+                total_orders: "Total Orders",
+                new_customers: "New Customers",
+                growth: "Growth"
+            },
+            labels: {
+                guest: "Guest"
+            }
+        },
+        orders: {
+            title: "Orders",
+            subtitle: "Manage and track customer orders",
+            search_placeholder: "Search orders...",
+            filter_status: "Filter Status",
+            table: {
+                order_id: "Order ID",
+                customer: "Customer",
+                date: "Date",
+                total: "Total",
+                status: "Status",
+                actions: "Actions",
+                view_details: "View Details",
+                showing: "Showing",
+                of: "of",
+                orders: "orders",
+                previous: "Previous",
+                next: "Next",
+                no_orders: "No orders found."
+            },
+            status: {
+                pending: "Pending",
+                processing: "Processing",
+                shipped: "Shipped",
+                delivered: "Delivered",
+                cancelled: "Cancelled",
+                all: "All Orders"
+            },
+            active_filter: "Active filter",
+            clear: "Clear"
+        },
+        analytics: {
+            title: "Analytics",
+            subtitle: "Sales performance and user engagement metrics",
+            time_range: "Time Range",
+            ranges: {
+                last_7_days: "Last 7 Days",
+                last_30_days: "Last 30 Days",
+                last_3_months: "Last 3 Months",
+                year_to_date: "Year to Date"
+            },
+            cards: {
+                total_revenue: "Total Revenue",
+                total_sales: "Total Sales",
+                average_order: "Average Order",
+                conversion_rate: "Conversion Rate"
+            },
+            charts: {
+                revenue_over_time: "Revenue Over Time",
+                orders_by_status: "Orders by Status"
+            },
+            sections: {
+                top_customers: "Top Customers",
+                top_customers_desc: "Highest spending customers",
+                top_products: "Top Selling Products",
+                top_products_desc: "Best performing products",
+                least_products: "Least Selling Products",
+                least_products_desc: "Products needing attention"
+            },
+            labels: {
+                orders: "orders",
+                units_sold: "units sold",
+                units: "units",
+                no_data: "No data available",
+                no_customer_data: "No customer data available",
+                no_product_data: "No product data available",
+                today: "Today",
+                this_month: "This Month",
+                this_year: "This Year"
             }
         }
     }
