@@ -73,7 +73,7 @@ export default function RegisterPage() {
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
                                     className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-[var(--color-quantum-purple)] focus:ring-1 focus:ring-[var(--color-quantum-purple)] transition-all"
-                                    placeholder="Agent Name"
+                                    placeholder="Full Name"
                                     required
                                 />
                             </div>
@@ -88,7 +88,7 @@ export default function RegisterPage() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-[var(--color-quantum-purple)] focus:ring-1 focus:ring-[var(--color-quantum-purple)] transition-all"
-                                    placeholder="agent@horus.sys"
+                                    placeholder=""
                                     required
                                 />
                             </div>
@@ -114,7 +114,7 @@ export default function RegisterPage() {
                             disabled={loading}
                             className="w-full bg-[var(--color-quantum-purple)] text-white font-bold py-3 rounded-xl hover:bg-[var(--color-plasma-pink)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                         >
-                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Request Access"}
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Account"}
                         </button>
                     </form>
 
