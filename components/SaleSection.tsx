@@ -1,74 +1,85 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { ArrowRight, Tag } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Tag, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import { useCartStore } from "@/store/cartStore";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+interface SaleProduct {
+    id: string;
+    name: string;
+    category: string;
+    price: number;
+    sale_price: number;
+    sale_badge_text: string;
+    image_url: string;
+}
 
 export default function SaleSection() {
     const { t } = useLanguage();
     const addItem = useCartStore((state) => state.addItem);
+    const [saleProducts, setSaleProducts] = useState<SaleProduct[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const saleItems = [
-        {
-            id: 101,
-            name: t.sale.items.void_starter.name,
-            originalPrice: "4500 EGP",
-            salePrice: 2950,
-            displayOriginal: "4500 EGP",
-            displaySale: "2950 EGP",
-            category: t.sale.items.void_starter.category,
-            image: "https://images.unsplash.com/photo-1534125881478-f7ebc24c6a49?auto=format&fit=crop&q=80&w=800",
-            discount: "33% OFF",
-            color: "neon-blue"
-        },
-        {
-            id: 102,
-            name: t.sale.items.quantum_liquids.name,
-            originalPrice: "1500 EGP",
-            salePrice: 950,
-            displayOriginal: "1500 EGP",
-            displaySale: "950 EGP",
-            category: t.sale.items.quantum_liquids.category,
-            image: "https://images.unsplash.com/photo-1616421943899-7f51b472097e?auto=format&fit=crop&q=80&w=800",
-            discount: "33% OFF",
-            color: "plasma-pink"
-        },
-        {
-            id: 103,
-            name: t.sale.items.cyber_mods.name,
-            originalPrice: "7500 EGP",
-            salePrice: 4950,
-            displayOriginal: "7500 EGP",
-            displaySale: "4950 EGP",
-            category: t.sale.items.cyber_mods.category,
-            image: "https://images.unsplash.com/photo-1542452377-22d73359d959?auto=format&fit=crop&q=80&w=800",
-            discount: "33% OFF",
-            color: "quantum-purple"
+    useEffect(() => {
+        fetchSaleProducts();
+    }, []);
+
+    const fetchSaleProducts = async () => {
+        setIsLoading(true);
+        const { data, error } = await supabase
+            .from('products')
+            .select('id, name, category, price, sale_price, sale_badge_text, image_url')
+            .eq('on_sale', true)
+            .limit(3);
+
+        if (!error && data) {
+            setSaleProducts(data);
         }
-    ];
+        setIsLoading(false);
+    };
 
-    const handleAddToCart = (item: any) => {
+    const handleAddToCart = (item: SaleProduct) => {
         addItem({
             id: item.id,
             name: item.name,
-            price: item.salePrice, // Passing number
-            image: item.image,
+            price: item.sale_price || item.price,
+            image: item.image_url,
             category: item.category
         });
     };
 
+    const calculateDiscount = (original: number, sale: number) => {
+        const discount = ((original - sale) / original) * 100;
+        return `${Math.round(discount)}% OFF`;
+    };
+
+    if (isLoading) {
+        return (
+            <section id="sale" className="py-24 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full bg-[var(--color-obsidian)]" />
+                <div className="flex items-center justify-center py-20">
+                    <Loader2 className="w-12 h-12 animate-spin text-[var(--color-neon-blue)]" />
+                </div>
+            </section>
+        );
+    }
+
+    if (saleProducts.length === 0) {
+        return null; // Don't show section if no sale products
+    }
+
     return (
         <section id="sale" className="py-24 relative overflow-hidden">
-
-            {/* ... background ... */}
+            {/* Background */}
             <div className="absolute top-0 left-0 w-full h-full bg-[var(--color-obsidian)]" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[var(--color-neon-blue)]/5 blur-[100px] rounded-full pointer-events-none" />
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
-                {/* ... header ... */}
+                {/* Header */}
                 <div className="text-center mb-16">
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
@@ -90,7 +101,7 @@ export default function SaleSection() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {saleItems.map((item, index) => (
+                    {saleProducts.map((item, index) => (
                         <motion.div
                             key={item.id}
                             initial={{ opacity: 0, y: 30 }}
@@ -103,14 +114,14 @@ export default function SaleSection() {
                             <div className="absolute top-4 right-4 z-20">
                                 <span className="flex items-center gap-1 px-3 py-1 bg-[var(--color-plasma-pink)] text-black text-xs font-bold uppercase tracking-wider rounded-full">
                                     <Tag className="w-3 h-3" />
-                                    {item.discount}
+                                    {item.sale_badge_text || calculateDiscount(item.price, item.sale_price || item.price)}
                                 </span>
                             </div>
 
                             {/* Image */}
                             <div className="relative h-64 overflow-hidden">
                                 <Image
-                                    src={item.image}
+                                    src={item.image_url || '/placeholder.jpg'}
                                     alt={item.name}
                                     fill
                                     className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -123,8 +134,10 @@ export default function SaleSection() {
                                 <div className="text-xs text-gray-400 mb-2 uppercase tracking-wider">{item.category}</div>
                                 <h4 className="text-xl font-bold text-white mb-2">{item.name}</h4>
                                 <div className="flex items-center gap-3 mb-4">
-                                    <span className="text-gray-500 line-through text-lg">{item.displayOriginal}</span>
-                                    <span className="text-[var(--color-plasma-pink)] font-mono font-bold text-2xl">{item.displaySale}</span>
+                                    <span className="text-gray-500 line-through text-lg">{item.price.toFixed(0)} EGP</span>
+                                    <span className="text-[var(--color-plasma-pink)] font-mono font-bold text-2xl">
+                                        {(item.sale_price || item.price).toFixed(0)} EGP
+                                    </span>
                                 </div>
                                 <button
                                     onClick={() => handleAddToCart(item)}

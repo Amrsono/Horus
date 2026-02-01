@@ -14,6 +14,9 @@ export type Product = {
     stock: number;
     description: string;
     image_url: string;
+    on_sale?: boolean;
+    sale_price?: number;
+    sale_badge_text?: string;
     created_at?: string;
 };
 
@@ -35,6 +38,9 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
         stock: 0,
         description: "",
         image_url: "",
+        on_sale: false,
+        sale_price: 0,
+        sale_badge_text: "",
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string>("");
@@ -51,6 +57,9 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
                 stock: 0,
                 description: "",
                 image_url: "",
+                on_sale: false,
+                sale_price: 0,
+                sale_badge_text: "",
             });
             setPreviewUrl("");
         }
@@ -247,6 +256,50 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
                             rows={3}
                             className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[var(--color-neon-blue)] focus:outline-none"
                         />
+                    </div>
+
+                    {/* Sale Section */}
+                    <div className="border-t border-white/10 pt-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-sm font-bold text-white">Sale Settings</h3>
+                                <p className="text-xs text-gray-500">Mark this product as on sale</p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.on_sale || false}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, on_sale: e.target.checked }))}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--color-neon-blue)]"></div>
+                            </label>
+                        </div>
+
+                        {formData.on_sale && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-400">Sale Price (EGP)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={formData.sale_price || 0}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, sale_price: parseFloat(e.target.value) }))}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[var(--color-neon-blue)] focus:outline-none"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-400">Sale Badge Text</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g., 50% OFF"
+                                        value={formData.sale_badge_text || ""}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, sale_badge_text: e.target.value }))}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[var(--color-neon-blue)] focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex gap-4 pt-4">
