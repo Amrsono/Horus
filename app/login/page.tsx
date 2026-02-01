@@ -41,11 +41,11 @@ export default function LoginPage() {
             {/* Background Elements */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[var(--color-neon-blue)]/10 blur-[120px] rounded-full pointer-events-none" />
 
-            <main className="flex-1 flex items-center justify-center p-6 mt-20">
+            <main className="flex-1 flex items-center justify-center p-4 sm:p-6 mt-20">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="glass-strong p-8 rounded-2xl w-full max-w-md border border-white/10 shadow-2xl relative z-10"
+                    className="glass-strong p-6 sm:p-8 rounded-2xl w-full max-w-md border border-white/10 shadow-2xl relative z-10"
                 >
                     <div className="text-center mb-8">
                         <Link href="/" className="inline-flex items-center text-gray-400 hover:text-white mb-6 text-sm transition-colors">
