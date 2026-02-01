@@ -109,9 +109,9 @@ export const en = {
     },
     dashboard: {
         merchant_portal: "Merchant Portal",
-        control: "CONTROL YOUR",
-        empire: "EMPIRE",
-        description: "Real-time analytics, inventory management, and customer insights powered by our quantum-encrypted neural network.",
+        control: "Real-time",
+        empire: "Analytics",
+        description: "unforgettable vaping experience",
         total_revenue: "Total Revenue",
         active_users: "Active Users",
         sales: "Sales",
