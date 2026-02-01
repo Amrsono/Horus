@@ -86,12 +86,12 @@ export const en = {
         }
     },
     footer: {
-        description: "Elevating the vaping experience through quantum engineering and futuristic design. Established 2077.",
+        description: "Elevating the vaping experience through giving you a futuristic experience coming from the year 2077",
         shop: "Shop",
         support: "Support",
         newsletter: "Newsletter",
         newsletter_desc: "Subscribe for exclusive drops and tech updates.",
-        rights: "© 2077 Horus Smoking. All rights reserved.",
+        rights: "© 2026 Horus Smoking. All rights reserved.",
         sections: {
             shop: {
                 title: "Shop",
