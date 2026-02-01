@@ -238,7 +238,7 @@ export const ar = {
             },
             categories: {
                 all: "كل الفئات",
-                mods: "مودات",
+                mod: "مودات",
                 pod_systems: "أنظمة البود",
                 e_liquids: "سوايل إلكترونية",
                 tanks: "توتكات",
