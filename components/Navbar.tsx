@@ -41,9 +41,10 @@ export default function Navbar() {
     const navLinks = [
         { name: t.nav.home, href: "/" },
         { name: t.nav.shop, href: "/products" },
-        { name: t.nav.features, href: "#features" },
+        { name: t.nav.sale_offers, href: "#sale" },
         { name: t.nav.about, href: "/about" },
     ];
+
 
 
     return (

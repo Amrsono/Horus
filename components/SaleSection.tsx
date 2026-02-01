@@ -61,7 +61,8 @@ export default function SaleSection() {
     };
 
     return (
-        <section className="py-24 relative overflow-hidden">
+        <section id="sale" className="py-24 relative overflow-hidden">
+
             {/* ... background ... */}
             <div className="absolute top-0 left-0 w-full h-full bg-[var(--color-obsidian)]" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[var(--color-neon-blue)]/5 blur-[100px] rounded-full pointer-events-none" />

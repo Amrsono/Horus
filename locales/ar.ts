@@ -2,7 +2,7 @@ export const ar = {
     nav: {
         home: "الرئيسية",
         shop: "المتجر",
-        features: "المميزات",
+        sale_offers: "عروض التخفيضات",
         about: "عن حورس",
         login: "تسجيل دخول",
         profile: "الملف الشخصي",
