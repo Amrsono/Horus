@@ -125,6 +125,7 @@ export const ar = {
             orders: "الطلبات",
             customers: "العملاء",
             products: "المنتجات",
+            analytics: "التحليلات",
             settings: "الإعدادات",
             back_to_store: "العودة للمتجر",
             logout: "تسجيل خروج"

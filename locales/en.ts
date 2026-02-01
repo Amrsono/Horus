@@ -125,6 +125,7 @@ export const en = {
             orders: "Orders",
             customers: "Customers",
             products: "Products",
+            analytics: "Analytics",
             settings: "Settings",
             back_to_store: "Back to Store",
             logout: "Logout"

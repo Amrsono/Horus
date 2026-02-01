@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ShoppingBag, Users, Settings, LogOut, ArrowLeft, Package, Globe } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Users, Settings, LogOut, ArrowLeft, Package, Globe, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -19,6 +19,7 @@ export default function AdminSidebar() {
         { name: t.admin.sidebar.orders, href: "/admin/orders", icon: ShoppingBag },
         { name: t.admin.sidebar.customers, href: "/admin/customers", icon: Users },
         { name: t.admin.sidebar.products, href: "/admin/products", icon: Package },
+        { name: t.admin.sidebar.analytics, href: "/admin/analytics", icon: BarChart3 },
         { name: t.admin.sidebar.settings, href: "/admin/settings", icon: Settings },
     ];
 

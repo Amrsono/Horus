@@ -1,52 +1,67 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Filter, MoreHorizontal, Mail, ExternalLink, Shield } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Filter, MoreHorizontal, Mail, ExternalLink, Shield, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/lib/supabase";
+
+interface Customer {
+    email: string;
+    totalOrders: number;
+    totalSpent: number;
+    lastActive: string;
+}
 
 export default function CustomersPage() {
     const { t } = useLanguage();
     const [searchTerm, setSearchTerm] = useState("");
+    const [customers, setCustomers] = useState<Customer[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Mock data based on user request: accounts info, orders amounts, total paid
-    const customers = [
-        {
-            id: "CUST-001",
-            name: "John Doe",
-            email: "john@example.com",
-            role: "User",
-            status: "Active",
-            totalOrders: 12,
-            totalSpent: "$1,250.00",
-            lastActive: "2077-05-12 14:30",
-            joinDate: "2077-01-15"
-        },
-        {
-            id: "CUST-002",
-            name: "Jane Smith",
-            email: "jane@example.com",
-            role: "VIP",
-            status: "Active",
-            totalOrders: 5,
-            totalSpent: "$850.50",
-            lastActive: "2077-05-10 09:15",
-            joinDate: "2077-02-28"
-        },
-        {
-            id: "CUST-003",
-            name: "Alex Johnson",
-            email: "alex@example.com",
-            role: "User",
-            status: "Inactive",
-            totalOrders: 1,
-            totalSpent: "$45.00",
-            lastActive: "2077-03-01 11:20",
-            joinDate: "2077-03-01"
-        },
-    ];
+    useEffect(() => {
+        fetchCustomers();
+    }, []);
+
+    const fetchCustomers = async () => {
+        setIsLoading(true);
+
+        const { data: ordersData, error } = await supabase
+            .from('orders')
+            .select('guest_email, total_amount, created_at');
+
+        if (error) {
+            console.error("Error fetching customers:", error);
+        } else if (ordersData) {
+            // Aggregate orders by customer email
+            const customerMap = new Map<string, { orders: number; spent: number; lastActive: string }>();
+
+            ordersData.forEach(order => {
+                const email = order.guest_email || 'Unknown';
+                const existing = customerMap.get(email) || { orders: 0, spent: 0, lastActive: order.created_at };
+
+                customerMap.set(email, {
+                    orders: existing.orders + 1,
+                    spent: existing.spent + Number(order.total_amount),
+                    lastActive: new Date(order.created_at) > new Date(existing.lastActive)
+                        ? order.created_at
+                        : existing.lastActive
+                });
+            });
+
+            const customersArray = Array.from(customerMap.entries()).map(([email, data]) => ({
+                email,
+                totalOrders: data.orders,
+                totalSpent: data.spent,
+                lastActive: data.lastActive
+            })).sort((a, b) => b.totalSpent - a.totalSpent);
+
+            setCustomers(customersArray);
+        }
+
+        setIsLoading(false);
+    };
 
     const filteredCustomers = customers.filter(customer =>
-        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -60,9 +75,6 @@ export default function CustomersPage() {
                 <div className="flex items-center gap-3">
                     <button className="px-4 py-2 bg-[var(--color-neon-blue)]/10 text-[var(--color-neon-blue)] border border-[var(--color-neon-blue)]/50 rounded-lg hover:bg-[var(--color-neon-blue)]/20 transition-colors">
                         {t.admin.customers.export_csv}
-                    </button>
-                    <button className="px-4 py-2 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors">
-                        {t.admin.customers.add_customer}
                     </button>
                 </div>
             </div>
@@ -92,7 +104,6 @@ export default function CustomersPage() {
                         <thead className="bg-white/5 text-xs uppercase font-bold tracking-wider text-gray-500">
                             <tr>
                                 <th className="px-6 py-4">{t.admin.customers.table.customer}</th>
-                                <th className="px-6 py-4">{t.admin.customers.table.role_status}</th>
                                 <th className="px-6 py-4">{t.admin.customers.table.orders}</th>
                                 <th className="px-6 py-4">{t.admin.customers.table.total_spent}</th>
                                 <th className="px-6 py-4">{t.admin.customers.table.last_active}</th>
@@ -100,60 +111,62 @@ export default function CustomersPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {filteredCustomers.map((customer) => (
-                                <tr key={customer.id} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-neon-blue)] to-[var(--color-quantum-purple)] flex items-center justify-center text-white font-bold text-sm">
-                                                {customer.name.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold text-white">{customer.name}</div>
-                                                <div className="text-xs flex items-center gap-1">
-                                                    <Mail className="w-3 h-3" />
-                                                    {customer.email}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-1.5 text-white">
-                                                <Shield className="w-3 h-3 text-[var(--color-neon-blue)]" />
-                                                {customer.role}
-                                            </div>
-                                            <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${customer.status === 'Active'
-                                                ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                                                : 'bg-gray-500/10 text-gray-500 border-gray-500/20'
-                                                }`}>
-                                                {customer.status}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="text-white font-mono">{customer.totalOrders}</div>
-                                        <div className="text-xs">{t.admin.customers.table.orders}</div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="text-[var(--color-plasma-pink)] font-mono font-bold">{customer.totalSpent}</div>
-                                        <div className="text-xs">Lifetime Value</div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div>{customer.lastActive}</div>
-                                        <div className="text-xs">{t.admin.customers.table.joined}: {customer.joinDate}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white" title="View Details">
-                                                <ExternalLink className="w-4 h-4" />
-                                            </button>
-                                            <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white" title="More Options">
-                                                <MoreHorizontal className="w-4 h-4" />
-                                            </button>
-                                        </div>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-12">
+                                        <Loader2 className="w-8 h-8 animate-spin mx-auto text-[var(--color-neon-blue)]" />
                                     </td>
                                 </tr>
-                            ))}
+                            ) : filteredCustomers.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-8 text-gray-500">
+                                        No customers found.
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredCustomers.map((customer) => (
+                                    <tr key={customer.email} className="hover:bg-white/5 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-neon-blue)] to-[var(--color-quantum-purple)] flex items-center justify-center text-white font-bold text-sm">
+                                                    {customer.email.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <div className="font-semibold text-white">{customer.email}</div>
+                                                    <div className="text-xs flex items-center gap-1">
+                                                        <Mail className="w-3 h-3" />
+                                                        Customer
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="text-white font-mono">{customer.totalOrders}</div>
+                                            <div className="text-xs">{t.admin.customers.table.orders}</div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="text-[var(--color-plasma-pink)] font-mono font-bold">
+                                                {customer.totalSpent.toFixed(2)} EGP
+                                            </div>
+                                            <div className="text-xs">Lifetime Value</div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div>{new Date(customer.lastActive).toLocaleDateString()}</div>
+                                            <div className="text-xs">{new Date(customer.lastActive).toLocaleTimeString()}</div>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white" title="View Details">
+                                                    <ExternalLink className="w-4 h-4" />
+                                                </button>
+                                                <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white" title="More Options">
+                                                    <MoreHorizontal className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

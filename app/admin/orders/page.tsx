@@ -1,32 +1,79 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, MoreHorizontal, Eye, Truck, CheckCircle, XCircle } from "lucide-react";
+import { Search, Filter, MoreHorizontal, Eye, Truck, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 
-const orders = [
-    { id: "ORD-2077-001", customer: "John Doe", date: "2070-05-12", total: "$129.99", status: "Delivered", items: 3 },
-    { id: "ORD-2077-002", customer: "Jane Smith", date: "2070-05-12", total: "$49.99", status: "Processing", items: 1 },
-    { id: "ORD-2077-003", customer: "Alex Ray", date: "2070-05-11", total: "$24.99", status: "Shipped", items: 2 },
-    { id: "ORD-2077-004", customer: "Sarah Connor", date: "2070-05-10", total: "$399.99", status: "Cancelled", items: 5 },
-    { id: "ORD-2077-005", customer: "Kyle Reese", date: "2070-05-09", total: "$89.99", status: "Delivered", items: 2 },
-];
+interface Order {
+    id: string;
+    guest_email: string;
+    total_amount: number;
+    status: string;
+    created_at: string;
+    item_count?: number;
+}
 
 const statusColors: Record<string, string> = {
-    Delivered: "cyber-green",
-    Processing: "solar-yellow",
-    Shipped: "neon-blue",
-    Cancelled: "red-500",
+    delivered: "cyber-green",
+    processing: "solar-yellow",
+    shipped: "neon-blue",
+    cancelled: "red-500",
+    pending: "plasma-pink",
 };
 
 export default function OrdersPage() {
     const [searchTerm, setSearchTerm] = useState("");
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        fetchOrders();
+    }, []);
+
+    const fetchOrders = async () => {
+        setIsLoading(true);
+
+        const { data: ordersData, error } = await supabase
+            .from('orders')
+            .select(`
+                id,
+                guest_email,
+                total_amount,
+                status,
+                created_at
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error("Error fetching orders:", error);
+        } else if (ordersData) {
+            // Fetch item counts for each order
+            const ordersWithCounts = await Promise.all(
+                ordersData.map(async (order) => {
+                    const { count } = await supabase
+                        .from('order_items')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('order_id', order.id);
+
+                    return {
+                        ...order,
+                        item_count: count || 0
+                    };
+                })
+            );
+
+            setOrders(ordersWithCounts);
+        }
+
+        setIsLoading(false);
+    };
 
     const filteredOrders = orders.filter(
         (order) =>
             order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.customer.toLowerCase().includes(searchTerm.toLowerCase())
+            (order.guest_email && order.guest_email.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
     return (
@@ -73,37 +120,51 @@ export default function OrdersPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {filteredOrders.map((order) => (
-                                <tr key={order.id} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-6 py-4 text-white font-mono">{order.id}</td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white">
-                                                {order.customer.charAt(0)}
-                                            </div>
-                                            <span className="text-white">{order.customer}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">{order.date}</td>
-                                    <td className="px-6 py-4">
-                                        <span
-                                            className={cn(
-                                                "px-2 py-1 rounded text-xs font-bold uppercase tracking-wider",
-                                                `bg-[var(--color-${statusColors[order.status]})]/10 text-[var(--color-${statusColors[order.status]})]`
-                                            )}
-                                            style={order.status === "Cancelled" ? { color: "#ef4444", backgroundColor: "rgba(239, 68, 68, 0.1)" } : {}}
-                                        >
-                                            {order.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-white font-mono">{order.total}</td>
-                                    <td className="px-6 py-4 text-right">
-                                        <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white">
-                                            <MoreHorizontal className="w-4 h-4" />
-                                        </button>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={6} className="text-center py-12">
+                                        <Loader2 className="w-8 h-8 animate-spin mx-auto text-[var(--color-neon-blue)]" />
                                     </td>
                                 </tr>
-                            ))}
+                            ) : filteredOrders.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="text-center py-8 text-gray-500">
+                                        No orders found.
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredOrders.map((order) => (
+                                    <tr key={order.id} className="hover:bg-white/5 transition-colors">
+                                        <td className="px-6 py-4 text-white font-mono">#{order.id.slice(0, 8)}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white">
+                                                    {order.guest_email?.charAt(0).toUpperCase() || 'G'}
+                                                </div>
+                                                <span className="text-white">{order.guest_email || 'Guest'}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">{new Date(order.created_at).toLocaleDateString()}</td>
+                                        <td className="px-6 py-4">
+                                            <span
+                                                className={cn(
+                                                    "px-2 py-1 rounded text-xs font-bold uppercase tracking-wider",
+                                                    `bg-[var(--color-${statusColors[order.status]})]/10 text-[var(--color-${statusColors[order.status]})]`
+                                                )}
+                                                style={order.status === "cancelled" ? { color: "#ef4444", backgroundColor: "rgba(239, 68, 68, 0.1)" } : {}}
+                                            >
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-white font-mono">{Number(order.total_amount).toFixed(2)} EGP</td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white">
+                                                <MoreHorizontal className="w-4 h-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
