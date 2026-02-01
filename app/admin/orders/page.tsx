@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, MoreHorizontal, Eye, Truck, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { Search, Filter, MoreHorizontal, Eye, Truck, CheckCircle, XCircle, Loader2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 
@@ -23,10 +23,21 @@ const statusColors: Record<string, string> = {
     pending: "plasma-pink",
 };
 
+const statusOptions = [
+    { value: "pending", label: "Pending" },
+    { value: "processing", label: "Processing" },
+    { value: "shipped", label: "Shipped" },
+    { value: "delivered", label: "Delivered" },
+    { value: "cancelled", label: "Cancelled" },
+];
+
 export default function OrdersPage() {
     const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState<string>("all");
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+    const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 
     useEffect(() => {
         fetchOrders();
@@ -70,11 +81,37 @@ export default function OrdersPage() {
         setIsLoading(false);
     };
 
-    const filteredOrders = orders.filter(
-        (order) =>
-            order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (order.guest_email && order.guest_email.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const updateOrderStatus = async (orderId: string, newStatus: string) => {
+        const { error } = await supabase
+            .from('orders')
+            .update({ status: newStatus, updated_at: new Date().toISOString() })
+            .eq('id', orderId);
+
+        if (error) {
+            console.error("Error updating order status:", error);
+            alert("Failed to update order status");
+        } else {
+            // Update local state
+            setOrders(orders.map(order =>
+                order.id === orderId ? { ...order, status: newStatus } : order
+            ));
+            setEditingOrderId(null);
+        }
+    };
+
+    const filteredOrders = orders.filter((order) => {
+        const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (order.guest_email && order.guest_email.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    const getStatusCount = (status: string) => {
+        if (status === "all") return orders.length;
+        return orders.filter(order => order.status === status).length;
+    };
 
     return (
         <motion.div
@@ -99,12 +136,74 @@ export default function OrdersPage() {
                             className="w-full bg-black/20 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[var(--color-neon-blue)]"
                         />
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white hover:bg-white/10 transition-colors">
-                        <Filter className="w-4 h-4" />
-                        <span>Filter</span>
-                    </button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                            className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white hover:bg-white/10 transition-colors"
+                        >
+                            <Filter className="w-4 h-4" />
+                            <span>Filter</span>
+                            <ChevronDown className="w-4 h-4" />
+                        </button>
+
+                        {showFilterDropdown && (
+                            <div className="absolute right-0 mt-2 w-56 glass rounded-lg border border-white/10 shadow-xl z-50">
+                                <div className="p-2">
+                                    <button
+                                        onClick={() => {
+                                            setStatusFilter("all");
+                                            setShowFilterDropdown(false);
+                                        }}
+                                        className={cn(
+                                            "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between",
+                                            statusFilter === "all"
+                                                ? "bg-[var(--color-neon-blue)]/20 text-[var(--color-neon-blue)]"
+                                                : "text-gray-300 hover:bg-white/5"
+                                        )}
+                                    >
+                                        <span>All Orders</span>
+                                        <span className="text-xs opacity-60">{getStatusCount("all")}</span>
+                                    </button>
+                                    {statusOptions.map((status) => (
+                                        <button
+                                            key={status.value}
+                                            onClick={() => {
+                                                setStatusFilter(status.value);
+                                                setShowFilterDropdown(false);
+                                            }}
+                                            className={cn(
+                                                "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between",
+                                                statusFilter === status.value
+                                                    ? "bg-[var(--color-neon-blue)]/20 text-[var(--color-neon-blue)]"
+                                                    : "text-gray-300 hover:bg-white/5"
+                                            )}
+                                        >
+                                            <span>{status.label}</span>
+                                            <span className="text-xs opacity-60">{getStatusCount(status.value)}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
+
+            {/* Active Filter Badge */}
+            {statusFilter !== "all" && (
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-400">Active filter:</span>
+                    <span className="px-3 py-1 bg-[var(--color-neon-blue)]/10 text-[var(--color-neon-blue)] rounded-full text-xs font-medium border border-[var(--color-neon-blue)]/20">
+                        {statusOptions.find(s => s.value === statusFilter)?.label}
+                    </span>
+                    <button
+                        onClick={() => setStatusFilter("all")}
+                        className="text-xs text-gray-400 hover:text-white transition-colors"
+                    >
+                        Clear
+                    </button>
+                </div>
+            )}
 
             <div className="glass rounded-xl border border-white/5 overflow-hidden">
                 <div className="overflow-x-auto">
@@ -146,15 +245,32 @@ export default function OrdersPage() {
                                         </td>
                                         <td className="px-6 py-4">{new Date(order.created_at).toLocaleDateString()}</td>
                                         <td className="px-6 py-4">
-                                            <span
-                                                className={cn(
-                                                    "px-2 py-1 rounded text-xs font-bold uppercase tracking-wider",
-                                                    `bg-[var(--color-${statusColors[order.status]})]/10 text-[var(--color-${statusColors[order.status]})]`
-                                                )}
-                                                style={order.status === "cancelled" ? { color: "#ef4444", backgroundColor: "rgba(239, 68, 68, 0.1)" } : {}}
-                                            >
-                                                {order.status}
-                                            </span>
+                                            {editingOrderId === order.id ? (
+                                                <select
+                                                    value={order.status}
+                                                    onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                                                    onBlur={() => setEditingOrderId(null)}
+                                                    autoFocus
+                                                    className="bg-black/40 border border-[var(--color-neon-blue)] rounded px-2 py-1 text-xs text-white focus:outline-none"
+                                                >
+                                                    {statusOptions.map((status) => (
+                                                        <option key={status.value} value={status.value}>
+                                                            {status.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <button
+                                                    onClick={() => setEditingOrderId(order.id)}
+                                                    className={cn(
+                                                        "px-2 py-1 rounded text-xs font-bold uppercase tracking-wider hover:opacity-80 transition-opacity",
+                                                        `bg-[var(--color-${statusColors[order.status]})]/10 text-[var(--color-${statusColors[order.status]})]`
+                                                    )}
+                                                    style={order.status === "cancelled" ? { color: "#ef4444", backgroundColor: "rgba(239, 68, 68, 0.1)" } : {}}
+                                                >
+                                                    {order.status}
+                                                </button>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4 text-white font-mono">{Number(order.total_amount).toFixed(2)} EGP</td>
                                         <td className="px-6 py-4 text-right">
