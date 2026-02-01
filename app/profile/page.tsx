@@ -77,38 +77,54 @@ export default function ProfilePage() {
 
     const handleReorder = async (order: Order) => {
         setReordering(true);
+        console.log("Starting reorder for order:", order.id);
 
-        // Fetch product details for each item
-        for (const item of order.order_items) {
-            const { data: product } = await supabase
-                .from('products')
-                .select('*')
-                .eq('id', item.product_id)
-                .single();
+        try {
+            // Fetch product details for each item
+            for (const item of order.order_items) {
+                console.log("Processing item:", item.product_id);
+                const { data: product, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .eq('id', item.product_id)
+                    .single();
 
-            if (product) {
-                // Add item first (adds with quantity 1)
-                addItem({
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: product.image_url || '/placeholder.jpg',
-                    category: product.category || 'Product'
-                });
+                if (error) {
+                    console.error("Error fetching product:", item.product_id, error);
+                }
 
-                // Then update quantity if more than 1
-                if (item.quantity > 1) {
-                    setTimeout(() => {
-                        const { updateQuantity } = useCartStore.getState();
-                        updateQuantity(product.id, item.quantity);
-                    }, 100);
+                if (product) {
+                    console.log("Product found:", product.name);
+                    // Add item with specific quantity
+                    addItem({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image_url || '/placeholder.jpg',
+                        category: product.category || 'Product'
+                    }, item.quantity);
+                } else {
+                    console.warn("Product not found, using order item details:", item.product_name);
+                    // Fallback to order item details if product not found (e.g. deleted)
+                    addItem({
+                        id: item.product_id,
+                        name: item.product_name, // Fallback name
+                        price: item.price_at_purchase, // Fallback price
+                        image: '/placeholder.jpg', // Fallback image
+                        category: 'Product' // Fallback category
+                    }, item.quantity);
                 }
             }
-        }
 
-        setReordering(false);
-        setSelectedOrder(null);
-        router.push('/cart');
+            console.log("Reorder complete, redirecting to cart");
+            setReordering(false);
+            setSelectedOrder(null);
+            router.push('/cart');
+        } catch (error) {
+            console.error("Critical error in reorder:", error);
+            setReordering(false);
+            alert("Failed to re-order items. Please try again.");
+        }
     };
 
     const formatDate = (dateString: string) => {
@@ -156,9 +172,11 @@ export default function ProfilePage() {
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
                         <div>
                             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                                Agent Profile
+                                {user?.email === 'admin@horus.com' ? 'Agent Profile' : 'Customer Profile'}
                             </h1>
-                            <p className="text-gray-400 mt-1">Clearance Level: User</p>
+                            {user?.email === 'admin@horus.com' && (
+                                <p className="text-gray-400 mt-1">Clearance Level: Admin</p>
+                            )}
                         </div>
                         <button
                             onClick={signOut}
@@ -173,11 +191,11 @@ export default function ProfilePage() {
                         {/* User Info Card */}
                         <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
                             <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 bg-[var(--color-neon-blue)]/10 rounded-full flex items-center justify-center text-[var(--color-neon-blue)]">
-                                    <User className="w-8 h-8" />
+                                <div className="w-20 h-20 bg-[var(--color-neon-blue)]/5 rounded-full flex items-center justify-center border border-[var(--color-neon-blue)]/20 shadow-[0_0_20px_rgba(var(--color-neon-blue-rgb),0.1)]">
+                                    <img src="/horus-eye-logo.png" alt="Profile" className="w-12 h-12 object-contain" />
                                 </div>
                                 <div>
-                                    <h2 className="font-bold text-lg">{user.user_metadata?.full_name || "Agent"}</h2>
+                                    <h2 className="font-bold text-lg">{user.user_metadata?.full_name || (user?.email === 'admin@horus.com' ? "Agent" : "Customer")}</h2>
                                     <p className="text-sm text-gray-400">{user.email}</p>
                                 </div>
                             </div>

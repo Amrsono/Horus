@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, ShoppingBag, Users, Settings, LogOut, ArrowLeft, Package, Globe, BarChart3, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,13 @@ export default function AdminSidebar() {
     const [isMobile, setIsMobile] = useState(false);
     const pathname = usePathname();
     const { t, locale, switchLanguage } = useLanguage();
+    const { signOut } = useAuth();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await signOut();
+        router.push('/login');
+    };
 
     // Detect screen size
     useEffect(() => {
@@ -134,7 +142,12 @@ export default function AdminSidebar() {
                         <ArrowLeft className="w-5 h-5" />
                         <span>{t.admin.sidebar.back_to_store}</span>
                     </Link>
-                    <button className="flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 transition-colors w-full rounded-xl hover:bg-red-400/5">
+
+
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 transition-colors w-full rounded-xl hover:bg-red-400/5"
+                    >
                         <LogOut className="w-5 h-5" />
                         <span>{t.admin.sidebar.logout}</span>
                     </button>
