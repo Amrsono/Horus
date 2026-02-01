@@ -182,13 +182,50 @@ export default function Navbar() {
                                     <Globe className="w-5 h-5" />
                                     {locale === "en" ? "Switch to Arabic" : "Switch to English"}
                                 </button>
-                                <Link
-                                    href="/login"
-                                    className="text-center py-3 bg-[var(--color-neon-blue)] text-black font-bold rounded-lg hover:bg-[var(--color-electric-cyan)] transition-colors"
-                                    onClick={() => setIsMobileMenuOpen(false)}
+
+                                <button
+                                    onClick={() => { setIsCartOpen(true); setIsMobileMenuOpen(false); }}
+                                    className="text-left text-lg text-gray-300 hover:text-[var(--color-plasma-pink)] transition-colors flex items-center gap-2"
                                 >
-                                    {t.nav.login}
-                                </Link>
+                                    <ShoppingCart className="w-5 h-5" />
+                                    {t.nav.cart || "Cart"} {mounted && totalItems > 0 && `(${totalItems})`}
+                                </button>
+
+                                {user ? (
+                                    <>
+                                        {user.email === 'admin@horus.com' && (
+                                            <Link
+                                                href="/admin"
+                                                className="text-center py-3 bg-[var(--color-neon-blue)] text-black font-bold rounded-lg hover:bg-[var(--color-electric-cyan)] transition-colors"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                            >
+                                                Admin Dashboard
+                                            </Link>
+                                        )}
+                                        <Link
+                                            href="/profile"
+                                            className="text-center py-3 bg-white/10 text-white font-bold rounded-lg hover:bg-white/20 transition-colors"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                        >
+                                            {t.nav.profile || "Profile"}
+                                        </Link>
+                                        <button
+                                            onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
+                                            className="text-center py-3 bg-red-500/20 text-red-400 font-bold rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                                        >
+                                            {t.nav.logout || "Logout"}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <Link
+                                        href="/login"
+                                        className="text-center py-3 bg-[var(--color-neon-blue)] text-black font-bold rounded-lg hover:bg-[var(--color-electric-cyan)] transition-colors"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        {t.nav.login}
+                                    </Link>
+                                )}
+
                             </div>
                         </motion.div>
                     )}

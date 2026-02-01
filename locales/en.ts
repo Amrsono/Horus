@@ -7,6 +7,7 @@ export const en = {
         login: "Login",
         profile: "Profile",
         logout: "Logout",
+        cart: "Cart",
     },
     hero: {
         established: "Established 2077",

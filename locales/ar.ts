@@ -7,6 +7,7 @@ export const ar = {
         login: "تسجيل دخول",
         profile: "الملف الشخصي",
         logout: "تسجيل الخروج",
+        cart: "السلة",
     },
     hero: {
         established: "تأسست 2077",
