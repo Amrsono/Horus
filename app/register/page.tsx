@@ -28,8 +28,10 @@ export default function RegisterPage() {
             setError(error.message);
             setLoading(false);
         } else if (needsVerification) {
-            // Redirect to email verification page
-            router.push("/auth/verify-email");
+            // Store email for resend functionality
+            localStorage.setItem('pendingVerificationEmail', email);
+            // Redirect to email verification page with email param
+            router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
         } else {
             // User is logged in immediately (no email verification required)
             router.push("/");

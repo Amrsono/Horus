@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Mail, CheckCircle, RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -10,13 +10,23 @@ import Footer from "@/components/Footer";
 
 export default function VerifyEmailPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [email, setEmail] = useState<string>("");
     const [resending, setResending] = useState(false);
     const [resent, setResent] = useState(false);
+    const [error, setError] = useState<string>("");
 
     useEffect(() => {
-        // Get email from localStorage or session
-        const checkSession = async () => {
+        // Try to get email from multiple sources
+        const getEmail = async () => {
+            // 1. Try URL params (we'll pass this from register)
+            const emailParam = searchParams.get('email');
+            if (emailParam) {
+                setEmail(emailParam);
+                return;
+            }
+
+            // 2. Try session
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user?.email) {
                 setEmail(session.user.email);
@@ -24,25 +34,43 @@ export default function VerifyEmailPage() {
                 if (session.user.email_confirmed_at) {
                     router.push("/");
                 }
+                return;
+            }
+
+            // 3. Try localStorage
+            const storedEmail = localStorage.getItem('pendingVerificationEmail');
+            if (storedEmail) {
+                setEmail(storedEmail);
             }
         };
-        checkSession();
-    }, [router]);
+        getEmail();
+    }, [router, searchParams]);
 
     const handleResendEmail = async () => {
-        if (!email) return;
+        if (!email) {
+            setError("Email not found. Please try registering again.");
+            return;
+        }
 
         setResending(true);
-        const { error } = await supabase.auth.resend({
+        setError("");
+
+        const { error: resendError } = await supabase.auth.resend({
             type: 'signup',
             email: email,
+            options: {
+                emailRedirectTo: `${window.location.origin}/auth/callback`,
+            }
         });
 
-        if (!error) {
+        if (resendError) {
+            setError(resendError.message);
+            setResending(false);
+        } else {
             setResent(true);
             setTimeout(() => setResent(false), 3000);
+            setResending(false);
         }
-        setResending(false);
     };
 
     return (
@@ -105,6 +133,12 @@ export default function VerifyEmailPage() {
                             </>
                         )}
                     </button>
+
+                    {error && (
+                        <div className="mt-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm">
+                            {error}
+                        </div>
+                    )}
 
                     <p className="text-sm text-gray-500 mt-6">
                         Already verified?{" "}
