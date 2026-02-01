@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { useCartStore } from "@/store/cartStore";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 interface Product {
@@ -24,6 +25,7 @@ interface Product {
 }
 
 export default function ShopPage() {
+    const { t } = useLanguage();
     const { addItem } = useCartStore();
     const [products, setProducts] = useState<Product[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -114,10 +116,10 @@ export default function ShopPage() {
                 >
                     <div>
                         <h1 className="text-4xl md:text-5xl font-black mb-4">
-                            SHOP <span className="text-gradient">CATALOG</span>
+                            {t.shop_page.title} <span className="text-gradient">{t.shop_page.highlight}</span>
                         </h1>
                         <p className="text-gray-400 max-w-xl">
-                            Explore our complete collection of premium vaping products, from advanced mods to exotic e-liquids.
+                            {t.footer.sections.shop.description}
                         </p>
                     </div>
                 </motion.div>

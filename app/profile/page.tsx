@@ -8,6 +8,7 @@ import { useCartStore } from "@/store/cartStore";
 import Navbar from "@/components/Navbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Package, Award, LogOut, Loader2, X, ShoppingCart, MapPin } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface OrderItem {
     product_id: string;
@@ -28,6 +29,7 @@ interface Order {
 export default function ProfilePage() {
     const { user, loading, signOut } = useAuth();
     const router = useRouter();
+    const { t } = useLanguage();
     const { addItem } = useCartStore();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
@@ -172,10 +174,10 @@ export default function ProfilePage() {
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
                         <div>
                             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                                {user?.email === 'admin@horus.com' ? 'Agent Profile' : 'Customer Profile'}
+                                {user?.email === 'admin@horus.com' ? t.profile.agent_profile : t.profile.customer_profile}
                             </h1>
                             {user?.email === 'admin@horus.com' && (
-                                <p className="text-gray-400 mt-1">Clearance Level: Admin</p>
+                                <p className="text-gray-400 mt-1">{t.profile.clearance_admin}</p>
                             )}
                         </div>
                         <button
@@ -183,7 +185,7 @@ export default function ProfilePage() {
                             className="flex items-center gap-2 px-4 py-2 border border-red-500/30 text-red-500 rounded-lg hover:bg-red-500/10 transition-colors"
                         >
                             <LogOut className="w-4 h-4" />
-                            Sign Out
+                            {t.profile.sign_out}
                         </button>
                     </div>
 
@@ -201,19 +203,19 @@ export default function ProfilePage() {
                             </div>
 
                             <div className="pt-6 border-t border-white/10">
-                                <h3 className="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider">Account Stats</h3>
+                                <h3 className="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider">{t.profile.account_stats}</h3>
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-[var(--color-plasma-pink)]/20">
                                         <div className="flex items-center gap-3">
                                             <Award className="w-5 h-5 text-[var(--color-plasma-pink)]" />
-                                            <span>Loyalty Points</span>
+                                            <span>{t.profile.loyalty_points}</span>
                                         </div>
                                         <span className="font-mono font-bold text-[var(--color-plasma-pink)]">1250 PTS</span>
                                     </div>
                                     <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                                         <div className="flex items-center gap-3">
                                             <Package className="w-5 h-5 text-gray-400" />
-                                            <span>Total Orders</span>
+                                            <span>{t.profile.total_orders}</span>
                                         </div>
                                         <span className="font-mono font-bold">{orders.length}</span>
                                     </div>
@@ -225,7 +227,7 @@ export default function ProfilePage() {
                         <div className="md:col-span-2 glass p-6 rounded-2xl border border-white/10">
                             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                                 <Package className="w-5 h-5 text-[var(--color-neon-blue)]" />
-                                Recent Orders
+                                {t.profile.recent_orders}
                             </h2>
 
                             {loadingOrders ? (
@@ -235,18 +237,18 @@ export default function ProfilePage() {
                             ) : orders.length === 0 ? (
                                 <div className="text-center py-12 text-gray-400">
                                     <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                                    <p>No orders yet</p>
+                                    <p>{t.profile.no_orders}</p>
                                 </div>
                             ) : (
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left text-sm text-gray-400">
                                         <thead className="text-xs uppercase font-bold tracking-wider text-gray-500 border-b border-white/10">
                                             <tr>
-                                                <th className="px-4 py-3">Order ID</th>
-                                                <th className="px-4 py-3">Date</th>
-                                                <th className="px-4 py-3">Total</th>
-                                                <th className="px-4 py-3">Status</th>
-                                                <th className="px-4 py-3 text-right">Actions</th>
+                                                <th className="px-4 py-3">{t.profile.table.order_id}</th>
+                                                <th className="px-4 py-3">{t.profile.table.date}</th>
+                                                <th className="px-4 py-3">{t.profile.table.total}</th>
+                                                <th className="px-4 py-3">{t.profile.table.status}</th>
+                                                <th className="px-4 py-3 text-right">{t.profile.table.actions}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-white/5">
@@ -266,7 +268,7 @@ export default function ProfilePage() {
                                                                 onClick={() => setSelectedOrder(order)}
                                                                 className="text-[var(--color-neon-blue)] hover:text-white transition-colors"
                                                             >
-                                                                View
+                                                                {t.profile.table.view}
                                                             </button>
                                                             <span className="text-gray-600">|</span>
                                                             <button
@@ -274,7 +276,7 @@ export default function ProfilePage() {
                                                                 disabled={reordering}
                                                                 className="text-[var(--color-plasma-pink)] hover:text-white transition-colors disabled:opacity-50"
                                                             >
-                                                                Re-order
+                                                                {t.profile.table.reorder}
                                                             </button>
                                                         </div>
                                                     </td>
@@ -301,7 +303,7 @@ export default function ProfilePage() {
                         >
                             <div className="flex justify-between items-start mb-6">
                                 <div>
-                                    <h2 className="text-2xl font-bold text-white">Order Details</h2>
+                                    <h2 className="text-2xl font-bold text-white">{t.profile.modal.title}</h2>
                                     <p className="text-gray-400 mt-1">#{selectedOrder.id.slice(0, 8)}</p>
                                 </div>
                                 <button
@@ -315,11 +317,11 @@ export default function ProfilePage() {
                             {/* Order Info */}
                             <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-white/5 rounded-lg">
                                 <div>
-                                    <p className="text-xs text-gray-500 uppercase">Date</p>
+                                    <p className="text-xs text-gray-500 uppercase">{t.profile.modal.date}</p>
                                     <p className="text-white font-medium">{formatDate(selectedOrder.created_at)}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-gray-500 uppercase">Status</p>
+                                    <p className="text-xs text-gray-500 uppercase">{t.profile.modal.status}</p>
                                     <span className={`inline-block px-2 py-1 rounded text-xs font-bold uppercase ${getStatusColor(selectedOrder.status)}`}>
                                         {selectedOrder.status}
                                     </span>
@@ -328,13 +330,13 @@ export default function ProfilePage() {
 
                             {/* Order Items */}
                             <div className="mb-6">
-                                <h3 className="text-lg font-bold text-white mb-4">Items</h3>
+                                <h3 className="text-lg font-bold text-white mb-4">{t.profile.modal.items}</h3>
                                 <div className="space-y-3">
                                     {selectedOrder.order_items.map((item, index) => (
                                         <div key={index} className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
                                             <div>
                                                 <p className="text-white font-medium">{item.product_name}</p>
-                                                <p className="text-sm text-gray-400">Qty: {item.quantity}</p>
+                                                <p className="text-sm text-gray-400">{t.profile.modal.qty}: {item.quantity}</p>
                                             </div>
                                             <p className="text-[var(--color-neon-blue)] font-mono">
                                                 {item.price_at_purchase.toFixed(0)} EGP
@@ -349,7 +351,7 @@ export default function ProfilePage() {
                                 <div className="mb-6">
                                     <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                         <MapPin className="w-5 h-5" />
-                                        Shipping Address
+                                        {t.profile.modal.shipping_address}
                                     </h3>
                                     <div className="p-4 bg-white/5 rounded-lg text-gray-300">
                                         <p>{selectedOrder.shipping_address.name}</p>
@@ -362,7 +364,7 @@ export default function ProfilePage() {
                             {/* Total */}
                             <div className="border-t border-white/10 pt-4 mb-6">
                                 <div className="flex justify-between items-center text-xl font-bold">
-                                    <span className="text-white">Total</span>
+                                    <span className="text-white">{t.profile.modal.total}</span>
                                     <span className="text-[var(--color-neon-blue)]">{selectedOrder.total_amount.toFixed(0)} EGP</span>
                                 </div>
                             </div>
@@ -376,12 +378,12 @@ export default function ProfilePage() {
                                 {reordering ? (
                                     <>
                                         <Loader2 className="w-5 h-5 animate-spin" />
-                                        Adding to Cart...
+                                        {t.profile.modal.adding_to_cart}
                                     </>
                                 ) : (
                                     <>
                                         <ShoppingCart className="w-5 h-5" />
-                                        Re-order All Items
+                                        {t.profile.modal.reorder_all}
                                     </>
                                 )}
                             </button>

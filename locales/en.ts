@@ -85,6 +85,10 @@ export const en = {
             cyber_mods: { name: "Cyber Mod Pro", category: "Mods" },
         }
     },
+    shop_page: {
+        title: "SHOP",
+        highlight: "CATALOG"
+    },
     footer: {
         description: "Elevating the vaping experience through giving you a futuristic experience coming from the year 2077",
         shop: "Shop",
@@ -95,6 +99,7 @@ export const en = {
         sections: {
             shop: {
                 title: "Shop",
+                description: "Explore our complete collection of premium vaping products, from advanced mods to exotic e-liquids.",
                 links: ["New Arrivals", "Best Sellers", "Mods & Pods", "E-Liquids", "Accessories"]
             },
             support: {
@@ -119,6 +124,37 @@ export const en = {
         from_last_month: "from last month",
         revenue_overview: "Revenue Overview",
         live_transaction: "Live Transaction",
+    },
+    profile: {
+        agent_profile: "Agent Profile",
+        customer_profile: "Customer Profile",
+        clearance_admin: "Clearance Level: Admin",
+        sign_out: "Sign Out",
+        account_stats: "Account Stats",
+        loyalty_points: "Loyalty Points",
+        total_orders: "Total Orders",
+        recent_orders: "Recent Orders",
+        no_orders: "No orders yet",
+        table: {
+            order_id: "Order ID",
+            date: "Date",
+            total: "Total",
+            status: "Status",
+            actions: "Actions",
+            view: "View",
+            reorder: "Re-order"
+        },
+        modal: {
+            title: "Order Details",
+            date: "Date",
+            status: "Status",
+            items: "Items",
+            qty: "Qty",
+            shipping_address: "Shipping Address",
+            total: "Total",
+            reorder_all: "Re-order All Items",
+            adding_to_cart: "Adding to Cart..."
+        }
     },
     admin: {
         sidebar: {

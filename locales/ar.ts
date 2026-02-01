@@ -85,6 +85,10 @@ export const ar = {
             cyber_mods: { name: "مود سايبر الفئة الاحترافية", category: "مودات" },
         }
     },
+    shop_page: {
+        title: "كتالوج",
+        highlight: "المتجر"
+    },
     footer: {
         description: "الارتقاء بتجربة الفيب لكي تعيش متعة مستقبلية.قادمة من سنة 2077.",
         shop: "تسوق",
@@ -95,6 +99,7 @@ export const ar = {
         sections: {
             shop: {
                 title: "المتجر",
+                description: "استكشف مجموعتنا الكاملة من منتجات الفيب المميزة، من المودات المتطورة إلى السوائل الإلكترونية الفاخرة.",
                 links: ["وصل حديثاً", "الأكثر مبيعاً", "مودات وبودات", "سوايل إلكترونية", "اكسسوارات"]
             },
             support: {
@@ -119,6 +124,37 @@ export const ar = {
         from_last_month: "عن الشهر الماضي",
         revenue_overview: "نظرة عامة على الإيرادات",
         live_transaction: "معاملة مباشرة",
+    },
+    profile: {
+        agent_profile: "ملف الوكيل",
+        customer_profile: "ملف العميل",
+        clearance_admin: "مستوى التصريح: مسؤول",
+        sign_out: "تسجيل الخروج",
+        account_stats: "إحصائيات الحساب",
+        loyalty_points: "نقاط الولاء",
+        total_orders: "إجمالي الطلبات",
+        recent_orders: "الطلبات الأخيرة",
+        no_orders: "لا توجد طلبات بعد",
+        table: {
+            order_id: "رقم الطلب",
+            date: "التاريخ",
+            total: "الإجمالي",
+            status: "الحالة",
+            actions: "إجراءات",
+            view: "عرض",
+            reorder: "إعادة الطلب"
+        },
+        modal: {
+            title: "تفاصيل الطلب",
+            date: "التاريخ",
+            status: "الحالة",
+            items: "العناصر",
+            qty: "الكمية",
+            shipping_address: "عنوان الشحن",
+            total: "الإجمالي",
+            reorder_all: "إعادة طلب جميع العناصر",
+            adding_to_cart: "جارٍ الإضافة للسلة..."
+        }
     },
     admin: {
         sidebar: {

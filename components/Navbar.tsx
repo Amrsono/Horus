@@ -103,17 +103,35 @@ export default function Navbar() {
                             <Search className="w-5 h-5" />
                         </button>
 
-                        <button
+                        <motion.button
                             onClick={() => setIsCartOpen(true)}
-                            className="relative text-gray-300 hover:text-[var(--color-plasma-pink)] transition-colors"
+                            className="relative group p-2"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
                         >
-                            <ShoppingCart className="w-5 h-5" />
+                            <div className={cn(
+                                "flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
+                                totalItems > 0
+                                    ? "bg-[var(--color-plasma-pink)]/20 border border-[var(--color-plasma-pink)] shadow-[0_0_15px_rgba(255,42,109,0.3)]"
+                                    : "bg-white/5 border border-white/10 hover:bg-white/10"
+                            )}>
+                                <ShoppingCart className={cn(
+                                    "w-6 h-6 transition-colors duration-300",
+                                    totalItems > 0 ? "text-[var(--color-plasma-pink)]" : "text-gray-300 group-hover:text-white"
+                                )} />
+                            </div>
+
                             {mounted && totalItems > 0 && (
-                                <span className="absolute -top-2 -right-2 w-4 h-4 bg-[var(--color-neon-blue)] text-black text-[10px] font-bold flex items-center justify-center rounded-full animate-pulse-slow">
+                                <motion.span
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    key={totalItems} // Triggers animation on change
+                                    className="absolute -top-1 -right-1 w-6 h-6 bg-[var(--color-neon-blue)] text-black text-xs font-bold flex items-center justify-center rounded-full shadow-lg border-2 border-[var(--color-obsidian)]"
+                                >
                                     {totalItems}
-                                </span>
+                                </motion.span>
                             )}
-                        </button>
+                        </motion.button>
 
                         {user ? (
                             <div className="flex items-center gap-4">
