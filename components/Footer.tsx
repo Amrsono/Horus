@@ -50,9 +50,11 @@ export default function Footer() {
                     <div>
                         <h4 className="text-[var(--foreground)] font-bold mb-6">{t.footer.sections.support.title}</h4>
                         <ul className="space-y-4 text-sm">
-                            {t.footer.sections.support.links.map((link, index) => (
-                                <li key={index}><Link href="#" className="hover:text-[var(--color-neon-blue)] transition-colors">{link}</Link></li>
-                            ))}
+                            <li><Link href="/profile" className="hover:text-[var(--color-neon-blue)] transition-colors">{t.footer.sections.support.links[0]}</Link></li>
+                            <li><Link href="#" className="hover:text-[var(--color-neon-blue)] transition-colors">{t.footer.sections.support.links[1]}</Link></li>
+                            <li><Link href="#" className="hover:text-[var(--color-neon-blue)] transition-colors">{t.footer.sections.support.links[2]}</Link></li>
+                            <li><Link href="#" className="hover:text-[var(--color-neon-blue)] transition-colors">{t.footer.sections.support.links[3]}</Link></li>
+                            <li><Link href="#" className="hover:text-[var(--color-neon-blue)] transition-colors">{t.footer.sections.support.links[4]}</Link></li>
                         </ul>
                     </div>
 
