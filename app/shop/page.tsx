@@ -45,29 +45,29 @@ function ShopPageContent() {
 
     // Sort
     const [sortBy, setSortBy] = useState<'newest' | 'bestsellers'>('newest');
+    const [saleOnly, setSaleOnly] = useState(false);
 
     useEffect(() => {
         // Read URL params on mount
         const categoryParam = searchParams.get('category');
         const sortParam = searchParams.get('sort');
+        const saleParam = searchParams.get('sale');
 
         if (categoryParam) {
-            // Check if it's the "mods" covering both logic or distinct
-            // For now, we trust the DB categories match the params or we map them
-            // If the user says "mods" covers both, we assume the DB category is literally "mods"
-            // or we might need to select multiple. But simplicity first:
             setSelectedCategory(categoryParam);
         }
 
         if (sortParam === 'newest') setSortBy('newest');
         if (sortParam === 'bestsellers') setSortBy('bestsellers');
 
+        if (saleParam === 'true') setSaleOnly(true);
+
         fetchProducts();
     }, [searchParams]);
 
     useEffect(() => {
         applyFilters();
-    }, [products, searchQuery, selectedCategory, priceRange, sortBy]);
+    }, [products, searchQuery, selectedCategory, priceRange, sortBy, saleOnly]);
 
     const fetchProducts = async () => {
         setIsLoading(true);
@@ -120,6 +120,11 @@ function ShopPageContent() {
             }
         }
 
+        // Sale filter
+        if (saleOnly) {
+            result = result.filter(p => p.on_sale === true);
+        }
+
         // Price
         result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
 
@@ -166,6 +171,19 @@ function ShopPageContent() {
                         </p>
                     </div>
                 </motion.div>
+
+                {/* Sale Filter Active Banner */}
+                {saleOnly && (
+                    <div className="flex items-center gap-3 mb-6 p-4 bg-[var(--color-plasma-pink)]/10 border border-[var(--color-plasma-pink)]/30 rounded-xl">
+                        <span className="text-[var(--color-plasma-pink)] font-bold text-sm uppercase tracking-wider animate-pulse">🔥 Sale Offers Only</span>
+                        <button
+                            onClick={() => setSaleOnly(false)}
+                            className="ml-auto text-xs text-gray-400 hover:text-white transition-colors px-3 py-1 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10"
+                        >
+                            Show All Products
+                        </button>
+                    </div>
+                )}
 
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Filters Sidebar */}
