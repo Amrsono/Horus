@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, MoreHorizontal, Eye, Truck, CheckCircle, XCircle, Loader2, ChevronDown } from "lucide-react";
+import { Search, Filter, MoreHorizontal, Eye, Truck, CheckCircle, XCircle, Loader2, ChevronDown, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -122,6 +122,33 @@ export default function OrdersPage() {
     const [viewOrderOpen, setViewOrderOpen] = useState(false);
     const [activeActionMenu, setActiveActionMenu] = useState<string | null>(null);
 
+    const handleExportCSV = () => {
+        const headers = ["Order ID", "Customer Email", "Total Amount", "Status", "Items", "Date"];
+        const rows = orders.map(order => [
+            order.id,
+            order.guest_email || 'Guest',
+            order.total_amount,
+            order.status,
+            order.item_count || 0,
+            new Date(order.created_at).toISOString().split('T')[0]
+        ].join(","));
+
+        const csvContent = [
+            headers.join(","),
+            ...rows
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `orders_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const handleViewOrder = async (order: Order) => {
         setSelectedOrder(order);
         setViewOrderOpen(true);
@@ -220,6 +247,13 @@ export default function OrdersPage() {
                             </div>
                         )}
                     </div>
+                    <button
+                        onClick={handleExportCSV}
+                        className="flex items-center gap-2 px-4 py-2 bg-[var(--color-neon-blue)]/10 text-[var(--color-neon-blue)] border border-[var(--color-neon-blue)]/50 rounded-lg hover:bg-[var(--color-neon-blue)]/20 transition-colors"
+                    >
+                        <Download className="w-4 h-4" />
+                        <span>Export CSV</span>
+                    </button>
                 </div>
             </div>
 
