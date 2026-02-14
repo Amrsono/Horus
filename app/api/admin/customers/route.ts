@@ -17,8 +17,13 @@ export async function GET() {
             }
         });
 
-        // Fetch users
-        const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+        // Fetch users with pagination (fetch all)
+        const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers({
+            page: 1,
+            perPage: 1000
+        });
+
+        console.log('Fetched users count:', users?.length);
 
         if (usersError) {
             console.error('Error fetching users:', usersError);
