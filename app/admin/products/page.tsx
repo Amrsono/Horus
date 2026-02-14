@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Filter, Plus, Edit, Trash2, Package, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Search, Filter, Plus, Edit, Trash2, Package, Image as ImageIcon, Loader2, ChevronDown, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/lib/supabase";
@@ -14,6 +15,8 @@ export default function ProductsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+    const [categoryFilter, setCategoryFilter] = useState<string>("all");
+    const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
     const fetchProducts = async () => {
         setIsLoading(true);
@@ -64,10 +67,20 @@ export default function ProductsPage() {
         fetchProducts();
     };
 
-    const filteredProducts = products.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (product.category && product.category.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    // Extract unique categories
+    const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean)));
+
+    const getCategoryCount = (cat: string) => {
+        if (cat === 'all') return products.length;
+        return products.filter(p => p.category === cat).length;
+    };
+
+    const filteredProducts = products.filter(product => {
+        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (product.category && product.category.toLowerCase().includes(searchTerm.toLowerCase()));
+        const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
+        return matchesSearch && matchesCategory;
+    });
 
     return (
         <div className="space-y-6">
@@ -97,11 +110,71 @@ export default function ProductsPage() {
                         className="w-full bg-black/40 border border-white/10 rounded-lg py-2 pl-10 pr-4 text-[var(--foreground)] focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors"
                     />
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-white/10 transition-colors">
-                    <Filter className="w-4 h-4" />
-                    {t.admin.products.category_filter}
-                </button>
+                <div className="relative">
+                    <button
+                        onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                        className={cn(
+                            "flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors",
+                            categoryFilter !== 'all'
+                                ? "bg-[var(--color-neon-blue)]/10 border-[var(--color-neon-blue)]/50 text-[var(--color-neon-blue)]"
+                                : "bg-white/5 border-white/10 text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-white/10"
+                        )}
+                    >
+                        <Filter className="w-4 h-4" />
+                        {t.admin.products.category_filter}
+                        <ChevronDown className={cn("w-4 h-4 transition-transform", showCategoryDropdown && "rotate-180")} />
+                    </button>
+
+                    {showCategoryDropdown && (
+                        <div className="absolute right-0 mt-2 w-56 glass rounded-xl border border-white/10 shadow-2xl z-50 overflow-hidden">
+                            <div className="p-3">
+                                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-2">Category</p>
+                                <div className="space-y-1 max-h-64 overflow-y-auto">
+                                    <button
+                                        onClick={() => { setCategoryFilter('all'); setShowCategoryDropdown(false); }}
+                                        className={cn(
+                                            "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between",
+                                            categoryFilter === 'all'
+                                                ? "bg-[var(--color-neon-blue)]/20 text-[var(--color-neon-blue)] font-medium"
+                                                : "text-gray-300 hover:bg-white/5"
+                                        )}
+                                    >
+                                        <span>All</span>
+                                        <span className="text-xs opacity-60">{getCategoryCount('all')}</span>
+                                    </button>
+                                    {categories.map((cat) => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => { setCategoryFilter(cat); setShowCategoryDropdown(false); }}
+                                            className={cn(
+                                                "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between",
+                                                categoryFilter === cat
+                                                    ? "bg-[var(--color-neon-blue)]/20 text-[var(--color-neon-blue)] font-medium"
+                                                    : "text-gray-300 hover:bg-white/5"
+                                            )}
+                                        >
+                                            <span>{cat}</span>
+                                            <span className="text-xs opacity-60">{getCategoryCount(cat)}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
+
+            {/* Active Filter Badge */}
+            {categoryFilter !== 'all' && (
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-400">Filtered by:</span>
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-[var(--color-neon-blue)]/10 text-[var(--color-neon-blue)] rounded-full text-xs font-medium border border-[var(--color-neon-blue)]/20">
+                        {categoryFilter}
+                        <button onClick={() => setCategoryFilter('all')} className="ml-1 hover:opacity-70"><X className="w-3 h-3" /></button>
+                    </span>
+                    <span className="text-xs text-gray-500">({getCategoryCount(categoryFilter)} products)</span>
+                </div>
+            )}
 
             {/* Products Table */}
             <div className="glass rounded-xl border border-white/5 overflow-hidden">
