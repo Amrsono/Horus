@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Filter, ShoppingCart, ArrowRight, Loader2, X } from "lucide-react";
@@ -27,7 +27,7 @@ interface Product {
     created_at?: string;
 }
 
-export default function ShopPage() {
+function ShopPageContent() {
     const { t, formatCurrency, formatNumber } = useLanguage();
     const { addItem } = useCartStore();
     const searchParams = useSearchParams();
@@ -348,5 +348,17 @@ export default function ShopPage() {
 
             <Footer />
         </div>
+    );
+}
+
+export default function ShopPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+                <Loader2 className="w-12 h-12 text-[var(--color-neon-blue)] animate-spin" />
+            </div>
+        }>
+            <ShopPageContent />
+        </Suspense>
     );
 }
