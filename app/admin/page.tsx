@@ -168,8 +168,8 @@ export default function AdminDashboardPage() {
         >
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">{t.admin.dashboard.title}</h1>
-                    <p className="text-gray-400">{t.admin.dashboard.welcome}</p>
+                    <h1 className="text-3xl font-bold text-[var(--foreground)] mb-2">{t.admin.dashboard.title}</h1>
+                    <p className="text-[var(--text-muted)]">{t.admin.dashboard.welcome}</p>
                 </div>
                 <div className="px-4 py-2 bg-[var(--color-neon-blue)]/10 border border-[var(--color-neon-blue)] rounded-lg text-[var(--color-neon-blue)] text-sm font-mono">
                     {t.admin.dashboard.system_online}
@@ -200,8 +200,8 @@ export default function AdminDashboardPage() {
                                             </span>
                                         )}
                                     </div>
-                                    <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                                    <div className="text-sm text-gray-400">{stat.label}</div>
+                                    <div className="text-2xl font-bold text-[var(--foreground)] mb-1">{stat.value}</div>
+                                    <div className="text-sm text-[var(--text-muted)]">{stat.label}</div>
                                 </div>
                             )
                         })}
@@ -209,7 +209,7 @@ export default function AdminDashboardPage() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div className="glass p-6 rounded-xl border border-white/5">
-                            <h3 className="text-lg font-bold text-white mb-6">{t.admin.dashboard.revenue_over_time}</h3>
+                            <h3 className="text-lg font-bold text-[var(--foreground)] mb-6">{t.admin.dashboard.revenue_over_time}</h3>
                             <div className="h-[300px]">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={revenueData}>
@@ -219,10 +219,11 @@ export default function AdminDashboardPage() {
                                                 <stop offset="95%" stopColor="var(--color-neon-blue)" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
-                                        <XAxis dataKey="name" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
-                                        <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
+                                        <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                                        <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
                                         <Tooltip
-                                            contentStyle={{ backgroundColor: '#0a0a0f', border: '1px solid #333' }}
+                                            contentStyle={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-color)', color: 'var(--foreground)' }}
+                                            itemStyle={{ color: 'var(--foreground)' }}
                                         />
                                         <Area type="monotone" dataKey="revenue" stroke="var(--color-neon-blue)" fillOpacity={1} fill="url(#colorRevenue)" />
                                     </AreaChart>
@@ -231,25 +232,25 @@ export default function AdminDashboardPage() {
                         </div>
 
                         <div className="glass p-6 rounded-xl border border-white/5">
-                            <h3 className="text-lg font-bold text-white mb-6">{t.admin.dashboard.recent_orders}</h3>
+                            <h3 className="text-lg font-bold text-[var(--foreground)] mb-6">{t.admin.dashboard.recent_orders}</h3>
                             <div className="space-y-4">
                                 {recentOrders.length === 0 ? (
-                                    <p className="text-gray-500 text-center py-8">{t.admin.dashboard.no_orders}</p>
+                                    <p className="text-[var(--text-muted)] text-center py-8">{t.admin.dashboard.no_orders}</p>
                                 ) : (
                                     recentOrders.map((order) => (
-                                        <div key={order.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+                                        <div key={order.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors border border-white/5">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-[var(--color-quantum-purple)]/20 flex items-center justify-center text-[var(--color-quantum-purple)] font-bold">
+                                                <div className="w-10 h-10 rounded-full bg-[var(--color-quantum-purple)]/20 flex items-center justify-center text-[var(--color-quantum-purple)] font-bold border border-[var(--color-quantum-purple)]/30">
                                                     {order.guest_email?.charAt(0).toUpperCase() || 'G'}
                                                 </div>
                                                 <div>
-                                                    <div className="text-white font-medium">{order.guest_email || t.admin.dashboard.labels.guest}</div>
-                                                    <div className="text-xs text-gray-400">#{order.id.slice(0, 8)}</div>
+                                                    <div className="text-[var(--foreground)] font-medium">{order.guest_email || t.admin.dashboard.labels.guest}</div>
+                                                    <div className="text-xs text-[var(--text-muted)]">#{order.id.slice(0, 8)}</div>
                                                 </div>
                                             </div>
                                             <div className="text-right">
                                                 <div className="text-[var(--color-neon-blue)] font-mono">{formatCurrency(order.total_amount)}</div>
-                                                <div className="text-xs text-gray-500">
+                                                <div className="text-xs text-[var(--text-muted)]">
                                                     {new Date(order.created_at).toLocaleDateString()}
                                                 </div>
                                             </div>

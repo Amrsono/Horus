@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Activity, Users, DollarSign, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DashboardStats {
@@ -31,6 +31,11 @@ export default function DashboardSection() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        if (!isSupabaseConfigured) {
+            setIsLoading(false);
+            return;
+        }
+
         fetchDashboardData();
 
         // Real-time subscription to update dashboard when new orders come in
@@ -55,6 +60,7 @@ export default function DashboardSection() {
     }, []);
 
     const fetchDashboardData = async () => {
+        if (!isSupabaseConfigured) return;
         setIsLoading(true);
 
         try {
@@ -165,10 +171,10 @@ export default function DashboardSection() {
                         className="max-w-3xl w-full"
                     >
 
-                        <h3 className="text-4xl md:text-5xl font-black mb-6 leading-tight">
+                        <h3 className="text-4xl md:text-5xl font-black mb-6 leading-tight text-[var(--foreground)]">
                             {t.dashboard.control} <span className="text-gradient">{t.dashboard.empire}</span>
                         </h3>
-                        <p className="text-gray-400 text-lg mb-8 leading-relaxed">
+                        <p className="text-[var(--text-muted)] text-lg mb-8 leading-relaxed">
                             {t.dashboard.description}
                         </p>
 
@@ -176,10 +182,10 @@ export default function DashboardSection() {
                             {statsDisplay.map((stat, index) => (
                                 <div key={index} className="glass p-6 rounded-xl border-l-2 text-left" style={{ borderLeftColor: `var(--color-${stat.color})` }}>
                                     <div className="flex items-center justify-between mb-4">
-                                        <span className="text-gray-400 text-sm">{stat.label}</span>
+                                        <span className="text-[var(--text-muted)] text-sm">{stat.label}</span>
                                         {stat.icon}
                                     </div>
-                                    <div className="text-2xl font-bold font-mono text-white mb-1">
+                                    <div className="text-2xl font-bold font-mono text-[var(--foreground)] mb-1">
                                         {stat.value}
                                     </div>
                                     <div className={cn(

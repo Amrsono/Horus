@@ -59,7 +59,7 @@ export default function AdminSidebar() {
             {/* Mobile Hamburger Button */}
             <button
                 onClick={toggleMobileMenu}
-                className="md:hidden fixed top-4 left-4 z-50 p-3 bg-[var(--color-deep-space)] border border-white/10 rounded-xl text-white hover:bg-white/5 transition-colors"
+                className="md:hidden fixed top-4 left-4 z-50 p-3 bg-[var(--surface)] border border-white/10 rounded-xl text-[var(--foreground)] hover:bg-white/5 transition-colors"
                 aria-label="Toggle menu"
             >
                 {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -95,7 +95,7 @@ export default function AdminSidebar() {
                     {/* Close button for mobile */}
                     <button
                         onClick={closeMobileMenu}
-                        className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+                        className="md:hidden p-2 text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors"
                         aria-label="Close menu"
                     >
                         <X className="w-5 h-5" />
@@ -116,7 +116,7 @@ export default function AdminSidebar() {
                                     "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300",
                                     isActive
                                         ? "bg-[var(--color-neon-blue)]/20 text-[var(--color-neon-blue)] border border-[var(--color-neon-blue)]/30"
-                                        : "text-gray-400 hover:bg-white/5 hover:text-white"
+                                        : "text-[var(--text-muted)] hover:bg-white/5 hover:text-[var(--foreground)]"
                                 )}
                             >
                                 <Icon className="w-5 h-5" />
@@ -129,7 +129,7 @@ export default function AdminSidebar() {
                 <div className="p-4 border-t border-white/10 space-y-2">
                     <button
                         onClick={toggleLanguage}
-                        className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white transition-colors w-full rounded-xl hover:bg-white/5"
+                        className="flex items-center gap-3 px-4 py-3 text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors w-full rounded-xl hover:bg-white/5"
                     >
                         <Globe className="w-5 h-5" />
                         <span className="font-medium">{locale === "en" ? "العربية" : "English"}</span>
@@ -137,7 +137,7 @@ export default function AdminSidebar() {
                     <Link
                         href="/"
                         onClick={closeMobileMenu}
-                        className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white transition-colors rounded-xl hover:bg-white/5"
+                        className="flex items-center gap-3 px-4 py-3 text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors rounded-xl hover:bg-white/5"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         <span>{t.admin.sidebar.back_to_store}</span>

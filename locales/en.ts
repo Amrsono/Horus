@@ -209,7 +209,19 @@ export const en = {
             },
             status: {
                 active: "Active",
-                inactive: "Inactive"
+                inactive: "Inactive",
+                suspended: "Suspended",
+                blocked: "Blocked"
+            },
+            actions_menu: {
+                reset_password: "Reset Password",
+                suspend_customer: "Suspend Customer",
+                unsuspend_customer: "Activate Customer",
+                block_customer: "Block Customer",
+                unblock_customer: "Unblock Customer",
+                confirm: "Confirm",
+                cancel: "Cancel",
+                success: "Action completed successfully"
             }
         },
         products: {
@@ -309,6 +321,7 @@ export const en = {
                 showing: "Showing",
                 of: "of",
                 orders: "orders",
+                view: "View Details",
                 previous: "Previous",
                 next: "Next",
                 no_orders: "No orders found."

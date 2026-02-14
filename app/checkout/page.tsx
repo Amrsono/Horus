@@ -96,7 +96,7 @@ export default function CheckoutPage() {
 
     if (!mounted || authLoading) {
         return (
-            <div className="min-h-screen bg-[var(--color-obsidian)] flex items-center justify-center">
+            <div className="min-h-screen bg-[var(--background)] flex items-center justify-center transition-colors duration-300">
                 <Loader2 className="w-12 h-12 animate-spin text-[var(--color-neon-blue)]" />
             </div>
         );
@@ -109,7 +109,7 @@ export default function CheckoutPage() {
 
     if (isSuccess) {
         return (
-            <main className="min-h-screen bg-[var(--color-obsidian)] text-white">
+            <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300">
                 <Navbar />
                 <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
                     <motion.div
@@ -136,11 +136,11 @@ export default function CheckoutPage() {
     }
 
     return (
-        <main className="min-h-screen bg-[var(--color-obsidian)] text-white">
+        <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300">
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-6 py-32">
-                <Link href="/shop" className="inline-flex items-center text-gray-400 hover:text-[var(--color-neon-blue)] mb-8 transition-colors">
+                <Link href="/shop" className="inline-flex items-center text-[var(--text-muted)] hover:text-[var(--color-neon-blue)] mb-8 transition-colors">
                     <ArrowLeft className="w-4 h-4 mr-2 rtl:ml-2 rtl:mr-0" />
                     Back to Shop
                 </Link>
@@ -234,7 +234,7 @@ export default function CheckoutPage() {
                                         <Banknote className="w-5 h-5" />
                                         {t.checkout.cash_on_delivery}
                                     </div>
-                                    <div className="text-xs text-gray-400 mt-1">Pay when you receive</div>
+                                    <div className="text-xs text-[var(--text-muted)] mt-1">Pay when you receive</div>
                                 </div>
                             </button>
 
@@ -249,7 +249,7 @@ export default function CheckoutPage() {
                                         <CreditCard className="w-5 h-5" />
                                         {t.checkout.credit_card}
                                     </div>
-                                    <div className="text-xs text-gray-400 mt-1">Secure encrypted payment</div>
+                                    <div className="text-xs text-[var(--text-muted)] mt-1">Secure encrypted payment</div>
                                 </div>
                                 <div className="absolute top-2 right-2 px-2 py-0.5 bg-[var(--color-plasma-pink)] text-black text-[10px] font-bold rounded">
                                     {t.checkout.coming_soon}
@@ -274,8 +274,8 @@ export default function CheckoutPage() {
                                         </div>
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <p className="font-bold text-white">{item.name}</p>
-                                                <p className="text-sm text-gray-400">{t.profile.modal.qty}: {item.quantity}</p>
+                                                <p className="font-bold text-[var(--foreground)]">{item.name}</p>
+                                                <p className="text-sm text-[var(--text-muted)]">{t.profile.modal.qty}: {item.quantity}</p>
                                             </div>
                                             <p className="font-mono text-[var(--color-plasma-pink)]">
                                                 {formatCurrency(Number(item.price) * item.quantity)}
@@ -286,11 +286,11 @@ export default function CheckoutPage() {
                             </div>
 
                             <div className="space-y-4 mb-6">
-                                <div className="flex justify-between text-gray-400">
+                                <div className="flex justify-between text-[var(--text-muted)]">
                                     <span>{t.cart.subtotal}</span>
-                                    <span className="text-white font-mono">{formatCurrency(totalPrice())}</span>
+                                    <span className="text-[var(--foreground)] font-mono">{formatCurrency(totalPrice())}</span>
                                 </div>
-                                <div className="flex justify-between text-gray-400">
+                                <div className="flex justify-between text-[var(--text-muted)]">
                                     <span>{t.cart.shipping}</span>
                                     <span className="text-[var(--color-neon-blue)]">{t.cart.free}</span>
                                 </div>

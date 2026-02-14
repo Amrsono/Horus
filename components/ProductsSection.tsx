@@ -6,7 +6,7 @@ import { ArrowRight, Star, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/cartStore";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
@@ -28,6 +28,40 @@ export default function ProductsSection() {
     useEffect(() => {
         const fetchProducts = async () => {
             setIsLoading(true);
+
+            if (!isSupabaseConfigured) {
+                // Return mock data if Supabase is not configured to prevent errors/crashes
+                console.warn("Supabase not configured, using mock products.");
+                setProducts([
+                    {
+                        id: "mock-1",
+                        name: "Nebula Vape Mod X200",
+                        price: 129.99,
+                        category: "Mods",
+                        image_url: "https://images.unsplash.com/photo-1534125881478-f7ebc24c6a49?auto=format&fit=crop&q=80&w=800",
+                        stock: 10
+                    },
+                    {
+                        id: "mock-2",
+                        name: "Quantum Juice - Blue Razz",
+                        price: 24.99,
+                        category: "E-Liquid",
+                        image_url: "https://images.unsplash.com/photo-1534125881478-f7ebc24c6a49?auto=format&fit=crop&q=80&w=800",
+                        stock: 50
+                    },
+                    {
+                        id: "mock-3",
+                        name: "Cyber Coil Pack",
+                        price: 15.99,
+                        category: "Accessories",
+                        image_url: "https://images.unsplash.com/photo-1534125881478-f7ebc24c6a49?auto=format&fit=crop&q=80&w=800",
+                        stock: 100
+                    }
+                ]);
+                setIsLoading(false);
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('products')
                 .select('*')

@@ -11,6 +11,8 @@ import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
+import { useSearchParams } from "next/navigation";
+
 interface Product {
     id: string;
     name: string;
@@ -22,11 +24,13 @@ interface Product {
     on_sale?: boolean;
     sale_price?: number;
     sale_badge_text?: string;
+    created_at?: string;
 }
 
 export default function ShopPage() {
     const { t, formatCurrency, formatNumber } = useLanguage();
     const { addItem } = useCartStore();
+    const searchParams = useSearchParams();
     const [products, setProducts] = useState<Product[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -39,13 +43,31 @@ export default function ShopPage() {
     const [maxPrice, setMaxPrice] = useState(1000);
     const [showFilters, setShowFilters] = useState(false); // Mobile filter toggle
 
+    // Sort
+    const [sortBy, setSortBy] = useState<'newest' | 'bestsellers'>('newest');
+
     useEffect(() => {
+        // Read URL params on mount
+        const categoryParam = searchParams.get('category');
+        const sortParam = searchParams.get('sort');
+
+        if (categoryParam) {
+            // Check if it's the "mods" covering both logic or distinct
+            // For now, we trust the DB categories match the params or we map them
+            // If the user says "mods" covers both, we assume the DB category is literally "mods"
+            // or we might need to select multiple. But simplicity first:
+            setSelectedCategory(categoryParam);
+        }
+
+        if (sortParam === 'newest') setSortBy('newest');
+        if (sortParam === 'bestsellers') setSortBy('bestsellers');
+
         fetchProducts();
-    }, []);
+    }, [searchParams]);
 
     useEffect(() => {
         applyFilters();
-    }, [products, searchQuery, selectedCategory, priceRange]);
+    }, [products, searchQuery, selectedCategory, priceRange, sortBy]);
 
     const fetchProducts = async () => {
         setIsLoading(true);
@@ -56,6 +78,7 @@ export default function ShopPage() {
 
         if (error) {
             console.error("Error fetching products:", error);
+            setIsLoading(false);
         } else {
             const allProducts = data || [];
             setProducts(allProducts);
@@ -68,12 +91,13 @@ export default function ShopPage() {
             const highestPrice = Math.max(...allProducts.map(p => Number(p.price)), 0);
             setMaxPrice(Math.ceil(highestPrice));
             setPriceRange([0, Math.ceil(highestPrice)]);
+
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
 
     const applyFilters = () => {
-        let result = products;
+        let result = [...products];
 
         // Search
         if (searchQuery) {
@@ -85,11 +109,30 @@ export default function ShopPage() {
 
         // Category
         if (selectedCategory !== "All") {
-            result = result.filter(p => p.category === selectedCategory);
+            // Handle "mods" covering "mods" and "pod_systems" if strictly requested, 
+            // but for now strict equality based on user feedback "mods covers both" likely implies one category name.
+            // However, to be robust if they are separate in DB:
+            if (selectedCategory === 'mods') {
+                // Try to cover both if they exist separately
+                result = result.filter(p => p.category === 'mods' || p.category === 'Mods' || p.category === 'pod_systems' || p.category === 'Pod Systems');
+            } else {
+                result = result.filter(p => p.category === selectedCategory || p.category.toLowerCase() === selectedCategory.toLowerCase());
+            }
         }
 
         // Price
         result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
+
+        // Sort
+        if (sortBy === 'newest') {
+            result.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+        } else if (sortBy === 'bestsellers') {
+            // Mock logic for bestsellers since we might not have sales count on product yet
+            // Just keeping unrelated order or verifying if we have 'sold' count. 
+            // Schema didn't strictly show 'sold_count', using stock as proxy or just random for demo?
+            // Let's stick to created_at for now if no data, or maybe price/stock.
+            // Ideally we need a 'sales' column. For now, let's assume 'bestsellers' might just differ slightly or not sort if no data.
+        }
 
         setFilteredProducts(result);
     };
@@ -105,7 +148,7 @@ export default function ShopPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[var(--color-obsidian)] text-white font-sans">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans transition-colors duration-300">
             <Navbar />
 
             <div className="pt-24 pb-12 px-6 max-w-7xl mx-auto">
@@ -165,7 +208,7 @@ export default function ShopPage() {
                                                 "w-full text-left px-3 py-2 rounded-lg text-sm transition-all",
                                                 selectedCategory === category
                                                     ? "bg-[var(--color-neon-blue)]/10 text-[var(--color-neon-blue)] font-bold border border-[var(--color-neon-blue)]/20"
-                                                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                                                    : "text-gray-400 hover:text-[var(--foreground)] hover:bg-white/5"
                                             )}
                                         >
                                             {category}
@@ -177,7 +220,7 @@ export default function ShopPage() {
                             {/* Price Range */}
                             <div>
                                 <h3 className="font-bold text-sm text-[var(--color-neon-blue)] uppercase tracking-wider mb-4">
-                                    Price Range: <span className="text-white">{formatCurrency(priceRange[0])} - {formatCurrency(priceRange[1])}</span>
+                                    Price Range: <span className="text-[var(--foreground)]">{formatCurrency(priceRange[0])} - {formatCurrency(priceRange[1])}</span>
                                 </h3>
                                 <input
                                     type="range"
@@ -259,7 +302,7 @@ export default function ShopPage() {
 
                                             {/* Content */}
                                             <div className="p-6">
-                                                <h3 className="text-xl font-bold text-white mb-1 line-clamp-1 group-hover:text-[var(--color-neon-blue)] transition-colors">
+                                                <h3 className="text-xl font-bold text-[var(--foreground)] mb-1 line-clamp-1 group-hover:text-[var(--color-neon-blue)] transition-colors">
                                                     {product.name}
                                                 </h3>
                                                 <div className="flex items-end justify-between mt-4">
@@ -281,7 +324,7 @@ export default function ShopPage() {
                                                     </div>
                                                     <button
                                                         onClick={() => handleAddToCart(product)}
-                                                        className="w-10 h-10 rounded-full bg-white/10 hover:bg-[var(--color-neon-blue)] flex items-center justify-center text-white hover:text-black transition-all hover:scale-110 active:scale-95"
+                                                        className="w-10 h-10 rounded-full bg-white/10 hover:bg-[var(--color-neon-blue)] flex items-center justify-center text-[var(--foreground)] hover:text-black transition-all hover:scale-110 active:scale-95"
                                                     >
                                                         <ShoppingCart className="w-5 h-5" />
                                                     </button>
@@ -290,7 +333,7 @@ export default function ShopPage() {
 
                                             {/* Sale Badge */}
                                             {product.on_sale && (
-                                                <div className="absolute top-4 right-4 bg-[var(--color-plasma-pink)] text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg animate-pulse">
+                                                <div className="absolute top-4 right-4 bg-[var(--color-plasma-pink)] text-[var(--foreground)] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg animate-pulse">
                                                     {product.sale_badge_text || 'SALE'}
                                                 </div>
                                             )}

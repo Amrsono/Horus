@@ -22,15 +22,15 @@ export default function CartPage() {
     if (!mounted) return null;
 
     return (
-        <div className="min-h-screen bg-[var(--color-obsidian)] text-white flex flex-col">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col transition-colors duration-300">
             <Navbar />
 
             <main className="flex-1 max-w-7xl mx-auto px-6 py-12 w-full mt-20">
                 <div className="flex items-center gap-4 mb-8">
-                    <Link href="/shop" className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                        <ArrowLeft className="w-6 h-6 text-gray-400" />
+                    <Link href="/shop" className="p-2 hover:bg-white/10 rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--foreground)]">
+                        <ArrowLeft className="w-6 h-6" />
                     </Link>
-                    <h1 className="text-3xl font-bold">{t.cart?.title || "Shopping Cart"}</h1>
+                    <h1 className="text-3xl font-bold text-[var(--foreground)]">{t.cart?.title || "Shopping Cart"}</h1>
                 </div>
 
                 {items.length === 0 ? (
@@ -40,7 +40,7 @@ export default function CartPage() {
                         </div>
                         <div>
                             <h2 className="text-2xl font-bold mb-2">{t.cart?.empty || "Your cart is empty"}</h2>
-                            <p className="text-gray-400 mb-8">Looks like you haven't added anything yet.</p>
+                            <p className="text-[var(--text-muted)] mb-8">Looks like you haven't added anything yet.</p>
                             <Link
                                 href="/shop"
                                 className="inline-block px-8 py-3 bg-[var(--color-neon-blue)] text-black font-bold rounded-xl hover:bg-[var(--color-electric-cyan)] transition-colors"
@@ -75,7 +75,7 @@ export default function CartPage() {
                                         <div className="flex justify-between items-start">
                                             <div>
                                                 <h3 className="font-bold text-lg line-clamp-1">{item.name}</h3>
-                                                <p className="text-sm text-gray-400">{item.category}</p>
+                                                <p className="text-sm text-[var(--text-muted)]">{item.category}</p>
                                             </div>
                                             <button
                                                 onClick={() => removeItem(item.id)}
@@ -120,17 +120,17 @@ export default function CartPage() {
                                 </h2>
 
                                 <div className="space-y-4 mb-6">
-                                    <div className="flex justify-between text-gray-400">
+                                    <div className="flex justify-between text-[var(--text-muted)]">
                                         <span>{t.cart.subtotal}</span>
-                                        <span className="text-white font-mono">{formatCurrency(totalPrice())}</span>
+                                        <span className="text-[var(--foreground)] font-mono">{formatCurrency(totalPrice())}</span>
                                     </div>
-                                    <div className="flex justify-between text-gray-400">
+                                    <div className="flex justify-between text-[var(--text-muted)]">
                                         <span>{t.cart.shipping}</span>
                                         <span className="text-[var(--color-neon-blue)]">{t.cart.free}</span>
                                     </div>
-                                    <div className="flex justify-between text-gray-400">
+                                    <div className="flex justify-between text-[var(--text-muted)]">
                                         <span>{t.cart.taxes}</span>
-                                        <span className="text-white font-mono">{formatCurrency(0)}</span>
+                                        <span className="text-[var(--foreground)] font-mono">{formatCurrency(0)}</span>
                                     </div>
                                 </div>
 

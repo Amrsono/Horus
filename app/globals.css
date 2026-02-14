@@ -9,48 +9,96 @@
   --color-electric-cyan: #00fff5;
   --color-solar-yellow: #ffeb3b;
   --color-cyber-green: #00ff88;
-  
+
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  
+
   --animate-float: float 6s ease-in-out infinite;
   --animate-pulse-slow: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  
+
   @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
   }
-  
+
   @keyframes pulse-slow {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
   }
 }
 
 :root {
-  --background: var(--color-obsidian);
+  --background: #0a0a0f;
   --foreground: #ededed;
+  --surface: #12121a;
+  --card-bg: rgba(10, 10, 15, 0.6);
+  --border-color: rgba(0, 212, 255, 0.1);
+  --text-muted: #94a3b8;
+}
+
+[data-theme='obsidian'] {
+  --background: #0a0a0f;
+  --foreground: #ededed;
+  --surface: #12121a;
+  --card-bg: rgba(10, 10, 15, 0.6);
+  --border-color: rgba(0, 212, 255, 0.1);
+  --text-muted: #94a3b8;
+}
+
+[data-theme='pale-white'] {
+  --background: #f8f9fa;
+  --foreground: #12121a;
+  --surface: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --text-muted: #475569;
+}
+
+[data-theme='fluorescent-green'] {
+  --background: #00ff88;
+  --foreground: #050505;
+  --surface: #00e67a;
+  --card-bg: rgba(0, 255, 136, 0.9);
+  --border-color: rgba(0, 0, 0, 0.2);
+  --text-muted: #1e293b;
 }
 
 body {
-  background-color: var(--color-obsidian);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Utilities */
 .glass {
-  background: rgba(10, 10, 15, 0.6);
+  background: var(--card-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 212, 255, 0.1);
+  border: 1px solid var(--border-color);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .glass-strong {
-  background: rgba(18, 18, 26, 0.8);
+  background: var(--card-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  border: 1px solid var(--border-color);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .neon-glow-blue {

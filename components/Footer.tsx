@@ -8,14 +8,14 @@ export default function Footer() {
     const { t } = useLanguage();
 
     return (
-        <footer className="border-t border-white/5 bg-[var(--color-obsidian)] text-white/60">
+        <footer className="border-t border-white/5 bg-[var(--background)] text-[var(--text-muted)] transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-6 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     <div className="md:col-span-1">
                         <Link href="/" className="inline-block mb-6">
                             <div className="flex items-center gap-2">
                                 <img src="/horus-eye-logo.png" alt="Horus Logo" className="w-8 h-8 object-contain" />
-                                <h2 className="text-2xl font-bold text-white tracking-tighter">
+                                <h2 className="text-2xl font-bold text-[var(--foreground)] tracking-tighter">
                                     HORUS <span className="text-[var(--color-neon-blue)]">SMOKING</span>
                                 </h2>
                             </div>
@@ -37,16 +37,18 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="text-white font-bold mb-6">{t.footer.sections.shop.title}</h4>
+                        <h4 className="text-[var(--foreground)] font-bold mb-6">{t.footer.sections.shop.title}</h4>
                         <ul className="space-y-4 text-sm">
-                            {t.footer.sections.shop.links.map((link, index) => (
-                                <li key={index}><Link href="#" className="hover:text-[var(--color-neon-blue)] transition-colors">{link}</Link></li>
-                            ))}
+                            <li><Link href="/shop?sort=newest" className="hover:text-[var(--color-neon-blue)] transition-colors">{t.footer.sections.shop.links[0]}</Link></li>
+                            <li><Link href="/shop?sort=bestsellers" className="hover:text-[var(--color-neon-blue)] transition-colors">{t.footer.sections.shop.links[1]}</Link></li>
+                            <li><Link href="/shop?category=mods" className="hover:text-[var(--color-neon-blue)] transition-colors">{t.footer.sections.shop.links[2]}</Link></li>
+                            <li><Link href="/shop?category=e-liquids" className="hover:text-[var(--color-neon-blue)] transition-colors">{t.footer.sections.shop.links[3]}</Link></li>
+                            <li><Link href="/shop?category=accessories" className="hover:text-[var(--color-neon-blue)] transition-colors">{t.footer.sections.shop.links[4]}</Link></li>
                         </ul>
                     </div>
 
                     <div>
-                        <h4 className="text-white font-bold mb-6">{t.footer.sections.support.title}</h4>
+                        <h4 className="text-[var(--foreground)] font-bold mb-6">{t.footer.sections.support.title}</h4>
                         <ul className="space-y-4 text-sm">
                             {t.footer.sections.support.links.map((link, index) => (
                                 <li key={index}><Link href="#" className="hover:text-[var(--color-neon-blue)] transition-colors">{link}</Link></li>
@@ -55,13 +57,13 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="text-white font-bold mb-6">{t.footer.newsletter}</h4>
+                        <h4 className="text-[var(--foreground)] font-bold mb-6">{t.footer.newsletter}</h4>
                         <p className="text-sm mb-4">{t.footer.newsletter_desc}</p>
                         <form className="flex gap-2">
                             <input
                                 type="email"
                                 placeholder={t.footer.placeholders.email}
-                                className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-[var(--color-neon-blue)] w-full"
+                                className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:border-[var(--color-neon-blue)] w-full"
                             />
                             <button type="submit" className="bg-[var(--color-neon-blue)] text-black px-4 py-2 rounded-lg hover:bg-[var(--color-electric-cyan)] transition-colors">
                                 <Mail className="w-4 h-4" />
@@ -74,7 +76,7 @@ export default function Footer() {
                     <p>{t.footer.rights}</p>
                     <div className="flex gap-6">
                         {t.footer.sections.legal.map((link, index) => (
-                            <Link key={index} href="#" className="hover:text-white transition-colors">{link}</Link>
+                            <Link key={index} href="#" className="hover:text-[var(--foreground)] transition-colors">{link}</Link>
                         ))}
                     </div>
                 </div>

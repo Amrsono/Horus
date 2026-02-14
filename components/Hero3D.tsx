@@ -76,7 +76,7 @@ export default function Hero3D() {
     const { t } = useLanguage();
 
     return (
-        <div className="relative w-full h-screen overflow-hidden bg-[var(--color-obsidian)]">
+        <div className="relative w-full h-screen overflow-hidden bg-[var(--background)] transition-colors duration-300">
             {/* 3D Scene Background */}
             <div className="absolute inset-0 z-0">
                 <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
@@ -96,10 +96,10 @@ export default function Hero3D() {
                         {t.hero.established}
                     </h2>
                     <h1 className="text-5xl md:text-8xl font-black mb-6 tracking-tighter leading-tight pointer-events-auto">
-                        <span className="block text-white">{t.hero.title_prefix}</span>
+                        <span className="block text-[var(--foreground)]">{t.hero.title_prefix}</span>
                         <span className="text-gradient block neon-text-purple">{t.hero.title_suffix}</span>
                     </h1>
-                    <p className="max-w-xl text-gray-400 text-lg md:text-xl mb-10 leading-relaxed pointer-events-auto">
+                    <p className="max-w-xl text-[var(--text-muted)] text-lg md:text-xl mb-10 leading-relaxed pointer-events-auto">
                         {t.hero.description}
                     </p>
 

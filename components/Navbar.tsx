@@ -67,7 +67,7 @@ export default function Navbar() {
                         <div className="flex items-center gap-2">
                             <img src="/horus-eye-logo.png" alt="Horus Logo" className="w-10 h-10 object-contain" />
                             <h1 className="text-2xl font-bold tracking-tighter">
-                                <span className="text-white group-hover:neon-text-blue transition-all duration-300">
+                                <span className="text-[var(--foreground)] group-hover:neon-text-blue transition-all duration-300">
                                     HORUS
                                 </span>
                                 <span className="text-gradient ml-2 neon-text-purple">SMOKING</span>
@@ -81,7 +81,7 @@ export default function Navbar() {
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className="text-gray-300 hover:text-white transition-colors relative group text-sm uppercase tracking-wider font-medium"
+                                className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors relative group text-sm uppercase tracking-wider font-medium"
                             >
                                 {link.name}
                                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[var(--color-neon-blue)] to-[var(--color-quantum-purple)] transition-all duration-300 group-hover:w-full" />
@@ -93,7 +93,7 @@ export default function Navbar() {
                     <div className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
                         <button
                             onClick={toggleLanguage}
-                            className="text-gray-300 hover:text-[var(--color-neon-blue)] transition-colors flex items-center gap-1 text-xs uppercase font-bold"
+                            className="text-[var(--text-muted)] hover:text-[var(--color-neon-blue)] transition-colors flex items-center gap-1 text-xs uppercase font-bold"
                         >
                             <Globe className="w-4 h-4" />
                             {locale === "en" ? "AR" : "EN"}
@@ -126,7 +126,7 @@ export default function Navbar() {
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     key={totalItems} // Triggers animation on change
-                                    className="absolute -top-1 -right-1 w-6 h-6 bg-[var(--color-neon-blue)] text-black text-xs font-bold flex items-center justify-center rounded-full shadow-lg border-2 border-[var(--color-obsidian)]"
+                                    className="absolute -top-1 -right-1 w-6 h-6 bg-[var(--color-neon-blue)] text-black text-xs font-bold flex items-center justify-center rounded-full shadow-lg border-2 border-[var(--background)]"
                                 >
                                     {formatNumber(totalItems)}
                                 </motion.span>
@@ -138,20 +138,20 @@ export default function Navbar() {
                                 {user.email === 'admin@horus.com' && (
                                     <Link
                                         href="/admin"
-                                        className="text-sm font-semibold text-[var(--color-neon-blue)] hover:text-white transition-colors"
+                                        className="text-sm font-semibold text-[var(--color-neon-blue)] hover:text-[var(--foreground)] transition-colors"
                                     >
                                         Admin
                                     </Link>
                                 )}
                                 <Link
                                     href="/profile"
-                                    className="text-sm font-semibold text-white hover:text-[var(--color-neon-blue)] transition-colors"
+                                    className="text-sm font-semibold text-[var(--foreground)] hover:text-[var(--color-neon-blue)] transition-colors"
                                 >
                                     {t.nav.profile || "Profile"}
                                 </Link>
                                 <button
                                     onClick={signOut}
-                                    className="px-6 py-2 glass border border-red-500/30 rounded-full text-sm font-semibold hover:bg-red-500 hover:text-white transition-all duration-300"
+                                    className="px-6 py-2 glass border border-red-500/30 rounded-full text-sm font-semibold hover:bg-red-500 hover:text-[var(--foreground)] transition-all duration-300"
                                 >
                                     {t.nav.logout || "Logout"}
                                 </button>
@@ -168,7 +168,7 @@ export default function Navbar() {
 
                     {/* Mobile Menu Button */}
                     <button
-                        className="md:hidden text-white"
+                        className="md:hidden text-[var(--foreground)]"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
                         {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -189,7 +189,7 @@ export default function Navbar() {
                                     <Link
                                         key={link.name}
                                         href={link.href}
-                                        className="text-lg text-gray-300 hover:text-[var(--color-neon-blue)] transition-colors"
+                                        className="text-lg text-[var(--text-muted)] hover:text-[var(--color-neon-blue)] transition-colors"
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         {link.name}
@@ -225,14 +225,14 @@ export default function Navbar() {
                                         )}
                                         <Link
                                             href="/profile"
-                                            className="text-center py-3 bg-white/10 text-white font-bold rounded-lg hover:bg-white/20 transition-colors"
+                                            className="text-center py-3 bg-white/10 text-[var(--foreground)] font-bold rounded-lg hover:bg-white/20 transition-colors"
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             {t.nav.profile || "Profile"}
                                         </Link>
                                         <button
                                             onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
-                                            className="text-center py-3 bg-red-500/20 text-red-400 font-bold rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                                            className="text-center py-3 bg-red-500/20 text-red-400 font-bold rounded-lg hover:bg-red-500 hover:text-[var(--foreground)] transition-colors"
                                         >
                                             {t.nav.logout || "Logout"}
                                         </button>

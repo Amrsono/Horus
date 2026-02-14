@@ -73,8 +73,8 @@ export default function ProductsPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">{t.admin.products.title}</h1>
-                    <p className="text-gray-400">{t.admin.products.subtitle}</p>
+                    <h1 className="text-3xl font-bold text-[var(--foreground)]">{t.admin.products.title}</h1>
+                    <p className="text-[var(--text-muted)]">{t.admin.products.subtitle}</p>
                 </div>
                 <button
                     onClick={handleAddNew}
@@ -88,16 +88,16 @@ export default function ProductsPage() {
             {/* Filters */}
             <div className="flex flex-col md:flex-row gap-4 p-4 glass rounded-xl border border-white/5">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                     <input
                         type="text"
                         placeholder={t.admin.products.search_placeholder}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-lg py-2 pl-10 pr-4 text-white focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors"
+                        className="w-full bg-black/40 border border-white/10 rounded-lg py-2 pl-10 pr-4 text-[var(--foreground)] focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors"
                     />
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-white/10 transition-colors">
                     <Filter className="w-4 h-4" />
                     {t.admin.products.category_filter}
                 </button>

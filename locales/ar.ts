@@ -209,7 +209,19 @@ export const ar = {
             },
             status: {
                 active: "نشط",
-                inactive: "غير نشط"
+                inactive: "غير نشط",
+                suspended: "معلق",
+                blocked: "محظور"
+            },
+            actions_menu: {
+                reset_password: "إعادة تعيين كلمة المرور",
+                suspend_customer: "تعليق حساب العميل",
+                unsuspend_customer: "تنشيط حساب العميل",
+                block_customer: "حظر العميل",
+                unblock_customer: "إلغاء حظر العميل",
+                confirm: "تأكيد",
+                cancel: "إلغاء",
+                success: "تم التنفيذ بنجاح"
             }
         },
         products: {
@@ -309,6 +321,7 @@ export const ar = {
                 showing: "عرض",
                 of: "من",
                 orders: "طلبات",
+                view: "عرض التفاصيل",
                 previous: "السابق",
                 next: "التالي",
                 no_orders: "لا توجد طلبات."

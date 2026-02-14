@@ -139,8 +139,8 @@ export default function AnalyticsPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">{t.admin.analytics.title}</h1>
-                    <p className="text-gray-400">{t.admin.analytics.subtitle}</p>
+                    <h1 className="text-3xl font-bold text-[var(--foreground)] mb-2">{t.admin.analytics.title}</h1>
+                    <p className="text-[var(--text-muted)]">{t.admin.analytics.subtitle}</p>
                 </div>
 
                 {/* Period Selector */}
@@ -151,7 +151,7 @@ export default function AnalyticsPage() {
                             onClick={() => setPeriod(p)}
                             className={`px-4 py-2 rounded-lg font-medium transition-all ${period === p
                                 ? "bg-[var(--color-neon-blue)] text-black"
-                                : "text-gray-400 hover:text-white hover:bg-white/5"
+                                : "text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-white/5"
                                 }`}
                         >
                             {periodLabels[p]}
@@ -173,8 +173,8 @@ export default function AnalyticsPage() {
                                 <Users className="w-6 h-6 text-[var(--color-neon-blue)]" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-white">{t.admin.analytics.sections.top_customers}</h3>
-                                <p className="text-sm text-gray-400">{t.admin.analytics.sections.top_customers_desc}</p>
+                                <h3 className="text-lg font-bold text-[var(--foreground)]">{t.admin.analytics.sections.top_customers}</h3>
+                                <p className="text-sm text-[var(--text-muted)]">{t.admin.analytics.sections.top_customers_desc}</p>
                             </div>
                         </div>
 
@@ -192,8 +192,8 @@ export default function AnalyticsPage() {
                                                 #{index + 1}
                                             </div>
                                             <div>
-                                                <div className="text-white font-medium">{customer.email}</div>
-                                                <div className="text-xs text-gray-400">{customer.order_count} {t.admin.analytics.labels.orders}</div>
+                                                <div className="text-[var(--foreground)] font-medium">{customer.email}</div>
+                                                <div className="text-xs text-[var(--text-muted)]">{customer.order_count} {t.admin.analytics.labels.orders}</div>
                                             </div>
                                         </div>
                                         <div className="text-right">
@@ -214,8 +214,8 @@ export default function AnalyticsPage() {
                                 <TrendingUp className="w-6 h-6 text-[var(--color-cyber-green)]" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-white">{t.admin.analytics.sections.top_products}</h3>
-                                <p className="text-sm text-gray-400">{t.admin.analytics.sections.top_products_desc}</p>
+                                <h3 className="text-lg font-bold text-[var(--foreground)]">{t.admin.analytics.sections.top_products}</h3>
+                                <p className="text-sm text-[var(--text-muted)]">{t.admin.analytics.sections.top_products_desc}</p>
                             </div>
                         </div>
 
@@ -233,8 +233,8 @@ export default function AnalyticsPage() {
                                                 #{index + 1}
                                             </div>
                                             <div>
-                                                <div className="text-white font-medium">{product.product_name}</div>
-                                                <div className="text-xs text-gray-400">{product.units_sold} {t.admin.analytics.labels.units_sold}</div>
+                                                <div className="text-[var(--foreground)] font-medium">{product.product_name}</div>
+                                                <div className="text-xs text-[var(--text-muted)]">{product.units_sold} {t.admin.analytics.labels.units_sold}</div>
                                             </div>
                                         </div>
                                         <div className="text-right">
@@ -255,8 +255,8 @@ export default function AnalyticsPage() {
                                 <TrendingDown className="w-6 h-6 text-[var(--color-plasma-pink)]" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-white">{t.admin.analytics.sections.least_products}</h3>
-                                <p className="text-sm text-gray-400">{t.admin.analytics.sections.least_products_desc}</p>
+                                <h3 className="text-lg font-bold text-[var(--foreground)]">{t.admin.analytics.sections.least_products}</h3>
+                                <p className="text-sm text-[var(--text-muted)]">{t.admin.analytics.sections.least_products_desc}</p>
                             </div>
                         </div>
 
@@ -274,8 +274,8 @@ export default function AnalyticsPage() {
                                                 #{index + 1}
                                             </div>
                                             <div>
-                                                <div className="text-white font-medium text-sm">{product.product_name}</div>
-                                                <div className="text-xs text-gray-400">{product.units_sold} {t.admin.analytics.labels.units}</div>
+                                                <div className="text-[var(--foreground)] font-medium text-sm">{product.product_name}</div>
+                                                <div className="text-xs text-[var(--text-muted)]">{product.units_sold} {t.admin.analytics.labels.units}</div>
                                             </div>
                                         </div>
                                     </div>

@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[var(--color-obsidian)] overflow-x-hidden">
+    <main className="min-h-screen bg-[var(--background)] overflow-x-hidden transition-colors duration-300">
       <Navbar />
       <Hero3D />
       <SaleSection />
