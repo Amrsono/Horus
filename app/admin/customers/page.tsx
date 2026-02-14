@@ -103,7 +103,7 @@ export default function CustomersPage() {
 
     const handleExportCSV = () => {
         const headers = ["Email", "Total Orders", "Total Spent", "Last Active", "Status"];
-        const rows = filteredCustomers.map(customer => [
+        const rows = customers.map(customer => [
             customer.email,
             customer.totalOrders,
             customer.totalSpent,
