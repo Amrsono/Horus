@@ -19,27 +19,37 @@ export async function GET() {
             }
         });
 
+
         // Fetch users with pagination (fetch all)
-        const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers({
-            page: 1,
-            perPage: 1000
-        });
-
-        console.log('Fetched users count:', users?.length);
-
-        if (usersError) {
-            console.error('Error fetching users:', usersError);
-            return NextResponse.json({ error: usersError.message }, { status: 500 });
+        let users: any[] = [];
+        try {
+            const { data, error } = await supabase.auth.admin.listUsers({
+                page: 1,
+                perPage: 1000
+            });
+            if (error) {
+                console.error('Error fetching auth users (check service role key):', error);
+            } else {
+                users = data.users || [];
+            }
+        } catch (e) {
+            console.error('Exception fetching auth users:', e);
         }
 
-        // Fetch orders
+        console.log('Fetched users count:', users.length);
+
+        // Fetch orders - rely on this if auth fails
         const { data: orders, error: ordersError } = await supabase
             .from('orders')
             .select('guest_email, total_amount, created_at');
 
         if (ordersError) {
             console.error('Error fetching orders:', ordersError);
-            return NextResponse.json({ error: ordersError.message }, { status: 500 });
+            // If orders fail, we can't show much sales data, but maybe we have users
+            // If both fail, return error
+            if (users.length === 0) {
+                return NextResponse.json({ error: ordersError.message }, { status: 500 });
+            }
         }
 
         const customerMap = new Map<string, { orders: number; spent: number; lastActive: string; status: string }>();
