@@ -1,0 +1,64 @@
+import { createServerClient } from "@supabase/ssr";
+import { type NextRequest, NextResponse } from "next/server";
+
+export async function middleware(request: NextRequest) {
+    let supabaseResponse = NextResponse.next({
+        request,
+    });
+
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll() {
+                    return request.cookies.getAll();
+                },
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        request.cookies.set(name, value)
+                    );
+                    supabaseResponse = NextResponse.next({
+                        request,
+                    });
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        supabaseResponse.cookies.set(name, value, options)
+                    );
+                },
+            },
+        }
+    );
+
+    // IMPORTANT: Avoid writing any logic between createServerClient and
+    // supabase.auth.getUser(). A simple mistake could make it very hard to debug
+    // issues with users being randomly logged out.
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    const requestUrl = new URL(request.url);
+
+    // Protected Admin Routes
+    if (requestUrl.pathname.startsWith("/admin")) {
+        if (!user) {
+            return NextResponse.redirect(new URL("/login", request.url));
+        }
+        if (user.email !== "admin@horus.com") {
+            return NextResponse.redirect(new URL("/", request.url));
+        }
+    }
+
+    // Protected Profile Routes
+    if (requestUrl.pathname.startsWith("/profile")) {
+        if (!user) {
+            return NextResponse.redirect(new URL("/login", request.url));
+        }
+    }
+
+    return supabaseResponse;
+}
+
+export const config = {
+    matcher: ["/admin/:path*", "/profile/:path*"],
+};
