@@ -32,12 +32,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("horus-theme", theme);
     }, [theme, mounted]);
 
-    // Prevent hydration mismatch by returning empty untill mounted,
-    // or return default theme with key to force rerender
-    if (!mounted) {
-        return <>{children}</>;
-    }
-
     return (
         <ThemeContext.Provider value={{ theme, setTheme }}>
             {children}
