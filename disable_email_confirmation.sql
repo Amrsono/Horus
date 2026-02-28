@@ -4,7 +4,6 @@
 -- 1. Confirm all existing users who haven't confirmed yet
 UPDATE auth.users 
 SET email_confirmed_at = now(),
-    confirmed_at = now(),
     last_sign_in_at = COALESCE(last_sign_in_at, now())
 WHERE email_confirmed_at IS NULL;
 
@@ -13,8 +12,7 @@ CREATE OR REPLACE FUNCTION public.handle_new_user_confirmation()
 RETURNS TRIGGER AS $$
 BEGIN
   UPDATE auth.users 
-  SET email_confirmed_at = now(),
-      confirmed_at = now()
+  SET email_confirmed_at = now()
   WHERE id = NEW.id;
   RETURN NEW;
 END;
