@@ -88,13 +88,13 @@ SELECT
     uuid_generate_v4(),
     'authenticated',
     'authenticated',
-    'userhorus@horus.com',
+    'user@smokinghouse.com',
     crypt('Password@25', gen_salt('bf')),
     now(),
     now(),
     now(),
     '{"provider":"email","providers":["email"]}',
-    '{"full_name":"Horus Agent"}',
+    '{"full_name":"Smoking House Agent"}',
     now(),
     now(),
     '',
@@ -102,7 +102,7 @@ SELECT
     '',
     ''
 WHERE NOT EXISTS (
-    SELECT 1 FROM auth.users WHERE email = 'userhorus@horus.com'
+    SELECT 1 FROM auth.users WHERE email = 'user@smokinghouse.com'
 );
 
 -- 4. Insert into auth.identities (Required for login to work properly in some versions)
@@ -128,11 +128,11 @@ SELECT
     now(),
     now()
 FROM auth.users
-WHERE email IN ('admin@smokinghouse.com', 'userhorus@horus.com')
+WHERE email IN ('admin@smokinghouse.com', 'user@smokinghouse.com')
 AND NOT EXISTS (
     SELECT 1 FROM auth.identities 
     WHERE provider_id = auth.users.id::text AND provider = 'email'
 );
 
 -- Verify creation
-SELECT id, email, role, created_at FROM auth.users WHERE email IN ('admin@smokinghouse.com', 'userhorus@horus.com');
+SELECT id, email, role, created_at FROM auth.users WHERE email IN ('admin@smokinghouse.com', 'user@smokinghouse.com');

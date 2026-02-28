@@ -95,7 +95,7 @@ USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 -- Admins can delete order items
 CREATE POLICY "Admins can delete order items" 
 ON public.order_items FOR DELETE 
-USING (auth.jwt() ->> 'email' = 'admin@horus.com');
+USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 
 -- Seed Sample Data (Optional - for testing)
 -- Insert sample orders

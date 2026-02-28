@@ -60,7 +60,7 @@ USING ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' = 'admin@smoking
 
 CREATE POLICY "Admin Delete" 
 ON storage.objects FOR DELETE 
-USING ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' = 'admin@horus.com' );
+USING ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' = 'admin@smokinghouse.com' );
 
 -- Seed Data (Optional - check if empty first)
 INSERT INTO public.products (name, category, price, stock, description)
