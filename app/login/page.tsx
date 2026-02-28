@@ -52,7 +52,7 @@ export default function LoginPage() {
                             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
                         </Link>
                         <div className="flex justify-center mb-6">
-                            <img src="/horus-eye-logo.png" alt="Horus" className="w-16 h-16 object-contain" />
+                            <img src="/smoking-house-logo.png" alt="Smoking House" className="w-16 h-16 object-contain" />
                         </div>
                         <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
                         <p className="text-gray-400">Access Smoking House Now</p>
