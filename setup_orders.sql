@@ -53,17 +53,17 @@ USING (auth.uid() = user_id OR guest_email = auth.jwt() ->> 'email');
 -- Admins can view all orders
 CREATE POLICY "Admins can view all orders" 
 ON public.orders FOR SELECT 
-USING (auth.jwt() ->> 'email' = 'admin@horus.com');
+USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 
 -- Admins can update orders
 CREATE POLICY "Admins can update orders" 
 ON public.orders FOR UPDATE 
-USING (auth.jwt() ->> 'email' = 'admin@horus.com');
+USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 
 -- Admins can delete orders
 CREATE POLICY "Admins can delete orders" 
 ON public.orders FOR DELETE 
-USING (auth.jwt() ->> 'email' = 'admin@horus.com');
+USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 
 -- RLS Policies for Order Items
 -- Allow anyone to insert order items (for checkout)
@@ -85,12 +85,12 @@ USING (
 -- Admins can view all order items
 CREATE POLICY "Admins can view all order items" 
 ON public.order_items FOR SELECT 
-USING (auth.jwt() ->> 'email' = 'admin@horus.com');
+USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 
 -- Admins can update order items
 CREATE POLICY "Admins can update order items" 
 ON public.order_items FOR UPDATE 
-USING (auth.jwt() ->> 'email' = 'admin@horus.com');
+USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 
 -- Admins can delete order items
 CREATE POLICY "Admins can delete order items" 

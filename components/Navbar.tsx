@@ -214,7 +214,7 @@ export default function Navbar() {
 
                                 {user ? (
                                     <>
-                                        {user.email === 'admin@horus.com' && (
+                                        {user.email === 'admin@smokinghouse.com' && (
                                             <Link
                                                 href="/admin"
                                                 className="text-center py-3 bg-[var(--color-neon-blue)] text-black font-bold rounded-lg hover:bg-[var(--color-electric-cyan)] transition-colors"

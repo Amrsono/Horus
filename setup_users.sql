@@ -46,7 +46,7 @@ SELECT
     uuid_generate_v4(),
     'authenticated',
     'authenticated',
-    'admin@horus.com',
+    'admin@smokinghouse.com',
     crypt('Password@26', gen_salt('bf')),
     now(),
     now(),
@@ -60,7 +60,7 @@ SELECT
     '',
     ''
 WHERE NOT EXISTS (
-    SELECT 1 FROM auth.users WHERE email = 'admin@horus.com'
+    SELECT 1 FROM auth.users WHERE email = 'admin@smokinghouse.com'
 );
 
 -- 3. Insert Standard User (if not exists)
@@ -128,11 +128,11 @@ SELECT
     now(),
     now()
 FROM auth.users
-WHERE email IN ('admin@horus.com', 'userhorus@horus.com')
+WHERE email IN ('admin@smokinghouse.com', 'userhorus@horus.com')
 AND NOT EXISTS (
     SELECT 1 FROM auth.identities 
     WHERE provider_id = auth.users.id::text AND provider = 'email'
 );
 
 -- Verify creation
-SELECT id, email, role, created_at FROM auth.users WHERE email IN ('admin@horus.com', 'userhorus@horus.com');
+SELECT id, email, role, created_at FROM auth.users WHERE email IN ('admin@smokinghouse.com', 'userhorus@horus.com');

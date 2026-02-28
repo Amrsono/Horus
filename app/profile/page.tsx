@@ -174,9 +174,9 @@ export default function ProfilePage() {
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
                         <div>
                             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                                {user?.email === 'admin@horus.com' ? t.profile.agent_profile : t.profile.customer_profile}
+                                {user?.email === 'admin@smokinghouse.com' ? t.profile.agent_profile : t.profile.customer_profile}
                             </h1>
-                            {user?.email === 'admin@horus.com' && (
+                            {user?.email === 'admin@smokinghouse.com' && (
                                 <p className="text-gray-400 mt-1">{t.profile.clearance_admin}</p>
                             )}
                         </div>
@@ -194,10 +194,10 @@ export default function ProfilePage() {
                         <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
                             <div className="flex items-center gap-4">
                                 <div className="w-20 h-20 bg-[var(--color-neon-blue)]/5 rounded-full flex items-center justify-center border border-[var(--color-neon-blue)]/20 shadow-[0_0_20px_rgba(var(--color-neon-blue-rgb),0.1)]">
-                                    <img src="/horus-eye-logo.png" alt="Profile" className="w-12 h-12 object-contain" />
+                                    <img src="/smoking-house-logo.png" alt="Profile" className="w-12 h-12 object-contain" />
                                 </div>
                                 <div>
-                                    <h2 className="font-bold text-lg">{user.user_metadata?.full_name || (user?.email === 'admin@horus.com' ? "Agent" : "Customer")}</h2>
+                                    <h2 className="font-bold text-lg">{user.user_metadata?.full_name || (user?.email === 'admin@smokinghouse.com' ? "Agent" : "Customer")}</h2>
                                     <p className="text-sm text-gray-400">{user.email}</p>
                                 </div>
                             </div>

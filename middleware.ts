@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
         if (!user) {
             return NextResponse.redirect(new URL("/login", request.url));
         }
-        if (user.email !== "admin@horus.com") {
+        if (user.email !== "admin@smokinghouse.com") {
             return NextResponse.redirect(new URL("/", request.url));
         }
     }

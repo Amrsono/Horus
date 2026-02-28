@@ -90,7 +90,7 @@ export default function AdminSidebar() {
             >
                 <div className="p-6 border-b border-white/10 flex items-center justify-between">
                     <h2 className="text-xl font-bold bg-gradient-to-r from-[var(--color-neon-blue)] to-[var(--color-quantum-purple)] bg-clip-text text-transparent">
-                        HORUS ADMIN
+                        SMOKING HOUSE ADMIN
                     </h2>
                     {/* Close button for mobile */}
                     <button

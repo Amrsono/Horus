@@ -55,7 +55,7 @@ export default function LoginPage() {
                             <img src="/horus-eye-logo.png" alt="Horus" className="w-16 h-16 object-contain" />
                         </div>
                         <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-                        <p className="text-gray-400">Access Horus Smoking Now</p>
+                        <p className="text-gray-400">Access Smoking House Now</p>
                     </div>
 
                     {error && (

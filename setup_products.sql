@@ -24,18 +24,18 @@ USING (true);
 -- Note: In a real app, you'd check for specific admin role. 
 -- For now, we assume if you can access the admin dashboard (protected by middleware), you're authorized.
 -- But for DB security, we can check email or generic "authenticated" role if we trust our middleware/apps structure.
--- Ideally: USING (auth.jwt() ->> 'email' = 'admin@horus.com');
+-- Ideally: USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 CREATE POLICY "Admins can insert products" 
 ON public.products FOR INSERT 
-WITH CHECK (auth.jwt() ->> 'email' = 'admin@horus.com');
+WITH CHECK (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 
 CREATE POLICY "Admins can update products" 
 ON public.products FOR UPDATE 
-USING (auth.jwt() ->> 'email' = 'admin@horus.com');
+USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 
 CREATE POLICY "Admins can delete products" 
 ON public.products FOR DELETE 
-USING (auth.jwt() ->> 'email' = 'admin@horus.com');
+USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 
 -- Storage Setup for Product Images
 -- Create a new bucket 'product-images'
@@ -52,11 +52,11 @@ USING ( bucket_id = 'product-images' );
 -- Allow Admin upload/delete
 CREATE POLICY "Admin Upload" 
 ON storage.objects FOR INSERT 
-WITH CHECK ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' = 'admin@horus.com' );
+WITH CHECK ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' = 'admin@smokinghouse.com' );
 
 CREATE POLICY "Admin Update" 
 ON storage.objects FOR UPDATE 
-USING ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' = 'admin@horus.com' );
+USING ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' = 'admin@smokinghouse.com' );
 
 CREATE POLICY "Admin Delete" 
 ON storage.objects FOR DELETE 
