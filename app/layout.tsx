@@ -11,9 +11,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Smoking House | 2077 Cyberpunk Vaping",
+  title: "Clouds | 2077 Cyberpunk Vaping",
   description: "Premium local vaping products with an immersive, futuristic user experience.",
-  keywords: ["vaping", "cyberpunk", "smoking house", "premium vape", "2077"],
+  keywords: ["vaping", "cyberpunk", "clouds", "premium vape", "2077"],
 };
 
 import { LanguageProvider } from "@/contexts/LanguageContext";

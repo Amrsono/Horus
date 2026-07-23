@@ -75,7 +75,7 @@ export const useCartStore = create<CartState>()(
             },
         }),
         {
-            name: 'horus-cart-storage',
+            name: 'clouds-cart-storage',
         }
     )
 );

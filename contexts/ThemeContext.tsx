@@ -17,7 +17,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         // Load theme from localStorage on mount
-        const savedTheme = localStorage.getItem("horus-theme") as Theme;
+        const savedTheme = (localStorage.getItem("clouds-theme") || localStorage.getItem("horus-theme")) as Theme;
         if (savedTheme) {
             setTheme(savedTheme);
         }
@@ -29,7 +29,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
         // Apply theme to document element
         document.documentElement.setAttribute("data-theme", theme);
-        localStorage.setItem("horus-theme", theme);
+        localStorage.setItem("clouds-theme", theme);
     }, [theme, mounted]);
 
     return (

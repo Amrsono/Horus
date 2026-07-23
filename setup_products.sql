@@ -27,15 +27,15 @@ USING (true);
 -- Ideally: USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
 CREATE POLICY "Admins can insert products" 
 ON public.products FOR INSERT 
-WITH CHECK (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
+WITH CHECK (auth.jwt() ->> 'email' IN ('admin@clouds.com', 'admin@smokinghouse.com'));
 
 CREATE POLICY "Admins can update products" 
 ON public.products FOR UPDATE 
-USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
+USING (auth.jwt() ->> 'email' IN ('admin@clouds.com', 'admin@smokinghouse.com'));
 
 CREATE POLICY "Admins can delete products" 
 ON public.products FOR DELETE 
-USING (auth.jwt() ->> 'email' = 'admin@smokinghouse.com');
+USING (auth.jwt() ->> 'email' IN ('admin@clouds.com', 'admin@smokinghouse.com'));
 
 -- Storage Setup for Product Images
 -- Create a new bucket 'product-images'
@@ -52,15 +52,15 @@ USING ( bucket_id = 'product-images' );
 -- Allow Admin upload/delete
 CREATE POLICY "Admin Upload" 
 ON storage.objects FOR INSERT 
-WITH CHECK ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' = 'admin@smokinghouse.com' );
+WITH CHECK ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' IN ('admin@clouds.com', 'admin@smokinghouse.com') );
 
 CREATE POLICY "Admin Update" 
 ON storage.objects FOR UPDATE 
-USING ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' = 'admin@smokinghouse.com' );
+USING ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' IN ('admin@clouds.com', 'admin@smokinghouse.com') );
 
 CREATE POLICY "Admin Delete" 
 ON storage.objects FOR DELETE 
-USING ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' = 'admin@smokinghouse.com' );
+USING ( bucket_id = 'product-images' AND auth.jwt() ->> 'email' IN ('admin@clouds.com', 'admin@smokinghouse.com') );
 
 -- Seed Data (Optional - check if empty first)
 INSERT INTO public.products (name, category, price, stock, description)

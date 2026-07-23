@@ -56,7 +56,7 @@ export default function RegisterPage() {
                             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
                         </Link>
                         <div className="flex justify-center mb-6">
-                            <img src="/horus-eye-logo.png" alt="Horus" className="w-16 h-16 object-contain" />
+                            <img src="/clouds-logo.jpg" alt="Clouds" className="w-16 h-16 object-contain rounded-xl" />
                         </div>
                         <h1 className="text-3xl font-bold text-white mb-2">Join the Network</h1>
                         <p className="text-gray-400">Create an account</p>

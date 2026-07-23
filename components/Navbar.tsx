@@ -65,12 +65,12 @@ export default function Navbar() {
                     {/* Logo */}
                     <Link href="/" className="group">
                         <div className="flex items-center gap-2">
-                            <img src="/smoking-house-logo.png" alt="Smoking House Logo" className="w-10 h-10 object-contain" />
+                            <img src="/clouds-logo.jpg" alt="Clouds Logo" className="w-10 h-10 object-contain rounded-lg" />
                             <h1 className="text-2xl font-bold tracking-tighter">
                                 <span className="text-white group-hover:neon-text-blue transition-all duration-300">
-                                    SMOKING
+                                    CLOUD
                                 </span>
-                                <span className="text-gradient ml-2 neon-text-purple">HOUSE</span>
+                                <span className="text-gradient ml-1 neon-text-purple">S</span>
                             </h1>
                         </div>
                     </Link>
@@ -135,7 +135,7 @@ export default function Navbar() {
 
                         {user ? (
                             <div className="flex items-center gap-4">
-                                {user.email === 'admin@smokinghouse.com' && (
+                                {(user.email === 'admin@clouds.com' || user.email === 'admin@smokinghouse.com') && (
                                     <Link
                                         href="/admin"
                                         className="text-sm font-semibold text-[var(--color-neon-blue)] hover:text-white transition-colors"
@@ -214,7 +214,7 @@ export default function Navbar() {
 
                                 {user ? (
                                     <>
-                                        {user.email === 'admin@smokinghouse.com' && (
+                                        {(user.email === 'admin@clouds.com' || user.email === 'admin@smokinghouse.com') && (
                                             <Link
                                                 href="/admin"
                                                 className="text-center py-3 bg-[var(--color-neon-blue)] text-black font-bold rounded-lg hover:bg-[var(--color-electric-cyan)] transition-colors"

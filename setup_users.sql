@@ -46,7 +46,7 @@ SELECT
     uuid_generate_v4(),
     'authenticated',
     'authenticated',
-    'admin@smokinghouse.com',
+    'admin@clouds.com',
     crypt('Password@26', gen_salt('bf')),
     now(),
     now(),
@@ -60,7 +60,7 @@ SELECT
     '',
     ''
 WHERE NOT EXISTS (
-    SELECT 1 FROM auth.users WHERE email = 'admin@smokinghouse.com'
+    SELECT 1 FROM auth.users WHERE email = 'admin@clouds.com'
 );
 
 -- 3. Insert Standard User (if not exists)
@@ -88,13 +88,13 @@ SELECT
     uuid_generate_v4(),
     'authenticated',
     'authenticated',
-    'user@smokinghouse.com',
+    'user@clouds.com',
     crypt('Password@25', gen_salt('bf')),
     now(),
     now(),
     now(),
     '{"provider":"email","providers":["email"]}',
-    '{"full_name":"Smoking House Agent"}',
+    '{"full_name":"Clouds Agent"}',
     now(),
     now(),
     '',
@@ -102,7 +102,7 @@ SELECT
     '',
     ''
 WHERE NOT EXISTS (
-    SELECT 1 FROM auth.users WHERE email = 'user@smokinghouse.com'
+    SELECT 1 FROM auth.users WHERE email = 'user@clouds.com'
 );
 
 -- 4. Insert into auth.identities (Required for login to work properly in some versions)
@@ -128,11 +128,11 @@ SELECT
     now(),
     now()
 FROM auth.users
-WHERE email IN ('admin@smokinghouse.com', 'user@smokinghouse.com')
+WHERE email IN ('admin@clouds.com', 'user@clouds.com')
 AND NOT EXISTS (
     SELECT 1 FROM auth.identities 
     WHERE provider_id = auth.users.id::text AND provider = 'email'
 );
 
 -- Verify creation
-SELECT id, email, role, created_at FROM auth.users WHERE email IN ('admin@smokinghouse.com', 'user@smokinghouse.com');
+SELECT id, email, role, created_at FROM auth.users WHERE email IN ('admin@clouds.com', 'user@clouds.com');

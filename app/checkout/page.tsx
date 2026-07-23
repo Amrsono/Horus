@@ -117,7 +117,7 @@ export default function CheckoutPage() {
                         animate={{ opacity: 1, scale: 1 }}
                         className="w-32 h-32 rounded-full bg-[var(--color-neon-blue)]/10 flex items-center justify-center mb-6 border border-[var(--color-neon-blue)]/30 shadow-[0_0_30px_rgba(var(--color-neon-blue-rgb),0.2)]"
                     >
-                        <img src="/horus-eye-logo.png" alt="Success" className="w-20 h-20 object-contain" />
+                        <img src="/clouds-logo.jpg" alt="Success" className="w-20 h-20 object-contain rounded-2xl" />
                     </motion.div>
                     <h1 className="text-4xl font-black mb-4">{t.checkout.success}</h1>
                     <p className="text-gray-400 mb-8 max-w-md">

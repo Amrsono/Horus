@@ -24,7 +24,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     // Load saved preference
     useEffect(() => {
-        const saved = localStorage.getItem("horus-locale") as Locale;
+        const saved = (localStorage.getItem("clouds-locale") || localStorage.getItem("horus-locale")) as Locale;
         if (saved) {
             setLocale(saved);
             setIsRTL(saved === "ar");
@@ -36,7 +36,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const switchLanguage = (lang: Locale) => {
         setLocale(lang);
         setIsRTL(lang === "ar");
-        localStorage.setItem("horus-locale", lang);
+        localStorage.setItem("clouds-locale", lang);
         document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
         document.documentElement.lang = lang;
     };

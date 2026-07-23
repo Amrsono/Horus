@@ -14,9 +14,9 @@ export default function Footer() {
                     <div className="md:col-span-1">
                         <Link href="/" className="group inline-block mb-6">
                             <div className="flex items-center gap-2">
-                                <img src="/smoking-house-logo.png" alt="Smoking House Logo" className="w-8 h-8 object-contain" />
+                                <img src="/clouds-logo.jpg" alt="Clouds Logo" className="w-8 h-8 object-contain rounded-md" />
                                 <h2 className="text-2xl font-bold text-white tracking-tighter">
-                                    SMOKING <span className="text-[var(--color-neon-blue)]">HOUSE</span>
+                                    CLOUD<span className="text-[var(--color-neon-blue)]">S</span>
                                 </h2>
                             </div>
                         </Link>

@@ -80,7 +80,7 @@ export const en = {
             zip: "ZIP Code",
         },
         success: "Order Placed Successfully!",
-        success_message: "Thank you for your order. Your Smoking House delivery is properly secured and will be dispatched shortly.",
+        success_message: "Thank you for your order. Your Clouds delivery is properly secured and will be dispatched shortly.",
         return_home: "Return Home",
     },
     sale: {
@@ -104,7 +104,7 @@ export const en = {
         support: "Support",
         newsletter: "Newsletter",
         newsletter_desc: "Subscribe for exclusive drops and tech updates.",
-        rights: "© 2026 Smoking House. All rights reserved.",
+        rights: "© 2026 Clouds. All rights reserved.",
         sections: {
             shop: {
                 title: "Shop",
