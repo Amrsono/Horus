@@ -32,7 +32,7 @@ interface OrderItem {
     id: string;
     product_name: string;
     quantity: number;
-    unit_price: number;
+    price_at_purchase: number;
 }
 
 const STATUS_STYLES: Record<string, { text: string; bg: string; border: string }> = {
@@ -127,7 +127,7 @@ export default function OrdersPage() {
         setLoadingItems(true);
         const { data, error } = await supabase
             .from("order_items")
-            .select("id, product_name, quantity, unit_price")
+            .select("id, product_name, quantity, price_at_purchase")
             .eq("order_id", orderId);
 
         if (error) { console.error(error); setLoadingItems(false); return; }
@@ -188,7 +188,7 @@ export default function OrdersPage() {
 
         // Sheet 2 – Items
         const itemRows: (string | number)[][] = [["Product", "Qty", "Unit Price", "Subtotal"]];
-        items.forEach(i => itemRows.push([i.product_name, i.quantity, i.unit_price, i.unit_price * i.quantity]));
+        items.forEach(i => itemRows.push([i.product_name, i.quantity, i.price_at_purchase, i.price_at_purchase * i.quantity]));
         const s2 = XLSX.utils.aoa_to_sheet(itemRows);
         s2["!cols"] = [{ wch: 36 }, { wch: 6 }, { wch: 14 }, { wch: 14 }];
         XLSX.utils.book_append_sheet(wb, s2, "Items");
@@ -633,10 +633,10 @@ export default function OrdersPage() {
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-white text-sm font-medium truncate">{item.product_name}</p>
-                                                        <p className="text-xs text-gray-500">× {item.quantity} @ {formatCurrency(item.unit_price)}</p>
+                                                        <p className="text-xs text-gray-500">× {item.quantity} @ {formatCurrency(item.price_at_purchase)}</p>
                                                     </div>
                                                     <span className="text-white font-mono font-bold text-sm shrink-0">
-                                                        {formatCurrency(item.unit_price * item.quantity)}
+                                                        {formatCurrency(item.price_at_purchase * item.quantity)}
                                                     </span>
                                                 </motion.div>
                                             ))}

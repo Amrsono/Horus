@@ -32,7 +32,7 @@ interface OrderItem {
     id: string;
     product_name: string;
     quantity: number;
-    unit_price: number;
+    price_at_purchase: number;
 }
 
 const statusColors: Record<string, string> = {
@@ -148,7 +148,7 @@ export default function CustomersPage() {
             (data || []).map(async (order) => {
                 const { data: items } = await supabase
                     .from('order_items')
-                    .select('id, product_name, quantity, unit_price')
+                    .select('id, product_name, quantity, price_at_purchase')
                     .eq('order_id', order.id);
                 return { ...order, items: items || [], item_count: items?.length || 0 };
             })
@@ -574,7 +574,7 @@ export default function CustomersPage() {
                                                                 <span className="text-gray-500">× {item.quantity}</span>
                                                             </div>
                                                             <span className="text-gray-400 font-mono">
-                                                                {formatCurrency(item.unit_price * item.quantity)}
+                                                                {formatCurrency(item.price_at_purchase * item.quantity)}
                                                             </span>
                                                         </div>
                                                     ))}
