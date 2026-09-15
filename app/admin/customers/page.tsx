@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/lib/supabase";
+import * as XLSX from "xlsx";
 
 interface Customer {
     email: string;
@@ -172,13 +173,49 @@ export default function CustomersPage() {
 
     const handleExport = (customer: Customer) => {
         const orders = ordersCache[customer.email] || [];
-        const blob = new Blob([JSON.stringify({ customer, orders }, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `customer_${customer.email.replace("@", "_at_")}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+
+        const wb = XLSX.utils.book_new();
+
+        // ── Sheet 1: Customer Summary ──────────────────────────────────
+        const summaryData = [
+            ["Field", "Value"],
+            ["Email", customer.email],
+            ["Total Orders", customer.totalOrders],
+            ["Lifetime Value (EGP)", customer.totalSpent],
+            ["Avg. Order Value (EGP)", customer.totalOrders > 0 ? (customer.totalSpent / customer.totalOrders).toFixed(2) : 0],
+            ["Last Active", new Date(customer.lastActive).toLocaleString()],
+            ["Exported At", new Date().toLocaleString()],
+        ];
+        const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+        summarySheet["!cols"] = [{ wch: 24 }, { wch: 36 }];
+        XLSX.utils.book_append_sheet(wb, summarySheet, "Customer Summary");
+
+        // ── Sheet 2: Order History ─────────────────────────────────────
+        const orderRows: (string | number)[][] = [
+            ["Order ID", "Date", "Status", "Total (EGP)", "Items", "Products"],
+        ];
+        orders.forEach(order => {
+            const productNames = (order.items || [])
+                .map(i => `${i.product_name} ×${i.quantity}`)
+                .join(", ");
+            orderRows.push([
+                order.id,
+                new Date(order.created_at).toLocaleString(),
+                order.status,
+                order.total_amount,
+                order.item_count ?? (order.items?.length ?? 0),
+                productNames,
+            ]);
+        });
+        const ordersSheet = XLSX.utils.aoa_to_sheet(orderRows);
+        ordersSheet["!cols"] = [
+            { wch: 38 }, { wch: 22 }, { wch: 14 },
+            { wch: 14 }, { wch: 8 }, { wch: 50 },
+        ];
+        XLSX.utils.book_append_sheet(wb, ordersSheet, "Order History");
+
+        const fileName = `customer_${customer.email.replace("@", "_at_").replace(/\./g, "_")}.xlsx`;
+        XLSX.writeFile(wb, fileName);
         setOpenMenuEmail(null);
     };
 
