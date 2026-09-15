@@ -10,7 +10,7 @@ export default function Hero3D() {
     const isAr = locale === "ar";
 
     return (
-        <div className="w-full bg-white text-slate-900 overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
+        <div className="w-full bg-[var(--background)] text-[var(--foreground)] overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
             {/* Hero Main Banner */}
             <div className="relative w-full min-h-[480px] md:min-h-[560px] bg-slate-950 flex items-center justify-center overflow-hidden">
                 {/* Background Image with Overlay */}
@@ -76,19 +76,19 @@ export default function Hero3D() {
                 </div>
             </div>
 
-            {/* Value Propositions Strip (CircleV style) */}
-            <div className="border-b border-slate-200 bg-white py-10 px-6">
+            {/* Value Propositions Strip */}
+            <div className="border-b border-[var(--border-subtle)] bg-[var(--surface)] py-10 px-6 transition-colors">
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left rtl:md:text-right">
                     {/* Fast Delivery */}
                     <div className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-lg">
-                        <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-slate-800">
+                        <div className="w-14 h-14 rounded-full bg-[var(--surface-subtle)] flex items-center justify-center shrink-0 text-[var(--primary-accent)]">
                             <Truck className="w-7 h-7 stroke-[1.5]" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-black text-slate-900">
+                            <h3 className="text-lg font-black text-[var(--text-main)]">
                                 {isAr ? "توصيل سريع" : "Fast Delivery"}
                             </h3>
-                            <p className="text-sm text-slate-500 mt-0.5">
+                            <p className="text-sm text-[var(--text-muted)] mt-0.5">
                                 {isAr ? "استلم طلبك خلال 24 - 48 ساعة" : "Get your order within 48 Hrs"}
                             </p>
                         </div>
@@ -96,14 +96,14 @@ export default function Hero3D() {
 
                     {/* Support */}
                     <div className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-lg">
-                        <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-slate-800">
+                        <div className="w-14 h-14 rounded-full bg-[var(--surface-subtle)] flex items-center justify-center shrink-0 text-[var(--primary-accent)]">
                             <MessageCircle className="w-7 h-7 stroke-[1.5]" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-black text-slate-900">
+                            <h3 className="text-lg font-black text-[var(--text-main)]">
                                 {isAr ? "دعم متميز ومستمر" : "Top-Notch Support"}
                             </h3>
-                            <p className="text-sm text-slate-500 mt-0.5">
+                            <p className="text-sm text-[var(--text-muted)] mt-0.5">
                                 {isAr ? "رضاك واستمتاعك أولويتنا الدائمة" : "Your Vape Satisfaction is our Priority"}
                             </p>
                         </div>
@@ -111,14 +111,14 @@ export default function Hero3D() {
 
                     {/* Authenticity */}
                     <div className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-lg">
-                        <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-slate-800">
+                        <div className="w-14 h-14 rounded-full bg-[var(--surface-subtle)] flex items-center justify-center shrink-0 text-[var(--primary-accent)]">
                             <ShieldCheck className="w-7 h-7 stroke-[1.5]" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-black text-slate-900">
+                            <h3 className="text-lg font-black text-[var(--text-main)]">
                                 {isAr ? "منتجات أصلية 100%" : "100% Authentic"}
                             </h3>
-                            <p className="text-sm text-slate-500 mt-0.5">
+                            <p className="text-sm text-[var(--text-muted)] mt-0.5">
                                 {isAr ? "جميع المنتجات مفحوصة ومضمونة الجودة" : "Direct from trusted certified brands"}
                             </p>
                         </div>

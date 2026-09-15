@@ -201,7 +201,7 @@ export default function CheckoutPage() {
 
     if (!mounted) {
         return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
+            <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-[#c91c1c]" />
             </div>
         );
@@ -209,7 +209,7 @@ export default function CheckoutPage() {
 
     if (items.length === 0) {
         return (
-            <main className="min-h-screen bg-white text-slate-900" dir={isAr ? "rtl" : "ltr"}>
+            <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]" dir={isAr ? "rtl" : "ltr"}>
                 <Navbar />
                 <div className="max-w-md mx-auto py-24 px-6 text-center">
                     <h2 className="text-2xl font-black mb-3">
@@ -231,7 +231,7 @@ export default function CheckoutPage() {
     }
 
     return (
-        <main className="min-h-screen bg-white text-slate-900 font-sans" dir={isAr ? "rtl" : "ltr"}>
+        <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans" dir={isAr ? "rtl" : "ltr"}>
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-16">

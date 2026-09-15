@@ -120,7 +120,7 @@ export default function OrderConfirmedPage({
     }
 
     return (
-        <main className="min-h-screen bg-slate-50 text-slate-900 font-sans" dir={isAr ? "rtl" : "ltr"}>
+        <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans" dir={isAr ? "rtl" : "ltr"}>
             <Navbar />
 
             <div className="max-w-3xl mx-auto px-4 py-12 md:py-16">

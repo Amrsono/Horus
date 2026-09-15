@@ -369,11 +369,12 @@ export const en = {
             subtitle: "Manage your dashboard preferences",
             theme: {
                 title: "Theme",
-                description: "Customize the look and feel of the admin dashboard",
+                description: "Customize the color theme for the entire web app and admin dashboard",
                 options: {
                     obsidian: "Obsidian (Default)",
                     brown: "Brown Skin",
-                    neon_blue: "Bluish Neon"
+                    neon_blue: "Bluish Neon",
+                    light: "Pure White"
                 }
             }
         }

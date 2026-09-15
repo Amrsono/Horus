@@ -195,7 +195,7 @@ function TrackContent() {
         : "https://wa.me/201090000000";
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans" dir={isAr ? "rtl" : "ltr"}>
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans" dir={isAr ? "rtl" : "ltr"}>
             <Navbar />
 
             <div className="max-w-4xl mx-auto px-4 py-12 md:py-16">

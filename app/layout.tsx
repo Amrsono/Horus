@@ -21,17 +21,22 @@ export const metadata: Metadata = {
   keywords: ["vaping egypt", "clouds", "e-liquid", "vape store", "disposables"],
 };
 
-export default function RootLayout({
+import { cookies } from "next/headers";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const theme = cookieStore.get("clouds-theme")?.value || "obsidian";
+
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" data-theme={theme} suppressHydrationWarning>
       <body
         className={cn(
           inter.variable,
-          "antialiased min-h-screen flex flex-col bg-white text-slate-900"
+          "antialiased min-h-screen flex flex-col bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300"
         )}
       >
         <ThemeProvider>

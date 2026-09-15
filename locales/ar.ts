@@ -369,11 +369,12 @@ export const ar = {
             subtitle: "إدارة تفضيلات لوحة التحكم",
             theme: {
                 title: "المظهر",
-                description: "تخصيص مظهر لوحة التحكم",
+                description: "تخصيص نمط الألوان للموقع بالكامل ولوحة التحكم",
                 options: {
                     obsidian: "سبج (افتراضي)",
                     brown: "بني",
-                    neon_blue: "نيون أزرق"
+                    neon_blue: "نيون أزرق",
+                    light: "أبيض ناصع"
                 }
             }
         }

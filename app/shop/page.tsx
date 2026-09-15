@@ -121,7 +121,7 @@ function ShopContent() {
     };
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 font-sans" dir={isAr ? "rtl" : "ltr"}>
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans" dir={isAr ? "rtl" : "ltr"}>
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">

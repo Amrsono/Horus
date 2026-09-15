@@ -37,11 +37,11 @@ export default function AnnouncementBar() {
     };
 
     return (
-        <div className="bg-slate-900 text-white text-xs font-medium py-2 px-4 select-none relative z-40">
+        <div className="bg-[var(--surface-subtle)] text-[var(--text-main)] border-b border-[var(--border-subtle)] text-xs font-medium py-2 px-4 select-none relative z-40 transition-colors">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
                 <button
                     onClick={handlePrev}
-                    className="p-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    className="p-1 text-[var(--text-muted)] hover:text-[var(--primary-accent)] transition-colors cursor-pointer"
                     aria-label="Previous announcement"
                 >
                     <ChevronLeft className="w-4 h-4" />

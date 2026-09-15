@@ -86,16 +86,16 @@ export default function AdminSidebar() {
                     x: isMobile ? (isMobileMenuOpen ? 0 : "-100%") : 0
                 }}
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="w-64 h-screen glass-strong border-r border-white/10 flex flex-col fixed left-0 top-0 z-50"
+                className="w-64 h-screen glass-strong border-r border-[var(--border-subtle)] flex flex-col fixed left-0 top-0 z-50"
             >
-                <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                    <h2 className="text-xl font-bold bg-gradient-to-r from-[var(--color-neon-blue)] to-[var(--color-quantum-purple)] bg-clip-text text-transparent">
+                <div className="p-6 border-b border-[var(--border-subtle)] flex items-center justify-between">
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-[var(--primary-accent)] to-[var(--color-quantum-purple)] bg-clip-text text-transparent">
                         CLOUDS ADMIN
                     </h2>
                     {/* Close button for mobile */}
                     <button
                         onClick={closeMobileMenu}
-                        className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+                        className="md:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
                         aria-label="Close menu"
                     >
                         <X className="w-5 h-5" />
@@ -113,33 +113,33 @@ export default function AdminSidebar() {
                                 href={link.href}
                                 onClick={closeMobileMenu}
                                 className={cn(
-                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300",
+                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium",
                                     isActive
-                                        ? "bg-[var(--color-neon-blue)]/20 text-[var(--color-neon-blue)] border border-[var(--color-neon-blue)]/30"
-                                        : "text-gray-400 hover:bg-white/5 hover:text-white"
+                                        ? "bg-[var(--primary-accent)]/15 text-[var(--primary-accent)] border border-[var(--primary-accent)]/30 font-bold shadow-xs"
+                                        : "text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-main)]"
                                 )}
                             >
                                 <Icon className="w-5 h-5" />
-                                <span className="font-medium">{link.name}</span>
+                                <span>{link.name}</span>
                             </Link>
                         );
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-white/10 space-y-2">
+                <div className="p-4 border-t border-[var(--border-subtle)] space-y-2">
                     <button
                         onClick={toggleLanguage}
-                        className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white transition-colors w-full rounded-xl hover:bg-white/5"
+                        className="flex items-center gap-3 px-4 py-3 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors w-full rounded-xl hover:bg-[var(--surface-subtle)] font-medium"
                     >
                         <Globe className="w-5 h-5" />
-                        <span className="font-medium">{locale === "en" ? "العربية" : "English"}</span>
+                        <span>{locale === "en" ? "العربية" : "English"}</span>
                     </button>
                     <Link
                         href="/"
                         onClick={closeMobileMenu}
-                        className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white transition-colors rounded-xl hover:bg-white/5"
+                        className="flex items-center gap-3 px-4 py-3 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors rounded-xl hover:bg-[var(--surface-subtle)] font-medium"
                     >
-                        <ArrowLeft className="w-5 h-5" />
+                        <ArrowLeft className="w-5 h-5 rtl:rotate-180" />
                         <span>{t.admin.sidebar.back_to_store}</span>
                     </Link>
 
