@@ -13,6 +13,7 @@ const inter = Inter({
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { SiteContentProvider } from "@/contexts/SiteContentContext";
 import CookieConsent from "@/components/CookieConsent";
 
 export const metadata: Metadata = {
@@ -42,8 +43,10 @@ export default async function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
-              {children}
-              <CookieConsent />
+              <SiteContentProvider>
+                {children}
+                <CookieConsent />
+              </SiteContentProvider>
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>

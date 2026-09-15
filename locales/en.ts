@@ -366,7 +366,13 @@ export const en = {
         },
         settings: {
             title: "Settings",
-            subtitle: "Manage your dashboard preferences",
+            subtitle: "Manage your store preferences, themes, and public content",
+            tabs: {
+                theme: "Theme & Aesthetics",
+                privacy: "Privacy Policy",
+                terms: "Terms of Service",
+                contact: "Contact & Store Info"
+            },
             theme: {
                 title: "Theme",
                 description: "Customize the color theme for the entire web app and admin dashboard",
