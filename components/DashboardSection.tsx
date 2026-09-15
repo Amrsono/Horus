@@ -151,11 +151,8 @@ export default function DashboardSection() {
     ];
 
     return (
-        <section className="py-24 relative overflow-hidden">
-            {/* Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-[var(--color-neon-blue)]/5 blur-[120px] rounded-full pointer-events-none" />
-
-            <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <section className="py-20 bg-white border-b border-slate-200">
+            <div className="max-w-7xl mx-auto px-6">
                 <div className="flex flex-col items-center justify-center text-center">
                     {/* Content */}
                     <motion.div
@@ -164,30 +161,24 @@ export default function DashboardSection() {
                         viewport={{ once: true }}
                         className="max-w-3xl w-full"
                     >
-
-                        <h3 className="text-4xl md:text-5xl font-black mb-6 leading-tight">
-                            {t.dashboard.control} <span className="text-gradient">{t.dashboard.empire}</span>
+                        <h3 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 leading-tight">
+                            {t.dashboard.control} <span className="text-[#c91c1c]">{t.dashboard.empire}</span>
                         </h3>
-                        <p className="text-gray-400 text-lg mb-8 leading-relaxed">
+                        <p className="text-slate-500 text-base mb-8 leading-relaxed">
                             {t.dashboard.description}
                         </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {statsDisplay.map((stat, index) => (
-                                <div key={index} className="glass p-6 rounded-xl border-l-2 text-left" style={{ borderLeftColor: `var(--color-${stat.color})` }}>
+                                <div key={index} className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs text-left">
                                     <div className="flex items-center justify-between mb-4">
-                                        <span className="text-gray-400 text-sm">{stat.label}</span>
+                                        <span className="text-slate-500 text-sm font-medium">{stat.label}</span>
                                         {stat.icon}
                                     </div>
-                                    <div className="text-2xl font-bold font-mono text-white mb-1">
+                                    <div className="text-2xl font-black font-mono text-slate-900 mb-1">
                                         {stat.value}
                                     </div>
-                                    <div className={cn(
-                                        "text-xs",
-                                        stat.change.startsWith('+') || stat.change.startsWith('...')
-                                            ? "text-[var(--color-cyber-green)]"
-                                            : "text-red-400"
-                                    )}>
+                                    <div className="text-xs text-emerald-600 font-semibold">
                                         {stat.change} {!isLoading && t.dashboard.from_last_month}
                                     </div>
                                 </div>

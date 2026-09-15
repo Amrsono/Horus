@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, ShoppingCart, ArrowRight, Loader2, X } from "lucide-react";
+import { Search, Filter, ShoppingCart, Loader2, X, SlidersHorizontal, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useCartStore } from "@/store/cartStore";
 import Navbar from "@/components/Navbar";
@@ -24,20 +25,31 @@ interface Product {
     sale_badge_text?: string;
 }
 
-export default function ShopPage() {
-    const { t, formatCurrency, formatNumber } = useLanguage();
+function ShopContent() {
+    const { locale, formatCurrency } = useLanguage();
+    const isAr = locale === "ar";
     const { addItem } = useCartStore();
+    const searchParams = useSearchParams();
+
     const [products, setProducts] = useState<Product[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [categories, setCategories] = useState<string[]>([]);
 
     // Filters
-    const [searchQuery, setSearchQuery] = useState("");
+    const initialQuery = searchParams.get("q") || "";
+    const [searchQuery, setSearchQuery] = useState(initialQuery);
     const [selectedCategory, setSelectedCategory] = useState("All");
-    const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-    const [maxPrice, setMaxPrice] = useState(1000);
-    const [showFilters, setShowFilters] = useState(false); // Mobile filter toggle
+    const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000]);
+    const [maxPrice, setMaxPrice] = useState(2000);
+    const [showFilters, setShowFilters] = useState(false);
+
+    useEffect(() => {
+        const queryFromUrl = searchParams.get("q");
+        if (queryFromUrl) {
+            setSearchQuery(queryFromUrl);
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         fetchProducts();
@@ -50,9 +62,9 @@ export default function ShopPage() {
     const fetchProducts = async () => {
         setIsLoading(true);
         const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .order('created_at', { ascending: false });
+            .from("products")
+            .select("*")
+            .order("created_at", { ascending: false });
 
         if (error) {
             console.error("Error fetching products:", error);
@@ -60,14 +72,13 @@ export default function ShopPage() {
             const allProducts = data || [];
             setProducts(allProducts);
 
-            // Extract unique categories
-            const uniqueCategories = Array.from(new Set(allProducts.map(p => p.category))).filter(Boolean);
+            const uniqueCategories = Array.from(new Set(allProducts.map((p) => p.category))).filter(Boolean);
             setCategories(["All", ...uniqueCategories]);
 
-            // Determine max price for range slider
-            const highestPrice = Math.max(...allProducts.map(p => Number(p.price)), 0);
-            setMaxPrice(Math.ceil(highestPrice));
-            setPriceRange([0, Math.ceil(highestPrice)]);
+            const highestPrice = Math.max(...allProducts.map((p) => Number(p.price)), 0);
+            const computedMax = Math.max(1000, Math.ceil(highestPrice));
+            setMaxPrice(computedMax);
+            setPriceRange([0, computedMax]);
         }
         setIsLoading(false);
     };
@@ -75,228 +86,267 @@ export default function ShopPage() {
     const applyFilters = () => {
         let result = products;
 
-        // Search
-        if (searchQuery) {
-            result = result.filter(p =>
-                p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                p.description?.toLowerCase().includes(searchQuery.toLowerCase())
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            result = result.filter(
+                (p) =>
+                    p.name.toLowerCase().includes(q) ||
+                    p.category?.toLowerCase().includes(q) ||
+                    p.description?.toLowerCase().includes(q)
             );
         }
 
-        // Category
         if (selectedCategory !== "All") {
-            result = result.filter(p => p.category === selectedCategory);
+            result = result.filter((p) => p.category === selectedCategory);
         }
 
-        // Price
-        result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
+        result = result.filter((p) => {
+            const effective = p.on_sale && p.sale_price ? p.sale_price : p.price;
+            return effective >= priceRange[0] && effective <= priceRange[1];
+        });
 
         setFilteredProducts(result);
     };
 
     const handleAddToCart = (product: Product) => {
+        const effectivePrice = product.on_sale && product.sale_price ? product.sale_price : product.price;
         addItem({
             id: product.id,
             name: product.name,
-            price: (product.on_sale && product.sale_price) ? product.sale_price : product.price,
+            price: effectivePrice,
+            originalPrice: product.on_sale && product.sale_price ? product.price : undefined,
             image: product.image_url || "/placeholder.jpg",
-            category: product.category
+            category: product.category,
         });
     };
 
     return (
-        <div className="min-h-screen bg-[var(--color-obsidian)] text-white font-sans">
+        <div className="min-h-screen bg-white text-slate-900 font-sans" dir={isAr ? "rtl" : "ltr"}>
             <Navbar />
 
-            <div className="pt-24 pb-12 px-6 max-w-7xl mx-auto">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6"
-                >
+            <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
+                {/* Header */}
+                <div className="mb-8 pb-6 border-b border-slate-200 flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
-                        <h1 className="text-4xl md:text-5xl font-black mb-4">
-                            {t.shop_page.title} <span className="text-gradient">{t.shop_page.highlight}</span>
+                        <span className="text-xs font-bold uppercase tracking-widest text-[#c91c1c] block mb-1">
+                            {isAr ? "كتالوج المنتجات الكامل" : "Explore Full Catalog"}
+                        </span>
+                        <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                            {isAr ? "جميع منتجات الفيب" : "All Vape Products"}
                         </h1>
-                        <p className="text-gray-400 max-w-xl">
-                            {t.footer.sections.shop.description}
-                        </p>
                     </div>
-                </motion.div>
+                    <div className="text-xs text-slate-500 font-medium">
+                        {isAr
+                            ? `عرض ${filteredProducts.length} من إجمالي ${products.length} منتج`
+                            : `Showing ${filteredProducts.length} of ${products.length} products`}
+                    </div>
+                </div>
+
+                {/* Mobile Filter Trigger */}
+                <div className="lg:hidden mb-6 flex gap-3">
+                    <button
+                        onClick={() => setShowFilters(true)}
+                        className="flex-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-md flex items-center justify-center gap-2"
+                    >
+                        <SlidersHorizontal className="w-4 h-4 text-[#c91c1c]" />
+                        <span>{isAr ? "تصفية المنتجات" : "Filter Products"}</span>
+                    </button>
+                </div>
 
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Filters Sidebar */}
-                    <div className={cn(
-                        "lg:w-1/4 space-y-8",
-                        showFilters ? "block" : "hidden lg:block"
-                    )}>
-                        <div className="glass p-6 rounded-2xl border border-white/10 sticky top-24">
-                            <div className="flex justify-between items-center lg:hidden mb-4">
-                                <h3 className="font-bold text-lg">Filters</h3>
-                                <button onClick={() => setShowFilters(false)}>
-                                    <X className="w-5 h-5 text-gray-400" />
+                    <div
+                        className={cn(
+                            "lg:w-64 shrink-0",
+                            showFilters ? "fixed inset-0 z-[80] bg-white p-6 overflow-y-auto" : "hidden lg:block"
+                        )}
+                    >
+                        {showFilters && (
+                            <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-200">
+                                <h3 className="font-bold text-base text-slate-900">{isAr ? "التصفية" : "Filters"}</h3>
+                                <button onClick={() => setShowFilters(false)} className="p-1 text-slate-500 hover:text-slate-800">
+                                    <X className="w-5 h-5" />
                                 </button>
                             </div>
+                        )}
 
-                            {/* Search */}
-                            <div className="mb-8">
-                                <h3 className="font-bold text-sm text-[var(--color-neon-blue)] uppercase tracking-wider mb-4">Search</h3>
+                        <div className="space-y-6">
+                            {/* Search input */}
+                            <div>
+                                <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900 mb-2.5">
+                                    {isAr ? "البحث" : "Search"}
+                                </h4>
                                 <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                                     <input
                                         type="text"
-                                        placeholder="Search products..."
+                                        placeholder={isAr ? "ابحث بالاسم..." : "Search by name..."}
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-2 focus:border-[var(--color-neon-blue)] focus:outline-none transition-colors text-sm"
+                                        className="w-full text-xs pl-8 pr-3 py-2 border border-slate-300 rounded-md focus:outline-hidden focus:border-slate-800"
                                     />
+                                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
                                 </div>
                             </div>
 
                             {/* Categories */}
-                            <div className="mb-8">
-                                <h3 className="font-bold text-sm text-[var(--color-neon-blue)] uppercase tracking-wider mb-4">Categories</h3>
-                                <div className="space-y-2">
-                                    {categories.map(category => (
+                            <div>
+                                <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900 mb-2.5">
+                                    {isAr ? "الفئات" : "Categories"}
+                                </h4>
+                                <div className="space-y-1">
+                                    {categories.map((category) => (
                                         <button
                                             key={category}
-                                            onClick={() => setSelectedCategory(category)}
+                                            onClick={() => {
+                                                setSelectedCategory(category);
+                                                if (showFilters) setShowFilters(false);
+                                            }}
                                             className={cn(
-                                                "w-full text-left px-3 py-2 rounded-lg text-sm transition-all",
+                                                "w-full text-left rtl:text-right px-3 py-2 rounded-md text-xs font-medium transition-colors flex items-center justify-between",
                                                 selectedCategory === category
-                                                    ? "bg-[var(--color-neon-blue)]/10 text-[var(--color-neon-blue)] font-bold border border-[var(--color-neon-blue)]/20"
-                                                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                                                    ? "bg-slate-900 text-white font-bold"
+                                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                                             )}
                                         >
-                                            {category}
+                                            <span>{category}</span>
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
-                            {/* Price Range */}
+                            {/* Price Range Slider */}
                             <div>
-                                <h3 className="font-bold text-sm text-[var(--color-neon-blue)] uppercase tracking-wider mb-4">
-                                    Price Range: <span className="text-white">{formatCurrency(priceRange[0])} - {formatCurrency(priceRange[1])}</span>
-                                </h3>
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900">
+                                        {isAr ? "نطاق السعر" : "Price Range"}
+                                    </h4>
+                                    <span className="text-xs font-bold text-[#c91c1c] font-mono">
+                                        {formatCurrency(priceRange[1])}
+                                    </span>
+                                </div>
                                 <input
                                     type="range"
                                     min="0"
                                     max={maxPrice}
                                     value={priceRange[1]}
                                     onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                                    className="w-full accent-[var(--color-neon-blue)] h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                    className="w-full accent-[#c91c1c] h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
                                 />
-                                <div className="flex justify-between text-xs text-gray-500 mt-2">
+                                <div className="flex justify-between text-[11px] text-slate-400 mt-1">
                                     <span>{formatCurrency(0)}</span>
                                     <span>{formatCurrency(maxPrice)}</span>
                                 </div>
                             </div>
+
+                            {/* Clear Filters */}
+                            {(selectedCategory !== "All" || searchQuery || priceRange[1] < maxPrice) && (
+                                <button
+                                    onClick={() => {
+                                        setSelectedCategory("All");
+                                        setSearchQuery("");
+                                        setPriceRange([0, maxPrice]);
+                                    }}
+                                    className="w-full py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold rounded-md transition-colors"
+                                >
+                                    {isAr ? "إعادة ضبط التصفية" : "Reset Filters"}
+                                </button>
+                            )}
                         </div>
                     </div>
 
-                    {/* Mobile Filter Toggle */}
-                    <button
-                        onClick={() => setShowFilters(true)}
-                        className="lg:hidden flex items-center justify-center gap-2 py-3 glass rounded-xl border border-white/10 font-bold"
-                    >
-                        <Filter className="w-4 h-4" />
-                        Show Filters
-                    </button>
-
-                    {/* Product Grid */}
+                    {/* Products Grid */}
                     <div className="flex-1">
                         {isLoading ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                                 {[1, 2, 3, 4, 5, 6].map((n) => (
-                                    <div key={n} className="h-[400px] glass rounded-2xl animate-pulse bg-white/5" />
+                                    <div key={n} className="h-80 bg-slate-100 rounded-lg animate-pulse" />
                                 ))}
                             </div>
                         ) : filteredProducts.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-20 text-center glass rounded-2xl border border-white/5">
-                                <Search className="w-16 h-16 text-gray-600 mb-4" />
-                                <h3 className="text-xl font-bold mb-2">No products found</h3>
-                                <p className="text-gray-400">Try adjusting your filters or search query.</p>
+                            <div className="py-20 text-center bg-slate-50 rounded-xl border border-slate-200 p-8">
+                                <Search className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                                <h3 className="text-lg font-bold text-slate-900 mb-1">
+                                    {isAr ? "لم نجد منتجات مطابقة" : "No products found"}
+                                </h3>
+                                <p className="text-xs text-slate-500 mb-4">
+                                    {isAr ? "جرب تغيير الفئة أو كلمة البحث" : "Try adjusting your search query or price range"}
+                                </p>
                                 <button
                                     onClick={() => {
-                                        setSearchQuery("");
                                         setSelectedCategory("All");
+                                        setSearchQuery("");
                                         setPriceRange([0, maxPrice]);
                                     }}
-                                    className="mt-6 text-[var(--color-neon-blue)] hover:underline"
+                                    className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-md hover:bg-slate-800"
                                 >
-                                    Clear all filters
+                                    {isAr ? "عرض كل المنتجات" : "View All Products"}
                                 </button>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                <AnimatePresence mode="popLayout">
-                                    {filteredProducts.map((product) => (
-                                        <motion.div
-                                            layout
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                                {filteredProducts.map((product) => {
+                                    const isOnSale = product.on_sale && product.sale_price;
+                                    const finalPrice = isOnSale ? product.sale_price : product.price;
+
+                                    return (
+                                        <div
                                             key={product.id}
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0.9 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="group relative glass rounded-2xl overflow-hidden border border-white/5 hover:border-[var(--color-neon-blue)]/30 transition-all duration-300"
+                                            className="group bg-white rounded-lg border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg hover:border-slate-300 hover:scale-[1.02]"
                                         >
                                             {/* Image */}
-                                            <div className="relative h-64 overflow-hidden bg-black/20">
-                                                <Image
-                                                    src={product.image_url || "/placeholder.jpg"}
-                                                    alt={product.name}
-                                                    fill
-                                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                                                />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+                                            <div className="relative w-full aspect-square bg-slate-50 p-4 overflow-hidden">
+                                                {isOnSale && (
+                                                    <span className="absolute top-3 left-3 z-10 bg-[#c91c1c] text-white text-[11px] font-bold px-2.5 py-0.5 rounded shadow-xs uppercase tracking-wide">
+                                                        {isAr ? "خصم" : "Sale"}
+                                                    </span>
+                                                )}
 
-                                                {/* Float Category */}
-                                                <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1 bg-black/50 backdrop-blur-md rounded-full border border-white/10 uppercase tracking-wider">
-                                                    {product.category}
-                                                </span>
+                                                <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-105">
+                                                    <Image
+                                                        src={product.image_url || "/placeholder.jpg"}
+                                                        alt={product.name}
+                                                        fill
+                                                        className="object-contain"
+                                                    />
+                                                </div>
                                             </div>
 
-                                            {/* Content */}
-                                            <div className="p-6">
-                                                <h3 className="text-xl font-bold text-white mb-1 line-clamp-1 group-hover:text-[var(--color-neon-blue)] transition-colors">
-                                                    {product.name}
-                                                </h3>
-                                                <div className="flex items-end justify-between mt-4">
-                                                    <div className="flex flex-col">
-                                                        {product.on_sale && product.sale_price ? (
-                                                            <>
-                                                                <span className="text-sm text-gray-400 line-through decoration-red-500/50">
-                                                                    {formatCurrency(product.price)}
-                                                                </span>
-                                                                <span className="text-2xl font-mono font-bold text-[var(--color-plasma-pink)]">
-                                                                    {formatCurrency(product.sale_price)}
-                                                                </span>
-                                                            </>
-                                                        ) : (
-                                                            <span className="text-2xl font-mono font-bold text-[var(--color-plasma-pink)]">
+                                            {/* Meta */}
+                                            <div className="p-4 flex-1 flex flex-col justify-between">
+                                                <div>
+                                                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                                                        {product.category}
+                                                    </span>
+                                                    <h3 className="font-bold text-slate-900 text-sm md:text-base leading-snug line-clamp-2 group-hover:text-[#c91c1c] transition-colors">
+                                                        {product.name}
+                                                    </h3>
+                                                </div>
+
+                                                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                                                    <div>
+                                                        <div className="text-base font-black text-slate-900 font-mono">
+                                                            {formatCurrency(finalPrice || 0)}
+                                                        </div>
+                                                        {isOnSale && (
+                                                            <div className="text-xs text-slate-400 line-through font-mono">
                                                                 {formatCurrency(product.price)}
-                                                            </span>
+                                                            </div>
                                                         )}
                                                     </div>
+
                                                     <button
                                                         onClick={() => handleAddToCart(product)}
-                                                        className="w-10 h-10 rounded-full bg-white/10 hover:bg-[var(--color-neon-blue)] flex items-center justify-center text-white hover:text-black transition-all hover:scale-110 active:scale-95"
+                                                        className="px-3.5 py-2 bg-slate-900 text-white hover:bg-[#c91c1c] text-xs font-bold rounded-md transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
+                                                        title="Add to basket"
                                                     >
-                                                        <ShoppingCart className="w-5 h-5" />
+                                                        <ShoppingCart className="w-3.5 h-3.5" />
+                                                        <span>{isAr ? "أضف" : "Add"}</span>
                                                     </button>
                                                 </div>
                                             </div>
-
-                                            {/* Sale Badge */}
-                                            {product.on_sale && (
-                                                <div className="absolute top-4 right-4 bg-[var(--color-plasma-pink)] text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg animate-pulse">
-                                                    {product.sale_badge_text || 'SALE'}
-                                                </div>
-                                            )}
-                                        </motion.div>
-                                    ))}
-                                </AnimatePresence>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
@@ -305,5 +355,13 @@ export default function ShopPage() {
 
             <Footer />
         </div>
+    );
+}
+
+export default function ShopPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-[#c91c1c]" /></div>}>
+            <ShopContent />
+        </Suspense>
     );
 }

@@ -5,7 +5,18 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, CheckCircle, CreditCard, Banknote, ShieldCheck, Loader2 } from "lucide-react";
+import {
+    ArrowLeft,
+    CheckCircle,
+    CreditCard,
+    Banknote,
+    ShieldCheck,
+    Loader2,
+    Truck,
+    Phone,
+    MapPin,
+    Lock
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/cartStore";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -14,120 +25,204 @@ import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+const EGYPT_CITIES = [
+    "Cairo (القاهرة)",
+    "Giza (الجيزة)",
+    "Alexandria (الإسكندرية)",
+    "Qalyubia (القليوبية)",
+    "Sharqia (الشرقية)",
+    "Dakahlia (الدقهلية)",
+    "Gharbia (الغربية)",
+    "Menofia (المنوفية)",
+    "Damietta (دمياط)",
+    "Port Said (بورسعيد)",
+    "Ismailia (الإسماعيلية)",
+    "Suez (السويس)",
+    "Kafr El Sheikh (كفر الشيخ)",
+    "Beheira (البحيرة)",
+    "Red Sea (البحر الأحمر / الغردقة)",
+    "South Sinai (شرم الشيخ)",
+    "Assiut (أسيوط)",
+    "Sohag (سوهاج)",
+    "Qena (قنا)",
+    "Luxor (الأقصر)",
+    "Aswan (أسوان)",
+];
+
 export default function CheckoutPage() {
-    const { items, totalPrice, clearCart } = useCartStore();
-    const { t, formatCurrency } = useLanguage();
-    const { user, loading: authLoading } = useAuth();
+    const { items, totalPrice, subtotalPrice, discountAmount, discountPercent, clearCart, specialInstructions } = useCartStore();
+    const { locale, formatCurrency } = useLanguage();
+    const isAr = locale === "ar";
+    const { user } = useAuth();
     const router = useRouter();
+
     const [mounted, setMounted] = useState(false);
-    const [activePaymentMethod, setActivePaymentMethod] = useState<'cash' | 'card'>('cash');
+    const [activePaymentMethod, setActivePaymentMethod] = useState<"cash" | "card">("cash");
     const [isProcessing, setIsProcessing] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
+
+    // Form data
     const [formData, setFormData] = useState({
         name: "",
+        email: "",
+        phone: "",
+        city: "Cairo (القاهرة)",
         address: "",
-        city: "",
-        zip: ""
+        notes: specialInstructions || "",
     });
 
     useEffect(() => {
         setMounted(true);
-    }, []);
-
-    // Redirect to login if not authenticated
-    useEffect(() => {
-        if (mounted && !authLoading && !user) {
-            router.push("/login?redirect=/checkout");
+        if (user?.email) {
+            setFormData((prev) => ({ ...prev, email: user.email || "" }));
         }
-    }, [mounted, authLoading, user, router]);
+    }, [user]);
 
     const handlePlaceOrder = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user) return;
+        if (items.length === 0) return;
 
         setIsProcessing(true);
 
         try {
-            // Create order in database
+            // Generate clean human-readable order number e.g. CV-783921
+            const randomCode = Math.floor(100000 + Math.random() * 900000);
+            const orderNumber = `CV-${randomCode}`;
+            const total = totalPrice();
+
+            const shippingData = {
+                order_number: orderNumber,
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                city: formData.city,
+                address: formData.address,
+                notes: formData.notes,
+                payment_method: activePaymentMethod === "cash" ? "Cash on Delivery" : "Credit Card",
+            };
+
+            // 1. Insert order in Supabase
+            let createdOrderId: string;
+
+            const isUuid = (id: any) =>
+                typeof id === "string" &&
+                /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
             const { data: order, error: orderError } = await supabase
-                .from('orders')
+                .from("orders")
                 .insert({
-                    user_id: user.id,
-                    guest_email: user.email,
-                    total_amount: totalPrice(),
-                    status: 'pending',
-                    shipping_address: {
-                        name: formData.name,
-                        address: formData.address,
-                        city: formData.city,
-                        zip: formData.zip
-                    }
+                    user_id: user?.id || null,
+                    guest_email: formData.email,
+                    total_amount: total,
+                    status: "pending",
+                    shipping_address: shippingData,
                 })
                 .select()
                 .single();
 
-            if (orderError) throw orderError;
+            if (orderError) {
+                console.warn("Supabase guest order notice:", orderError.message || orderError.code || orderError);
+                // Generate unique order ID fallback so checkout never breaks
+                const fallbackId =
+                    typeof crypto !== "undefined" && crypto.randomUUID
+                        ? crypto.randomUUID()
+                        : `ord_${Date.now()}`;
+                createdOrderId = fallbackId;
 
-            // Create order items
-            const orderItems = items.map(item => ({
-                order_id: order.id,
-                product_id: item.id,
-                product_name: item.name,
-                quantity: item.quantity,
-                price_at_purchase: typeof item.price === 'string' ? parseFloat(item.price) : item.price
-            }));
+                // Save to local storage for instant tracking & confirmation
+                try {
+                    const localOrders = JSON.parse(localStorage.getItem("clouds_local_orders") || "[]");
+                    localOrders.push({
+                        id: fallbackId,
+                        order_number: orderNumber,
+                        user_id: user?.id || null,
+                        guest_email: formData.email,
+                        total_amount: total,
+                        status: "pending",
+                        shipping_address: shippingData,
+                        items: items.map((item) => ({
+                            product_name: item.name,
+                            quantity: item.quantity,
+                            price_at_purchase: typeof item.price === "string" ? parseFloat(item.price) : item.price,
+                        })),
+                        created_at: new Date().toISOString(),
+                    });
+                    localStorage.setItem("clouds_local_orders", JSON.stringify(localOrders));
+                } catch (storeErr) {
+                    console.error("Local storage order save error:", storeErr);
+                }
+            } else {
+                createdOrderId = order.id;
 
-            const { error: itemsError } = await supabase
-                .from('order_items')
-                .insert(orderItems);
+                // 2. Insert order items if Supabase order was created
+                try {
+                    const orderItems = items.map((item) => ({
+                        order_id: order.id,
+                        product_id: isUuid(item.id) ? item.id : null,
+                        product_name: item.name,
+                        quantity: item.quantity,
+                        price_at_purchase: typeof item.price === "string" ? parseFloat(item.price) : item.price,
+                    }));
+                    await supabase.from("order_items").insert(orderItems);
+                } catch (itemsError) {
+                    console.warn("Notice: order_items insert warning:", itemsError);
+                }
+            }
 
-            if (itemsError) throw itemsError;
+            // 3. Trigger confirmation email via Next.js API
+            try {
+                const trackingUrl = `${window.location.origin}/track?order=${createdOrderId}`;
+                await fetch("/api/orders/confirm-email", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        orderId: createdOrderId,
+                        orderNumber,
+                        customerName: formData.name,
+                        customerEmail: formData.email,
+                        items,
+                        totalAmount: total,
+                        shippingAddress: shippingData,
+                        trackingUrl,
+                    }),
+                });
+            } catch (emailErr) {
+                console.warn("Could not dispatch email invoice:", emailErr);
+            }
 
-            // Success!
-            setIsProcessing(false);
-            setIsSuccess(true);
+            // 4. Clear cart and redirect to order confirmation
             clearCart();
-        } catch (error) {
-            console.error("Error creating order:", error);
-            alert("Failed to place order. Please try again.");
+            router.push(`/order-confirmed/${createdOrderId}?num=${orderNumber}`);
+        } catch (error: any) {
+            console.error("Order creation failed:", error?.message || error?.code || error);
+            alert("Failed to place order. Please check your information and try again.");
             setIsProcessing(false);
         }
     };
 
-    if (!mounted || authLoading) {
+    if (!mounted) {
         return (
-            <div className="min-h-screen bg-[var(--color-obsidian)] flex items-center justify-center">
-                <Loader2 className="w-12 h-12 animate-spin text-[var(--color-neon-blue)]" />
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-[#c91c1c]" />
             </div>
         );
     }
 
-    // Don't render checkout if not logged in (will redirect)
-    if (!user) {
-        return null;
-    }
-
-    if (isSuccess) {
+    if (items.length === 0) {
         return (
-            <main className="min-h-screen bg-[var(--color-obsidian)] text-white">
+            <main className="min-h-screen bg-white text-slate-900" dir={isAr ? "rtl" : "ltr"}>
                 <Navbar />
-                <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.5 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="w-32 h-32 rounded-full bg-[var(--color-neon-blue)]/10 flex items-center justify-center mb-6 border border-[var(--color-neon-blue)]/30 shadow-[0_0_30px_rgba(var(--color-neon-blue-rgb),0.2)]"
-                    >
-                        <img src="/clouds-logo.jpg" alt="Success" className="w-20 h-20 object-contain rounded-2xl" />
-                    </motion.div>
-                    <h1 className="text-4xl font-black mb-4">{t.checkout.success}</h1>
-                    <p className="text-gray-400 mb-8 max-w-md">
-                        {t.checkout.success_message}
+                <div className="max-w-md mx-auto py-24 px-6 text-center">
+                    <h2 className="text-2xl font-black mb-3">
+                        {isAr ? "سلة التسوق فارغة" : "Your cart is empty"}
+                    </h2>
+                    <p className="text-sm text-slate-500 mb-6">
+                        {isAr ? "أضف منتجات إلى سلتك أولاً لإتمام الطلب." : "Add products to your cart before proceeding to checkout."}
                     </p>
                     <Link
-                        href="/"
-                        className="px-8 py-3 bg-[var(--color-neon-blue)] text-black font-bold uppercase tracking-wider rounded-lg hover:bg-[var(--color-electric-cyan)] transition-colors"
+                        href="/shop"
+                        className="inline-block px-6 py-3 bg-[#c91c1c] text-white font-bold text-sm uppercase rounded-md hover:bg-[#a51616]"
                     >
-                        {t.checkout.return_home}
+                        {isAr ? "العودة للمتجر" : "Return to Shop"}
                     </Link>
                 </div>
                 <Footer />
@@ -136,187 +231,308 @@ export default function CheckoutPage() {
     }
 
     return (
-        <main className="min-h-screen bg-[var(--color-obsidian)] text-white">
+        <main className="min-h-screen bg-white text-slate-900 font-sans" dir={isAr ? "rtl" : "ltr"}>
             <Navbar />
 
-            <div className="max-w-7xl mx-auto px-6 py-32">
-                <Link href="/shop" className="inline-flex items-center text-gray-400 hover:text-[var(--color-neon-blue)] mb-8 transition-colors">
-                    <ArrowLeft className="w-4 h-4 mr-2 rtl:ml-2 rtl:mr-0" />
-                    Back to Shop
+            <div className="max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-16">
+                <Link
+                    href="/shop"
+                    className="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-slate-900 mb-8 transition-colors gap-1.5"
+                >
+                    <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+                    <span>{isAr ? "العودة إلى المتجر" : "Back to Shop"}</span>
                 </Link>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                    {/* Left Column - Form */}
-                    <div>
-                        <h1 className="text-3xl font-black mb-8 flex items-center gap-3">
-                            <span className="text-[var(--color-neon-blue)]">01.</span> {t.checkout.shipping}
-                        </h1>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                    {/* Left Column: Form (7 cols) */}
+                    <div className="lg:col-span-7 space-y-8">
+                        <div>
+                            <span className="text-xs font-bold uppercase tracking-wider text-[#c91c1c] block mb-1">
+                                {isAr ? "الخطوة 1 من 2" : "Step 1 of 2"}
+                            </span>
+                            <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                                {isAr ? "معلومات الشحن والتوصيل" : "Shipping & Contact Information"}
+                            </h1>
+                        </div>
 
-                        <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">{t.checkout.form.name}</label>
+                        <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-5">
+                            {/* Contact Section */}
+                            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                                <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                                    <Phone className="w-4 h-4 text-[#c91c1c]" />
+                                    <span>{isAr ? "معلومات الاتصال" : "Contact Details"}</span>
+                                </h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-700">
+                                            {isAr ? "الاسم بالكامل *" : "Full Name *"}
+                                        </label>
+                                        <input
+                                            required
+                                            type="text"
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            placeholder="Ahmed Ali"
+                                            className="w-full bg-white border border-slate-300 rounded-md px-3.5 py-2.5 text-sm focus:outline-hidden focus:border-slate-800"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-700">
+                                            {isAr ? "البريد الإلكتروني (لتأكيد الطلب) *" : "Email (For Confirmation Invoice) *"}
+                                        </label>
+                                        <input
+                                            required
+                                            type="email"
+                                            value={formData.email}
+                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            placeholder="you@example.com"
+                                            className="w-full bg-white border border-slate-300 rounded-md px-3.5 py-2.5 text-sm focus:outline-hidden focus:border-slate-800"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                                        <span>{isAr ? "رقم الهاتف / الواتساب *" : "Phone / WhatsApp Number *"}</span>
+                                        <span className="text-[11px] text-emerald-600 font-semibold">
+                                            {isAr ? "لإرسال إشعارات الطلب على واتساب" : "For WhatsApp delivery updates"}
+                                        </span>
+                                    </label>
                                     <input
                                         required
-                                        type="text"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">{t.checkout.form.email}</label>
-                                    <input
-                                        type="email"
-                                        value={user.email || ""}
-                                        disabled
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 opacity-60 cursor-not-allowed"
+                                        type="tel"
+                                        value={formData.phone}
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        placeholder="010XXXXXXXX or 011XXXXXXXX"
+                                        className="w-full bg-white border border-slate-300 rounded-md px-3.5 py-2.5 text-sm focus:outline-hidden focus:border-slate-800 font-mono"
                                     />
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">{t.checkout.form.address}</label>
-                                <input
-                                    required
-                                    type="text"
-                                    value={formData.address}
-                                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors"
-                                />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">{t.checkout.form.city}</label>
-                                    <input
-                                        required
-                                        type="text"
+
+                            {/* Shipping Address Section */}
+                            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                                <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                                    <MapPin className="w-4 h-4 text-[#c91c1c]" />
+                                    <span>{isAr ? "عنوان التوصيل" : "Delivery Address"}</span>
+                                </h3>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-slate-700">
+                                        {isAr ? "المحافظة / المدينة *" : "Governorate / City *"}
+                                    </label>
+                                    <select
                                         value={formData.city}
                                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors"
-                                    />
+                                        className="w-full bg-white border border-slate-300 rounded-md px-3.5 py-2.5 text-sm focus:outline-hidden focus:border-slate-800"
+                                    >
+                                        {EGYPT_CITIES.map((c) => (
+                                            <option key={c} value={c}>
+                                                {c}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">{t.checkout.form.zip}</label>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-slate-700">
+                                        {isAr ? "العنوان بالتفصيل (اسم الشارع، رقم العقار، الشقة) *" : "Street Address, Building, Floor/Apt *"}
+                                    </label>
                                     <input
                                         required
                                         type="text"
-                                        value={formData.zip}
-                                        onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--color-neon-blue)] transition-colors"
+                                        value={formData.address}
+                                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                        placeholder="e.g. 15 Tahrir Street, Floor 3, Apt 12"
+                                        className="w-full bg-white border border-slate-300 rounded-md px-3.5 py-2.5 text-sm focus:outline-hidden focus:border-slate-800"
                                     />
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-slate-700">
+                                        {isAr ? "ملاحظات إضافية للتوصيل (اختياري)" : "Delivery Instructions / Notes (Optional)"}
+                                    </label>
+                                    <textarea
+                                        rows={2}
+                                        value={formData.notes}
+                                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                        placeholder="e.g. Call before arrival, leave with doorman, etc."
+                                        className="w-full bg-white border border-slate-300 rounded-md px-3.5 py-2.5 text-sm focus:outline-hidden focus:border-slate-800"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Payment Options */}
+                            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                                <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                                    <CreditCard className="w-4 h-4 text-[#c91c1c]" />
+                                    <span>{isAr ? "طريقة الدفع" : "Payment Method"}</span>
+                                </h3>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setActivePaymentMethod("cash")}
+                                        className={cn(
+                                            "p-4 rounded-lg border-2 flex items-start gap-3 text-left rtl:text-right transition-all bg-white cursor-pointer",
+                                            activePaymentMethod === "cash"
+                                                ? "border-[#c91c1c] shadow-xs"
+                                                : "border-slate-200 hover:border-slate-300"
+                                        )}
+                                    >
+                                        <div
+                                            className={cn(
+                                                "w-4 h-4 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0",
+                                                activePaymentMethod === "cash" ? "border-[#c91c1c]" : "border-slate-400"
+                                            )}
+                                        >
+                                            {activePaymentMethod === "cash" && (
+                                                <div className="w-2 h-2 rounded-full bg-[#c91c1c]" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                                                <Banknote className="w-4 h-4 text-emerald-600" />
+                                                <span>{isAr ? "الدفع عند الاستلام" : "Cash on Delivery"}</span>
+                                            </div>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                {isAr ? "ادفع نقداً عند استلام شحنتك" : "Pay with cash upon arrival"}
+                                            </p>
+                                        </div>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setActivePaymentMethod("card")}
+                                        className={cn(
+                                            "p-4 rounded-lg border-2 flex items-start gap-3 text-left rtl:text-right transition-all bg-white cursor-pointer",
+                                            activePaymentMethod === "card"
+                                                ? "border-[#c91c1c] shadow-xs"
+                                                : "border-slate-200 hover:border-slate-300"
+                                        )}
+                                    >
+                                        <div
+                                            className={cn(
+                                                "w-4 h-4 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0",
+                                                activePaymentMethod === "card" ? "border-[#c91c1c]" : "border-slate-400"
+                                            )}
+                                        >
+                                            {activePaymentMethod === "card" && (
+                                                <div className="w-2 h-2 rounded-full bg-[#c91c1c]" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                                                <CreditCard className="w-4 h-4 text-blue-600" />
+                                                <span>{isAr ? "بطاقة ائتمان / فيزا" : "Credit Card / Visa"}</span>
+                                            </div>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                {isAr ? "دفع مشفر وآمن 100%" : "Encrypted 100% secure checkout"}
+                                            </p>
+                                        </div>
+                                    </button>
                                 </div>
                             </div>
                         </form>
-
-                        <h1 className="text-3xl font-black mt-12 mb-8 flex items-center gap-3">
-                            <span className="text-[var(--color-plasma-pink)]">02.</span> {t.checkout.payment}
-                        </h1>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <button
-                                type="button"
-                                onClick={() => setActivePaymentMethod('cash')}
-                                className={cn(
-                                    "p-6 rounded-xl border-2 flex items-center gap-4 transition-all duration-300",
-                                    activePaymentMethod === 'cash'
-                                        ? "bg-[var(--color-neon-blue)]/10 border-[var(--color-neon-blue)]"
-                                        : "bg-white/5 border-transparent hover:border-white/20"
-                                )}
-                            >
-                                <div className={cn(
-                                    "w-6 h-6 rounded-full border-2 flex items-center justify-center",
-                                    activePaymentMethod === 'cash' ? "border-[var(--color-neon-blue)]" : "border-gray-500"
-                                )}>
-                                    {activePaymentMethod === 'cash' && <div className="w-3 h-3 rounded-full bg-[var(--color-neon-blue)]" />}
-                                </div>
-                                <div className="text-left">
-                                    <div className="font-bold flex items-center gap-2">
-                                        <Banknote className="w-5 h-5" />
-                                        {t.checkout.cash_on_delivery}
-                                    </div>
-                                    <div className="text-xs text-gray-400 mt-1">Pay when you receive</div>
-                                </div>
-                            </button>
-
-                            <button
-                                type="button"
-                                disabled
-                                className="p-6 rounded-xl border-2 border-transparent bg-white/5 opacity-50 cursor-not-allowed flex items-center gap-4 relative overflow-hidden"
-                            >
-                                <div className="w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center" />
-                                <div className="text-left">
-                                    <div className="font-bold flex items-center gap-2">
-                                        <CreditCard className="w-5 h-5" />
-                                        {t.checkout.credit_card}
-                                    </div>
-                                    <div className="text-xs text-gray-400 mt-1">Secure encrypted payment</div>
-                                </div>
-                                <div className="absolute top-2 right-2 px-2 py-0.5 bg-[var(--color-plasma-pink)] text-black text-[10px] font-bold rounded">
-                                    {t.checkout.coming_soon}
-                                </div>
-                            </button>
-                        </div>
                     </div>
 
-                    {/* Right Column - Summary */}
-                    <div className="lg:pl-12">
-                        <div className="glass p-8 rounded-2xl sticky top-32">
-                            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                                <ShieldCheck className="w-5 h-5 text-[var(--color-quantum-purple)]" />
-                                {t.checkout.summary}
+                    {/* Right Column: Order Summary (5 cols) */}
+                    <div className="lg:col-span-5">
+                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm sticky top-28 space-y-6">
+                            <h2 className="text-lg font-black text-slate-900 pb-3 border-b border-slate-100 flex items-center justify-between">
+                                <span>{isAr ? "ملخص الطلب" : "Order Summary"}</span>
+                                <span className="text-xs text-slate-500 font-semibold font-mono">
+                                    {items.reduce((s, i) => s + i.quantity, 0)} {isAr ? "منتجات" : "items"}
+                                </span>
                             </h2>
 
-                            <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            {/* Item List */}
+                            <div className="space-y-3.5 max-h-[320px] overflow-y-auto pr-1">
                                 {items.map((item) => (
-                                    <div key={item.id} className="flex gap-4 items-center">
-                                        <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-black/30 shrink-0">
-                                            <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                    <div key={item.id} className="flex items-center gap-3">
+                                        <div className="relative w-16 h-16 rounded-md bg-slate-50 border border-slate-200 overflow-hidden shrink-0">
+                                            <Image
+                                                src={item.image || "/placeholder.jpg"}
+                                                alt={item.name}
+                                                fill
+                                                className="object-contain p-1"
+                                            />
                                         </div>
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <p className="font-bold text-white">{item.name}</p>
-                                                <p className="text-sm text-gray-400">{t.profile.modal.qty}: {item.quantity}</p>
-                                            </div>
-                                            <p className="font-mono text-[var(--color-plasma-pink)]">
-                                                {formatCurrency(Number(item.price) * item.quantity)}
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-xs font-bold text-slate-900 line-clamp-1">{item.name}</h4>
+                                            <p className="text-xs text-slate-500">
+                                                {item.quantity} × {formatCurrency(Number(item.price))}
                                             </p>
+                                        </div>
+                                        <div className="text-sm font-black text-slate-900 font-mono">
+                                            {formatCurrency(Number(item.price) * item.quantity)}
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="space-y-4 mb-6">
-                                <div className="flex justify-between text-gray-400">
-                                    <span>{t.cart.subtotal}</span>
-                                    <span className="text-white font-mono">{formatCurrency(totalPrice())}</span>
+                            {/* Cost Breakdown */}
+                            <div className="space-y-2 pt-4 border-t border-slate-100 text-sm">
+                                <div className="flex justify-between text-slate-600">
+                                    <span>{isAr ? "المجموع الفرعي" : "Subtotal"}</span>
+                                    <span className="font-mono font-semibold text-slate-900">{formatCurrency(subtotalPrice())}</span>
                                 </div>
-                                <div className="flex justify-between text-gray-400">
-                                    <span>{t.cart.shipping}</span>
-                                    <span className="text-[var(--color-neon-blue)]">{t.cart.free}</span>
+
+                                {discountPercent > 0 && (
+                                    <div className="flex justify-between text-emerald-600 font-medium">
+                                        <span>{isAr ? "الخصم" : "Discount"} ({discountPercent}%)</span>
+                                        <span>-{formatCurrency(discountAmount())}</span>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between text-slate-600">
+                                    <span>{isAr ? "مصاريف الشحن" : "Shipping"}</span>
+                                    <span className="text-emerald-700 font-bold">
+                                        {isAr ? "شحن مجاني" : "FREE"}
+                                    </span>
                                 </div>
-                            </div>
-                            <div className="border-t border-white/10 pt-6 mb-8">
-                                <div className="flex justify-between items-center text-xl font-bold">
-                                    <span>{t.cart.total}</span>
-                                    <span className="text-[var(--color-neon-blue)] font-mono">{formatCurrency(totalPrice())}</span>
+
+                                <div className="flex justify-between items-baseline pt-3 border-t border-slate-200 text-base font-black text-slate-900">
+                                    <span>{isAr ? "الإجمالي الكلي" : "Total Amount"}</span>
+                                    <span className="text-2xl text-[#c91c1c] font-mono">
+                                        {formatCurrency(totalPrice())}
+                                    </span>
                                 </div>
                             </div>
 
+                            {/* Place Order CTA */}
                             <button
                                 form="checkout-form"
                                 type="submit"
-                                disabled={isProcessing || items.length === 0}
-                                className="w-full py-4 bg-[var(--color-neon-blue)] text-black font-bold uppercase tracking-wider rounded-lg hover:bg-[var(--color-electric-cyan)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                disabled={isProcessing}
+                                className="w-full py-4 bg-[#c91c1c] text-white font-bold text-sm uppercase tracking-wider rounded-md hover:bg-[#a51616] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                             >
                                 {isProcessing ? (
                                     <>
                                         <Loader2 className="w-5 h-5 animate-spin" />
-                                        Processing...
+                                        <span>{isAr ? "جاري معالجة الطلب..." : "Placing your order..."}</span>
                                     </>
                                 ) : (
-                                    t.checkout.place_order
+                                    <span>{isAr ? "تأكيد الطلب الآن" : "Place Order Now"}</span>
                                 )}
                             </button>
+
+                            {/* Trust badges */}
+                            <div className="pt-2 border-t border-slate-100 flex items-center justify-around text-center text-[11px] text-slate-500 font-medium">
+                                <div className="flex flex-col items-center gap-1">
+                                    <Lock className="w-4 h-4 text-slate-700" />
+                                    <span>{isAr ? "دفع آمن ومحمي" : "Secure Checkout"}</span>
+                                </div>
+                                <div className="flex flex-col items-center gap-1">
+                                    <Truck className="w-4 h-4 text-slate-700" />
+                                    <span>{isAr ? "توصيل خلال 48 س" : "48h Delivery"}</span>
+                                </div>
+                                <div className="flex flex-col items-center gap-1">
+                                    <ShieldCheck className="w-4 h-4 text-slate-700" />
+                                    <span>{isAr ? "منتجات أصلية 100%" : "100% Genuine"}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

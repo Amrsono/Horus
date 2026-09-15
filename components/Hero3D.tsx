@@ -1,132 +1,130 @@
-// @ts-nocheck
 "use client";
 
-import { useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Sphere, MeshDistortMaterial, Grid, Stars } from "@react-three/drei";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-
-function AnimatedSphere({ position, color, speed }: { position: [number, number, number], color: string, speed: number }) {
-    const meshRef = useRef<any>(null);
-
-    useFrame((state) => {
-        const t = state.clock.getElapsedTime();
-        if (meshRef.current) {
-            meshRef.current.position.y = position[1] + Math.sin(t * speed) * 0.5;
-            meshRef.current.rotation.x = t * 0.2;
-            meshRef.current.rotation.y = t * 0.2;
-        }
-    });
-
-    return (
-        <Sphere ref={meshRef} args={[1, 100, 200]} position={position} scale={1.5}>
-            <MeshDistortMaterial
-                color={color}
-                attach="material"
-                distort={0.4}
-                speed={1.5}
-                roughness={0.2}
-                metalness={0.8}
-            />
-        </Sphere>
-    );
-}
-
-function Scene() {
-    return (
-        <>
-            <ambientLight intensity={0.5} />
-            <directionalLight position={[10, 10, 5]} intensity={1} color="#00d4ff" />
-            <directionalLight position={[-10, -10, -5]} intensity={1} color="#b300ff" />
-
-            <AnimatedSphere position={[-2, 0, 0]} color="#00d4ff" speed={0.5} />
-            <AnimatedSphere position={[2, 0, 0]} color="#b300ff" speed={0.7} />
-            <AnimatedSphere position={[0, 2, -2]} color="#ff00ff" speed={0.4} />
-
-            <Grid
-                renderOrder={-1}
-                position={[0, -4, 0]}
-                infiniteGrid
-                cellSize={0.6}
-                sectionSize={3}
-                fadeDistance={30}
-                sectionColor="#00d4ff"
-                cellColor="#b300ff"
-            />
-            <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-
-            <OrbitControls
-                enableZoom={false}
-                autoRotate
-                autoRotateSpeed={0.5}
-                maxPolarAngle={Math.PI / 2}
-                minPolarAngle={Math.PI / 3}
-            />
-        </>
-    );
-}
-
+import { Truck, MessageCircle, ShieldCheck, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-// ... existing code ...
-
 export default function Hero3D() {
-    const { t } = useLanguage();
+    const { locale } = useLanguage();
+    const isAr = locale === "ar";
 
     return (
-        <div className="relative w-full h-screen overflow-hidden bg-[var(--color-obsidian)]">
-            {/* 3D Scene Background */}
-            <div className="absolute inset-0 z-0">
-                <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
-                    <Scene />
-                </Canvas>
+        <div className="w-full bg-white text-slate-900 overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
+            {/* Hero Main Banner */}
+            <div className="relative w-full min-h-[480px] md:min-h-[560px] bg-slate-950 flex items-center justify-center overflow-hidden">
+                {/* Background Image with Overlay */}
+                <div
+                    className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity scale-105 transition-transform duration-1000 ease-out hover:scale-100"
+                    style={{
+                        backgroundImage: `url('https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&q=80&w=2000')`,
+                    }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-slate-950/80" />
+
+                {/* Content Overlay */}
+                <div className="relative z-10 max-w-4xl mx-auto text-center px-6 py-20 flex flex-col items-center">
+                    <motion.span
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="inline-block px-3 py-1 bg-white/10 backdrop-blur-xs text-white/90 text-xs uppercase font-bold tracking-widest rounded-full mb-6 border border-white/15"
+                    >
+                        {isAr ? "المتجر الأول للفيب في مصر" : "Egypt's Premier Vaping Destination"}
+                    </motion.span>
+
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1, duration: 0.6 }}
+                        className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-tight mb-6"
+                    >
+                        {isAr ? "تصفح أحدث منتجاتنا" : "Browse our latest products"}
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2, duration: 0.6 }}
+                        className="text-slate-300 text-base md:text-xl max-w-2xl mb-10 leading-relaxed font-normal"
+                    >
+                        {isAr
+                            ? "اكتشف تشكيلة مميزة من السوائل المستوردة والمحلية، البودات، والتانكات المبتكرة بأفضل جودة وسعر."
+                            : "Discover top-tier imported and local e-liquids, pod systems, and mods with guaranteed genuine authenticity."}
+                    </motion.p>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3, duration: 0.6 }}
+                        className="flex flex-wrap items-center justify-center gap-4"
+                    >
+                        <Link
+                            href="/shop"
+                            className="px-8 py-3.5 bg-[#c91c1c] text-white hover:bg-[#a51616] font-bold text-sm uppercase tracking-wider rounded-md transition-all shadow-lg hover:shadow-red-900/30 flex items-center gap-2"
+                        >
+                            <span>{isAr ? "تسوق الآن" : "Shop Now"}</span>
+                            <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                        </Link>
+                        <Link
+                            href="/track"
+                            className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-sm uppercase tracking-wider rounded-md transition-all border border-white/20 backdrop-blur-xs flex items-center gap-2"
+                        >
+                            <Truck className="w-4 h-4 text-[#c91c1c]" />
+                            <span>{isAr ? "تتبع طلبك" : "Track Order"}</span>
+                        </Link>
+                    </motion.div>
+                </div>
             </div>
 
-            {/* Content Overlay */}
-            <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4 pointer-events-none">
-                <motion.div
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="flex flex-col items-center"
-                >
-                    <h2 className="text-[var(--color-neon-blue)] font-bold tracking-widest uppercase mb-4 text-sm md:text-base border border-[var(--color-neon-blue)]/30 px-4 py-1 rounded-full glass">
-                        {t.hero.established}
-                    </h2>
-                    <h1 className="text-5xl md:text-8xl font-black mb-6 tracking-tighter leading-tight pointer-events-auto">
-                        <span className="block text-white">{t.hero.title_prefix}</span>
-                        <span className="text-gradient block neon-text-purple">{t.hero.title_suffix}</span>
-                    </h1>
-                    <p className="max-w-xl text-gray-400 text-lg md:text-xl mb-10 leading-relaxed pointer-events-auto">
-                        {t.hero.description}
-                    </p>
-
-                    <div className="flex flex-col md:flex-row gap-4 pointer-events-auto">
-                        <Link
-                            href="/products"
-                            className="group relative px-8 py-4 bg-[var(--color-neon-blue)] text-black font-bold uppercase tracking-wider overflow-hidden rounded-sm hover-lift"
-                        >
-
-                            <span className="relative z-10">{t.hero.cta_primary}</span>
-                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                        </Link>
+            {/* Value Propositions Strip (CircleV style) */}
+            <div className="border-b border-slate-200 bg-white py-10 px-6">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left rtl:md:text-right">
+                    {/* Fast Delivery */}
+                    <div className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-lg">
+                        <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-slate-800">
+                            <Truck className="w-7 h-7 stroke-[1.5]" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-black text-slate-900">
+                                {isAr ? "توصيل سريع" : "Fast Delivery"}
+                            </h3>
+                            <p className="text-sm text-slate-500 mt-0.5">
+                                {isAr ? "استلم طلبك خلال 24 - 48 ساعة" : "Get your order within 48 Hrs"}
+                            </p>
+                        </div>
                     </div>
 
-                </motion.div>
-            </div>
+                    {/* Support */}
+                    <div className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-lg">
+                        <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-slate-800">
+                            <MessageCircle className="w-7 h-7 stroke-[1.5]" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-black text-slate-900">
+                                {isAr ? "دعم متميز ومستمر" : "Top-Notch Support"}
+                            </h3>
+                            <p className="text-sm text-slate-500 mt-0.5">
+                                {isAr ? "رضاك واستمتاعك أولويتنا الدائمة" : "Your Vape Satisfaction is our Priority"}
+                            </p>
+                        </div>
+                    </div>
 
-            {/* Scroll Indicator */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 1 }}
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
-            >
-                <span className="text-[10px] uppercase tracking-widest text-[var(--color-neon-blue)]">{t.hero.scroll}</span>
-                <div className="w-[1px] h-12 bg-gradient-to-b from-[var(--color-neon-blue)] to-transparent" />
-            </motion.div>
+                    {/* Authenticity */}
+                    <div className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-lg">
+                        <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-slate-800">
+                            <ShieldCheck className="w-7 h-7 stroke-[1.5]" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-black text-slate-900">
+                                {isAr ? "منتجات أصلية 100%" : "100% Authentic"}
+                            </h3>
+                            <p className="text-sm text-slate-500 mt-0.5">
+                                {isAr ? "جميع المنتجات مفحوصة ومضمونة الجودة" : "Direct from trusted certified brands"}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

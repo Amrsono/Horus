@@ -10,15 +10,16 @@ const inter = Inter({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Clouds | 2077 Cyberpunk Vaping",
-  description: "Premium local vaping products with an immersive, futuristic user experience.",
-  keywords: ["vaping", "cyberpunk", "clouds", "premium vape", "2077"],
-};
-
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import CookieConsent from "@/components/CookieConsent";
+
+export const metadata: Metadata = {
+  title: "Clouds - Leading Online Vape Store in Egypt",
+  description: "Discover premium vaping at Clouds. High-quality e-liquids, advanced mods, disposables and hardware.",
+  keywords: ["vaping egypt", "clouds", "e-liquid", "vape store", "disposables"],
+};
 
 export default function RootLayout({
   children,
@@ -30,13 +31,14 @@ export default function RootLayout({
       <body
         className={cn(
           inter.variable,
-          "antialiased min-h-screen flex flex-col"
+          "antialiased min-h-screen flex flex-col bg-white text-slate-900"
         )}
       >
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
               {children}
+              <CookieConsent />
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>

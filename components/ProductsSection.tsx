@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { ArrowRight, Star, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ArrowRight, ShoppingCart, Loader2, Sparkles, Star } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/lib/supabase";
@@ -17,10 +16,13 @@ interface Product {
     category: string;
     image_url: string | null;
     stock: number;
+    on_sale?: boolean;
+    sale_price?: number;
 }
 
 export default function ProductsSection() {
-    const { t, formatCurrency } = useLanguage();
+    const { locale, formatCurrency } = useLanguage();
+    const isAr = locale === "ar";
     const addItem = useCartStore((state) => state.addItem);
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -29,11 +31,11 @@ export default function ProductsSection() {
         const fetchProducts = async () => {
             setIsLoading(true);
             const { data, error } = await supabase
-                .from('products')
-                .select('*')
-                .gt('stock', 0) // Only show products in stock
-                .order('created_at', { ascending: false })
-                .limit(5); // Limit to 5 products for showcase
+                .from("products")
+                .select("*")
+                .gt("stock", 0)
+                .order("created_at", { ascending: false })
+                .limit(8);
 
             if (error) {
                 console.error("Error fetching products:", error);
@@ -46,134 +48,121 @@ export default function ProductsSection() {
         fetchProducts();
     }, []);
 
-    const handleAddToCart = (item: Product) => {
+    const handleAddToCart = (product: Product) => {
+        const effectivePrice = product.on_sale && product.sale_price ? product.sale_price : product.price;
         addItem({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            image: item.image_url || "https://images.unsplash.com/photo-1534125881478-f7ebc24c6a49?auto=format&fit=crop&q=80&w=800",
-            category: item.category
+            id: product.id,
+            name: product.name,
+            price: effectivePrice,
+            originalPrice: product.on_sale && product.sale_price ? product.price : undefined,
+            image: product.image_url || "https://images.unsplash.com/photo-1534125881478-f7ebc24c6a49?auto=format&fit=crop&q=80&w=800",
+            category: product.category,
         });
     };
 
     return (
-        <section className="py-24 bg-[var(--color-deep-space)] relative">
-            {/* ... background ... */}
-            <div
-                className="absolute inset-0 opacity-10 pointer-events-none"
-                style={{
-                    backgroundImage: `radial-gradient(var(--color-neon-blue) 1px, transparent 1px)`,
-                    backgroundSize: '40px 40px'
-                }}
-            />
-
-            <div className="max-w-7xl mx-auto px-6 relative z-10">
-                {/* ... headers ... */}
-                <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+        <section className="py-16 bg-white text-slate-900 border-b border-slate-200" dir={isAr ? "rtl" : "ltr"}>
+            <div className="max-w-7xl mx-auto px-4 md:px-8">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
                     <div>
-                        <motion.h2
-                            initial={{ opacity: 0, x: -20 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            className="text-[var(--color-quantum-purple)] font-bold tracking-widest uppercase mb-4 text-sm"
-                        >
-                            {t.products.section_title}
-                        </motion.h2>
-                        <motion.h3
-                            initial={{ opacity: 0, x: -20 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.2 }}
-                            className="text-4xl md:text-5xl font-black text-white"
-                        >
-                            {t.products.main_title} <span className="text-gradient">{t.products.main_title_highlight}</span>
-                        </motion.h3>
+                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#c91c1c] mb-2">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>{isAr ? "أفضل المختارات" : "Top Picks & Best Sellers"}</span>
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                            {isAr ? "أحدث منتجاتنا المميزة" : "Featured Products"}
+                        </h2>
                     </div>
 
-                    <Link href="/shop">
-                        <motion.button
-                            initial={{ opacity: 0, x: 20 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            className="group flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-                        >
-                            {t.products.view_all}
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </motion.button>
+                    <Link
+                        href="/shop"
+                        className="group flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-[#c91c1c] transition-colors"
+                    >
+                        <span>{isAr ? "عرض جميع المنتجات" : "View All Products"}</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[300px]">
-                    {isLoading ? (
-                        <div className="col-span-full flex items-center justify-center py-20">
-                            <Loader2 className="w-12 h-12 animate-spin text-[var(--color-neon-blue)]" />
-                        </div>
-                    ) : products.length === 0 ? (
-                        <div className="col-span-full text-center py-20">
-                            <p className="text-gray-400 text-lg">No products available at the moment.</p>
-                        </div>
-                    ) : (
-                        products.map((product, index) => {
-                            // Apply dynamic grid spans based on index for visual variety
-                            const gridSpans = [
-                                "md:col-span-2 md:row-span-2", // First product - large
-                                "md:col-span-1 md:row-span-1",
-                                "md:col-span-1 md:row-span-1",
-                                "md:col-span-1 md:row-span-2",
-                                "md:col-span-1 md:row-span-1"
-                            ];
-                            const span = gridSpans[index % gridSpans.length];
+                {/* Product Grid */}
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <Loader2 className="w-8 h-8 animate-spin text-[#c91c1c]" />
+                    </div>
+                ) : products.length === 0 ? (
+                    <div className="text-center py-20 bg-slate-50 rounded-xl border border-slate-200">
+                        <p className="text-slate-500 font-medium">
+                            {isAr ? "لا توجد منتجات متوفرة حالياً" : "No products available at the moment."}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                        {products.map((product) => {
+                            const isOnSale = product.on_sale && product.sale_price;
+                            const finalPrice = isOnSale ? product.sale_price : product.price;
 
                             return (
-                                <motion.div
+                                <div
                                     key={product.id}
-                                    initial={{ opacity: 0, y: 30 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: index * 0.1 }}
-                                    className={cn(
-                                        "group relative glass rounded-2xl overflow-hidden hover:border-[var(--color-neon-blue)]/50 transition-all duration-500",
-                                        span
-                                    )}
+                                    className="group bg-white rounded-lg border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg hover:border-slate-300 hover:scale-[1.02]"
                                 >
-                                    {/* Image with overlay */}
-                                    <div className="absolute inset-0">
-                                        <Image
-                                            src={product.image_url || "https://images.unsplash.com/photo-1534125881478-f7ebc24c6a49?auto=format&fit=crop&q=80&w=800"}
-                                            alt={product.name}
-                                            fill
-                                            className="object-cover transition-transform duration-700 group-hover:scale-110"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                                    {/* Image & Badges */}
+                                    <div className="relative w-full aspect-square bg-slate-50 overflow-hidden p-4">
+                                        {isOnSale && (
+                                            <span className="absolute top-3 left-3 z-10 bg-[#c91c1c] text-white text-[11px] font-bold px-2.5 py-0.5 rounded shadow-xs uppercase tracking-wide">
+                                                {isAr ? "خصم" : "Sale"}
+                                            </span>
+                                        )}
+
+                                        <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-105">
+                                            <Image
+                                                src={product.image_url || "/placeholder.jpg"}
+                                                alt={product.name}
+                                                fill
+                                                className="object-contain"
+                                            />
+                                        </div>
                                     </div>
 
-                                    {/* Content */}
-                                    <div className="absolute bottom-0 left-0 right-0 p-6 z-20 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">
-                                            {product.category}
-                                        </span>
-                                        <div className="flex justify-between items-end">
+                                    {/* Product Meta */}
+                                    <div className="p-4 flex-1 flex flex-col justify-between">
+                                        <div>
+                                            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                                                {product.category}
+                                            </span>
+                                            <h3 className="font-bold text-slate-900 text-sm md:text-base leading-snug line-clamp-2 group-hover:text-[#c91c1c] transition-colors">
+                                                {product.name}
+                                            </h3>
+                                        </div>
+
+                                        {/* Price and Add Button */}
+                                        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                                             <div>
-                                                <h4 className="text-2xl font-bold text-white mb-1 group-hover:text-gradient transition-all">
-                                                    {product.name}
-                                                </h4>
-                                                <p className="text-[var(--color-neon-blue)] font-mono font-bold">
-                                                    {formatCurrency(product.price)}
-                                                </p>
+                                                <div className="text-base font-black text-slate-900 font-mono">
+                                                    {formatCurrency(finalPrice || 0)}
+                                                </div>
+                                                {isOnSale && (
+                                                    <div className="text-xs text-slate-400 line-through font-mono">
+                                                        {formatCurrency(product.price)}
+                                                    </div>
+                                                )}
                                             </div>
+
                                             <button
                                                 onClick={() => handleAddToCart(product)}
-                                                className="w-10 h-10 rounded-full bg-white/10 hover:bg-[var(--color-neon-blue)] flex items-center justify-center text-white hover:text-black transition-colors backdrop-blur-sm"
+                                                className="px-3.5 py-2 bg-slate-900 text-white hover:bg-[#c91c1c] text-xs font-bold rounded-md transition-colors flex items-center gap-1.5 cursor-pointer shrink-0 shadow-xs"
+                                                title="Add to basket"
                                             >
-                                                <ArrowRight className="w-5 h-5 -rotate-45 group-hover:rotate-0 transition-transform duration-300" />
+                                                <ShoppingCart className="w-3.5 h-3.5" />
+                                                <span>{isAr ? "أضف" : "Add"}</span>
                                             </button>
                                         </div>
                                     </div>
-                                </motion.div>
+                                </div>
                             );
-                        })
-                    )}
-                </div>
+                        })}
+                    </div>
+                )}
             </div>
         </section>
     );

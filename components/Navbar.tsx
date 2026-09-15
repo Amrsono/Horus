@@ -2,34 +2,38 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ShoppingCart, Search, Globe } from "lucide-react";
+import { Menu, X, ShoppingBag, Search, Globe, User, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/cartStore";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import CartDrawer from "./CartDrawer";
+import AnnouncementBar from "./AnnouncementBar";
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isCartOpen, setIsCartOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
+    const router = useRouter();
 
-    const totalItems = useCartStore((state) => state.totalItems());
+    const { openCart, totalItems } = useCartStore();
+    const count = totalItems();
     const { t, locale, switchLanguage, formatNumber } = useLanguage();
-    const { user, signOut } = useAuth();
+    const isAr = locale === "ar";
+    const { user } = useAuth();
 
-    // Prevent hydration mismatch for persisted store
     useEffect(() => {
         setMounted(true);
     }, []);
 
     useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
+            setIsScrolled(window.scrollY > 20);
         };
-
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
@@ -38,220 +42,226 @@ export default function Navbar() {
         switchLanguage(locale === "en" ? "ar" : "en");
     };
 
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            setIsSearchOpen(false);
+            router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+        }
+    };
+
     const navLinks = [
-        { name: t.nav.home, href: "/" },
-        { name: t.nav.shop, href: "/products" },
-        { name: t.nav.sale_offers, href: "#sale" },
-        { name: t.nav.about, href: "/about" },
+        { name: isAr ? "الرئيسية" : "Home", href: "/" },
+        { name: isAr ? "المتجر" : "Shop", href: "/shop" },
+        { name: isAr ? "عروض التخفيضات" : "Sale Offers", href: "/#sale" },
+        { name: isAr ? "تتبع طلبك" : "Track Order", href: "/track", icon: true },
+        { name: isAr ? "من نحن" : "About", href: "/about" },
     ];
 
-
-
     return (
-        <>
-            <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+        <header className="sticky top-0 left-0 right-0 z-50 bg-white" dir={isAr ? "rtl" : "ltr"}>
+            <AnnouncementBar />
 
-            <motion.nav
-                initial={{ y: -100 }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.5 }}
+            <CartDrawer />
+
+            <div
                 className={cn(
-                    "fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 px-6 md:px-12",
-                    isScrolled ? "glass-strong py-2" : "bg-transparent"
+                    "w-full bg-white transition-shadow duration-300 border-b border-slate-200",
+                    isScrolled ? "shadow-xs" : ""
                 )}
-                dir={locale === "ar" ? "rtl" : "ltr"}
             >
-                <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    {/* Logo */}
-                    <Link href="/" className="group">
-                        <div className="flex items-center gap-2">
-                            <img src="/clouds-logo.jpg" alt="Clouds Logo" className="w-10 h-10 object-contain rounded-lg" />
-                            <h1 className="text-2xl font-bold tracking-tighter">
-                                <span className="text-white group-hover:neon-text-blue transition-all duration-300">
-                                    CLOUD
-                                </span>
-                                <span className="text-gradient ml-1 neon-text-purple">S</span>
-                            </h1>
+                <div className="max-w-7xl mx-auto px-4 md:px-8 py-3.5 flex items-center justify-between gap-4">
+                    {/* Mobile menu trigger */}
+                    <button
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className="md:hidden p-2 text-slate-700 hover:text-slate-900 rounded-md"
+                        aria-label="Toggle navigation menu"
+                    >
+                        {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                    </button>
+
+                    {/* Brand Logo (CircleV style) */}
+                    <Link href="/" className="flex items-center gap-2.5 shrink-0">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200">
+                            <img
+                                src="/clouds-logo.jpg"
+                                alt="Clouds Logo"
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                    // fallback if image not found
+                                    (e.target as HTMLElement).style.display = "none";
+                                }}
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xl md:text-2xl font-black tracking-tight text-slate-900 leading-none">
+                                CLOUD<span className="text-[#c91c1c]">S</span>
+                            </span>
+                            <span className="text-[10px] tracking-widest text-slate-500 uppercase font-semibold">
+                                Premium Vape
+                            </span>
                         </div>
                     </Link>
 
-                    {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center space-x-8 rtl:space-x-reverse">
+                    {/* Desktop Navigation Links */}
+                    <nav className="hidden md:flex items-center space-x-7 rtl:space-x-reverse">
                         {navLinks.map((link) => (
                             <Link
-                                key={link.name}
+                                key={link.href}
                                 href={link.href}
-                                className="text-gray-300 hover:text-white transition-colors relative group text-sm uppercase tracking-wider font-medium"
+                                className="text-sm font-semibold uppercase tracking-wider text-slate-700 hover:text-[#c91c1c] transition-colors relative py-1 flex items-center gap-1.5"
                             >
+                                {link.icon && <Truck className="w-4 h-4 text-[#c91c1c]" />}
                                 {link.name}
-                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[var(--color-neon-blue)] to-[var(--color-quantum-purple)] transition-all duration-300 group-hover:w-full" />
                             </Link>
                         ))}
-                    </div>
+                    </nav>
 
-                    {/* Actions */}
-                    <div className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
+                    {/* Right Actions: Search, Account, Language, Cart */}
+                    <div className="flex items-center space-x-3 md:space-x-4 rtl:space-x-reverse">
+                        {/* Search Icon */}
                         <button
-                            onClick={toggleLanguage}
-                            className="text-gray-300 hover:text-[var(--color-neon-blue)] transition-colors flex items-center gap-1 text-xs uppercase font-bold"
+                            onClick={() => setIsSearchOpen(!isSearchOpen)}
+                            className="p-2 text-slate-700 hover:text-[#c91c1c] hover:bg-slate-100 rounded-full transition-colors"
+                            aria-label="Search store"
                         >
-                            <Globe className="w-4 h-4" />
-                            {locale === "en" ? "AR" : "EN"}
-                        </button>
-
-                        <button className="text-gray-300 hover:text-[var(--color-neon-blue)] transition-colors">
                             <Search className="w-5 h-5" />
                         </button>
 
-                        <motion.button
-                            onClick={() => setIsCartOpen(true)}
-                            className="relative group p-2"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
+                        {/* Language Switch */}
+                        <button
+                            onClick={toggleLanguage}
+                            className="hidden sm:flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-[#c91c1c] px-2.5 py-1.5 rounded-md hover:bg-slate-100 transition-colors uppercase"
                         >
-                            <div className={cn(
-                                "flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
-                                totalItems > 0
-                                    ? "bg-[var(--color-plasma-pink)]/20 border border-[var(--color-plasma-pink)] shadow-[0_0_15px_rgba(255,42,109,0.3)]"
-                                    : "bg-white/5 border border-white/10 hover:bg-white/10"
-                            )}>
-                                <ShoppingCart className={cn(
-                                    "w-6 h-6 transition-colors duration-300",
-                                    totalItems > 0 ? "text-[var(--color-plasma-pink)]" : "text-gray-300 group-hover:text-white"
-                                )} />
-                            </div>
+                            <Globe className="w-3.5 h-3.5" />
+                            {locale === "en" ? "AR" : "EN"}
+                        </button>
 
-                            {mounted && totalItems > 0 && (
-                                <motion.span
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    key={totalItems} // Triggers animation on change
-                                    className="absolute -top-1 -right-1 w-6 h-6 bg-[var(--color-neon-blue)] text-black text-xs font-bold flex items-center justify-center rounded-full shadow-lg border-2 border-[var(--color-obsidian)]"
-                                >
-                                    {formatNumber(totalItems)}
-                                </motion.span>
-                            )}
-                        </motion.button>
-
+                        {/* User Profile / Admin */}
                         {user ? (
-                            <div className="flex items-center gap-4">
-                                {(user.email === 'admin@clouds.com' || user.email === 'admin@smokinghouse.com') && (
+                            <div className="flex items-center gap-2">
+                                {(user.email === "admin@clouds.com" || user.email === "admin@smokinghouse.com") && (
                                     <Link
                                         href="/admin"
-                                        className="text-sm font-semibold text-[var(--color-neon-blue)] hover:text-white transition-colors"
+                                        className="text-xs font-bold px-2 py-1 bg-red-50 text-[#c91c1c] border border-red-200 rounded hover:bg-red-100 transition-colors"
                                     >
                                         Admin
                                     </Link>
                                 )}
                                 <Link
                                     href="/profile"
-                                    className="text-sm font-semibold text-white hover:text-[var(--color-neon-blue)] transition-colors"
+                                    className="p-2 text-slate-700 hover:text-[#c91c1c] hover:bg-slate-100 rounded-full transition-colors"
+                                    title={user.email || "Profile"}
                                 >
-                                    {t.nav.profile || "Profile"}
+                                    <User className="w-5 h-5" />
                                 </Link>
-                                <button
-                                    onClick={signOut}
-                                    className="px-6 py-2 glass border border-red-500/30 rounded-full text-sm font-semibold hover:bg-red-500 hover:text-white transition-all duration-300"
-                                >
-                                    {t.nav.logout || "Logout"}
-                                </button>
                             </div>
                         ) : (
                             <Link
                                 href="/login"
-                                className="px-6 py-2 glass border border-[var(--color-neon-blue)]/30 rounded-full text-sm font-semibold hover:bg-[var(--color-neon-blue)] hover:text-black transition-all duration-300 hover:neon-glow-blue"
+                                className="p-2 text-slate-700 hover:text-[#c91c1c] hover:bg-slate-100 rounded-full transition-colors"
+                                title="Sign in"
                             >
-                                {t.nav.login}
+                                <User className="w-5 h-5" />
                             </Link>
                         )}
-                    </div>
 
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden text-white"
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    >
-                        {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                    </button>
+                        {/* Cart Icon with numeric count badge (CircleV style) */}
+                        <button
+                            onClick={openCart}
+                            className="relative p-2 text-slate-900 hover:text-[#c91c1c] transition-colors rounded-full hover:bg-slate-100"
+                            aria-label="Shopping Cart"
+                        >
+                            <ShoppingBag className="w-6 h-6" />
+                            {mounted && count > 0 && (
+                                <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 bg-[#c91c1c] text-white text-[11px] font-black rounded-full flex items-center justify-center px-1 shadow-xs animate-in zoom-in-75">
+                                    {formatNumber(count)}
+                                </span>
+                            )}
+                        </button>
+                    </div>
                 </div>
 
-                {/* Mobile Menu Overlay */}
+                {/* Inline Expandable Search Bar */}
+                <AnimatePresence>
+                    {isSearchOpen && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="border-t border-slate-200 bg-slate-50 px-4 py-3 overflow-hidden"
+                        >
+                            <form onSubmit={handleSearchSubmit} className="max-w-2xl mx-auto flex gap-2">
+                                <div className="relative flex-1">
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder={isAr ? "ابحث عن السوائل، الأجهزة، الكويلات..." : "Search e-liquids, hardware, disposables..."}
+                                        autoFocus
+                                        className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-300 rounded-md focus:outline-hidden focus:border-slate-800"
+                                    />
+                                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="px-5 py-2 bg-[#c91c1c] text-white text-xs font-bold uppercase rounded-md hover:bg-[#a51616] transition-colors"
+                                >
+                                    {isAr ? "بحث" : "Search"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsSearchOpen(false)}
+                                    className="p-2 text-slate-400 hover:text-slate-700"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </form>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Mobile Menu Dropdown */}
                 <AnimatePresence>
                     {isMobileMenuOpen && (
                         <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="md:hidden glass-strong absolute top-full left-0 right-0 border-t border-white/10 overflow-hidden"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-3"
                         >
-                            <div className="flex flex-col p-6 space-y-4">
-                                {navLinks.map((link) => (
-                                    <Link
-                                        key={link.name}
-                                        href={link.href}
-                                        className="text-lg text-gray-300 hover:text-[var(--color-neon-blue)] transition-colors"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                    >
-                                        {link.name}
-                                    </Link>
-                                ))}
-                                <div className="h-px bg-white/10 my-2" />
-                                <button
-                                    onClick={() => { toggleLanguage(); setIsMobileMenuOpen(false); }}
-                                    className="text-left text-lg text-gray-300 hover:text-[var(--color-neon-blue)] transition-colors flex items-center gap-2"
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="block text-sm font-bold uppercase tracking-wider text-slate-800 hover:text-[#c91c1c] py-2 border-b border-slate-100"
                                 >
-                                    <Globe className="w-5 h-5" />
-                                    {locale === "en" ? "Switch to Arabic" : "Switch to English"}
-                                </button>
-
+                                    {link.name}
+                                </Link>
+                            ))}
+                            <div className="pt-2 flex items-center justify-between">
                                 <button
-                                    onClick={() => { setIsCartOpen(true); setIsMobileMenuOpen(false); }}
-                                    className="text-left text-lg text-gray-300 hover:text-[var(--color-plasma-pink)] transition-colors flex items-center gap-2"
+                                    onClick={toggleLanguage}
+                                    className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase"
                                 >
-                                    <ShoppingCart className="w-5 h-5" />
-                                    {t.nav.cart || "Cart"} {mounted && totalItems > 0 && `(${totalItems})`}
+                                    <Globe className="w-4 h-4" />
+                                    {locale === "en" ? "العربية (AR)" : "English (EN)"}
                                 </button>
-
-                                {user ? (
-                                    <>
-                                        {(user.email === 'admin@clouds.com' || user.email === 'admin@smokinghouse.com') && (
-                                            <Link
-                                                href="/admin"
-                                                className="text-center py-3 bg-[var(--color-neon-blue)] text-black font-bold rounded-lg hover:bg-[var(--color-electric-cyan)] transition-colors"
-                                                onClick={() => setIsMobileMenuOpen(false)}
-                                            >
-                                                Admin Dashboard
-                                            </Link>
-                                        )}
-                                        <Link
-                                            href="/profile"
-                                            className="text-center py-3 bg-white/10 text-white font-bold rounded-lg hover:bg-white/20 transition-colors"
-                                            onClick={() => setIsMobileMenuOpen(false)}
-                                        >
-                                            {t.nav.profile || "Profile"}
-                                        </Link>
-                                        <button
-                                            onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
-                                            className="text-center py-3 bg-red-500/20 text-red-400 font-bold rounded-lg hover:bg-red-500 hover:text-white transition-colors"
-                                        >
-                                            {t.nav.logout || "Logout"}
-                                        </button>
-                                    </>
-                                ) : (
+                                {user && (
                                     <Link
-                                        href="/login"
-                                        className="text-center py-3 bg-[var(--color-neon-blue)] text-black font-bold rounded-lg hover:bg-[var(--color-electric-cyan)] transition-colors"
+                                        href="/profile"
                                         onClick={() => setIsMobileMenuOpen(false)}
+                                        className="text-xs font-bold text-[#c91c1c]"
                                     >
-                                        {t.nav.login}
+                                        {isAr ? "حسابي" : "My Profile"}
                                     </Link>
                                 )}
-
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
-            </motion.nav>
-        </>
+            </div>
+        </header>
     );
 }
