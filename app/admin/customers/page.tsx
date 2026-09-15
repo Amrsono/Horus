@@ -138,21 +138,53 @@ export default function CustomersPage() {
         setLoadingOrders(true);
         const { data, error } = await supabase
             .from('orders')
-            .select('id, total_amount, status, created_at')
+            .select(`
+                id,
+                total_amount,
+                status,
+                created_at,
+                shipping_address,
+                order_items (
+                    id,
+                    product_name,
+                    quantity,
+                    price_at_purchase
+                )
+            `)
             .eq('guest_email', email)
             .order('created_at', { ascending: false });
 
         if (error) { console.error(error); setLoadingOrders(false); return; }
 
-        const ordersWithItems = await Promise.all(
-            (data || []).map(async (order) => {
-                const { data: items } = await supabase
-                    .from('order_items')
-                    .select('id, product_name, quantity, price_at_purchase')
-                    .eq('order_id', order.id);
-                return { ...order, items: items || [], item_count: items?.length || 0 };
-            })
-        );
+        const ordersWithItems = (data || []).map((order: any) => {
+            let items: OrderItem[] = (order.order_items || []).map((i: any) => ({
+                id: i.id,
+                product_name: i.product_name,
+                quantity: i.quantity,
+                price_at_purchase: Number(i.price_at_purchase),
+            }));
+
+            if (items.length === 0) {
+                const fallback = order.shipping_address?.items || order.shipping_address?._items;
+                if (Array.isArray(fallback) && fallback.length > 0) {
+                    items = fallback.map((i: any, idx: number) => ({
+                        id: `fallback-${idx}`,
+                        product_name: i.product_name || i.name || "Item",
+                        quantity: Number(i.quantity) || 1,
+                        price_at_purchase: Number(i.price_at_purchase || i.price || 0),
+                    }));
+                }
+            }
+
+            return {
+                id: order.id,
+                total_amount: order.total_amount,
+                status: order.status,
+                created_at: order.created_at,
+                items,
+                item_count: items.length,
+            };
+        });
 
         setOrdersCache(prev => ({ ...prev, [email]: ordersWithItems }));
         setCustomerOrders(ordersWithItems);

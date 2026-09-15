@@ -6,7 +6,7 @@ import {
     Search, Filter, MoreHorizontal, Eye, Truck, CheckCircle,
     XCircle, Loader2, ChevronDown, X, Package, MapPin, Phone,
     Mail, Clock, ChevronRight, AlertTriangle, Download, Copy, Check,
-    RefreshCw, PrinterIcon
+    RefreshCw, PrinterIcon, User, CreditCard, FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
@@ -21,11 +21,19 @@ interface Order {
     created_at: string;
     item_count?: number;
     shipping_address?: {
+        customer_name?: string;
         full_name?: string;
+        name?: string;
         phone?: string;
         city?: string;
         address?: string;
+        payment_method?: string;
+        notes?: string;
+        special_instructions?: string;
+        items?: any[];
+        _items?: any[];
     };
+    order_items?: OrderItem[];
 }
 
 interface OrderItem {
@@ -33,6 +41,7 @@ interface OrderItem {
     product_name: string;
     quantity: number;
     price_at_purchase: number;
+    _fallback?: boolean;  // came from shipping_address items snapshot
 }
 
 const STATUS_STYLES: Record<string, { text: string; bg: string; border: string }> = {
@@ -104,43 +113,123 @@ export default function OrdersPage() {
         setIsLoading(true);
         const { data, error } = await supabase
             .from("orders")
-            .select("id, guest_email, total_amount, status, created_at, shipping_address")
+            .select(`
+                id,
+                guest_email,
+                total_amount,
+                status,
+                created_at,
+                shipping_address,
+                order_items (
+                    id,
+                    product_name,
+                    quantity,
+                    price_at_purchase
+                )
+            `)
             .order("created_at", { ascending: false });
 
-        if (error) { console.error(error); setIsLoading(false); return; }
+        if (error) {
+            console.error("fetchOrders error:", error);
+            setIsLoading(false);
+            return;
+        }
 
-        const withCounts = await Promise.all(
-            (data || []).map(async (order) => {
-                const { count } = await supabase
-                    .from("order_items")
-                    .select("*", { count: "exact", head: true })
-                    .eq("order_id", order.id);
-                return { ...order, item_count: count || 0 };
-            })
-        );
-        setOrders(withCounts);
+        const cacheInit: Record<string, OrderItem[]> = {};
+
+        const mappedOrders: Order[] = (data || []).map((order: any) => {
+            let items: OrderItem[] = (order.order_items || []).map((i: any) => ({
+                id: i.id,
+                product_name: i.product_name,
+                quantity: i.quantity,
+                price_at_purchase: Number(i.price_at_purchase),
+            }));
+
+            // Fallback: check shipping_address items snapshot
+            if (items.length === 0) {
+                const fallback = order.shipping_address?.items || order.shipping_address?._items;
+                if (Array.isArray(fallback) && fallback.length > 0) {
+                    items = fallback.map((i: any, idx: number) => ({
+                        id: `fallback-${idx}`,
+                        product_name: i.product_name || i.name || "Item",
+                        quantity: Number(i.quantity) || 1,
+                        price_at_purchase: Number(i.price_at_purchase || i.price || 0),
+                        _fallback: true,
+                    }));
+                }
+            }
+
+            cacheInit[order.id] = items;
+
+            return {
+                id: order.id,
+                guest_email: order.guest_email,
+                total_amount: order.total_amount,
+                status: order.status,
+                created_at: order.created_at,
+                shipping_address: order.shipping_address,
+                order_items: items,
+                item_count: items.length,
+            };
+        });
+
+        setItemsCache(prev => ({ ...prev, ...cacheInit }));
+        setOrders(mappedOrders);
         setIsLoading(false);
     };
 
-    const fetchOrderItems = useCallback(async (orderId: string) => {
-        if (itemsCache[orderId]) { setOrderItems(itemsCache[orderId]); return; }
+    const fetchOrderItems = useCallback(async (orderId: string, force = false) => {
+        if (!force && itemsCache[orderId]?.length) {
+            setOrderItems(itemsCache[orderId]);
+            return;
+        }
         setLoadingItems(true);
+
         const { data, error } = await supabase
             .from("order_items")
             .select("id, product_name, quantity, price_at_purchase")
             .eq("order_id", orderId);
 
-        if (error) { console.error(error); setLoadingItems(false); return; }
-        setItemsCache(prev => ({ ...prev, [orderId]: data || [] }));
-        setOrderItems(data || []);
+        if (error) {
+            console.error("order_items fetch error:", error);
+            setLoadingItems(false);
+            return;
+        }
+
+        if (data && data.length > 0) {
+            // items exist in the order_items table
+            setItemsCache(prev => ({ ...prev, [orderId]: data }));
+            setOrderItems(data);
+        } else {
+            // Fallback: look for items snapshot stored inside shipping_address
+            const order = orders.find(o => o.id === orderId);
+            const fallback = (order?.shipping_address as any)?.items || (order?.shipping_address as any)?._items;
+            const fallbackItems: OrderItem[] = Array.isArray(fallback)
+                ? fallback.map((i: any, idx: number) => ({
+                    id: `fallback-${idx}`,
+                    product_name: i.product_name || i.name || "Item",
+                    quantity: Number(i.quantity) || 1,
+                    price_at_purchase: Number(i.price_at_purchase || i.price || 0),
+                    _fallback: true,
+                }))
+                : [];
+            setItemsCache(prev => ({ ...prev, [orderId]: fallbackItems }));
+            setOrderItems(fallbackItems);
+        }
         setLoadingItems(false);
-    }, [itemsCache]);
+    }, [itemsCache, orders]);
 
     const openDetail = (order: Order) => {
         setSelectedOrder(order);
         setOpenMenuId(null);
         setEditingStatus(false);
-        fetchOrderItems(order.id);
+        const existing = itemsCache[order.id] || order.order_items;
+        if (existing && existing.length > 0) {
+            setOrderItems(existing);
+            setLoadingItems(false);
+        } else {
+            fetchOrderItems(order.id);
+        }
     };
 
     const updateStatus = async (orderId: string, newStatus: string) => {
@@ -166,24 +255,33 @@ export default function OrdersPage() {
     };
 
     const handleExportOrder = (order: Order) => {
-        const items = itemsCache[order.id] || [];
+        const items = order.order_items || itemsCache[order.id] || [];
         const wb = XLSX.utils.book_new();
+
+        const customerName = order.shipping_address?.customer_name || order.shipping_address?.full_name || order.shipping_address?.name || "";
+        const phone = order.shipping_address?.phone || "";
+        const city = order.shipping_address?.city || "";
+        const address = order.shipping_address?.address || "";
+        const paymentMethod = order.shipping_address?.payment_method || "";
+        const notes = order.shipping_address?.notes || order.shipping_address?.special_instructions || "";
 
         // Sheet 1 – Summary
         const summary = [
             ["Field", "Value"],
             ["Order ID", order.id],
-            ["Customer", order.guest_email],
+            ["Customer Email", order.guest_email],
             ["Date", new Date(order.created_at).toLocaleString()],
             ["Status", order.status],
             ["Total (EGP)", order.total_amount],
-            ["Name", order.shipping_address?.full_name || ""],
-            ["Phone", order.shipping_address?.phone || ""],
-            ["City", order.shipping_address?.city || ""],
-            ["Address", order.shipping_address?.address || ""],
+            ["Customer Name", customerName],
+            ["Phone", phone],
+            ["City", city],
+            ["Address", address],
+            ["Payment Method", paymentMethod],
+            ["Notes / Instructions", notes],
         ];
         const s1 = XLSX.utils.aoa_to_sheet(summary);
-        s1["!cols"] = [{ wch: 18 }, { wch: 42 }];
+        s1["!cols"] = [{ wch: 22 }, { wch: 45 }];
         XLSX.utils.book_append_sheet(wb, s1, "Order Summary");
 
         // Sheet 2 – Items
@@ -571,6 +669,15 @@ export default function OrdersPage() {
                                 <div className="space-y-3">
                                     <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Customer & Delivery</h3>
                                     <div className="glass border border-white/5 rounded-xl divide-y divide-white/5">
+                                        {(selectedOrder.shipping_address?.customer_name || selectedOrder.shipping_address?.full_name || selectedOrder.shipping_address?.name) && (
+                                            <div className="flex items-center gap-3 px-4 py-3">
+                                                <User className="w-4 h-4 text-purple-400 shrink-0" />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs text-gray-500">Customer Name</p>
+                                                    <p className="text-white text-sm font-medium">{selectedOrder.shipping_address.customer_name || selectedOrder.shipping_address.full_name || selectedOrder.shipping_address.name}</p>
+                                                </div>
+                                            </div>
+                                        )}
                                         <div className="flex items-center gap-3 px-4 py-3">
                                             <Mail className="w-4 h-4 text-[var(--color-neon-blue)] shrink-0" />
                                             <div className="flex-1 min-w-0">
@@ -603,6 +710,24 @@ export default function OrdersPage() {
                                                 </div>
                                             </div>
                                         )}
+                                        {selectedOrder.shipping_address?.payment_method && (
+                                            <div className="flex items-center gap-3 px-4 py-3">
+                                                <CreditCard className="w-4 h-4 text-cyan-400 shrink-0" />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs text-gray-500">Payment Method</p>
+                                                    <p className="text-white text-sm">{selectedOrder.shipping_address.payment_method}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {(selectedOrder.shipping_address?.notes || selectedOrder.shipping_address?.special_instructions) && (
+                                            <div className="flex items-start gap-3 px-4 py-3">
+                                                <FileText className="w-4 h-4 text-pink-400 mt-0.5 shrink-0" />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs text-gray-500">Special Instructions / Notes</p>
+                                                    <p className="text-white text-sm">{selectedOrder.shipping_address.notes || selectedOrder.shipping_address.special_instructions}</p>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -611,13 +736,37 @@ export default function OrdersPage() {
                                     <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                                         Items
                                         {!loadingItems && <span className="bg-white/10 px-2 py-0.5 rounded-full text-white text-xs">{orderItems.length}</span>}
+                                        {!loadingItems && orderItems.some(i => i._fallback) && (
+                                            <span className="text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full">
+                                                fallback data
+                                            </span>
+                                        )}
+                                        <button
+                                            onClick={() => fetchOrderItems(selectedOrder.id, true)}
+                                            className="ml-auto text-gray-500 hover:text-white transition-colors"
+                                            title="Retry fetching items"
+                                        >
+                                            <RefreshCw className={cn("w-3.5 h-3.5", loadingItems && "animate-spin")} />
+                                        </button>
                                     </h3>
                                     {loadingItems ? (
                                         <div className="flex justify-center py-8">
                                             <Loader2 className="w-6 h-6 animate-spin text-[var(--color-neon-blue)]" />
                                         </div>
                                     ) : orderItems.length === 0 ? (
-                                        <p className="text-gray-500 text-sm">No items found.</p>
+                                        <div className="glass border border-white/5 rounded-xl p-4 text-center space-y-2">
+                                            <Package className="w-8 h-8 text-gray-600 mx-auto" />
+                                            <p className="text-gray-400 text-sm font-medium">No items found in database</p>
+                                            <p className="text-gray-600 text-xs max-w-xs mx-auto">
+                                                Items for older orders may not have been stored. Click ↻ to retry.
+                                            </p>
+                                            <button
+                                                onClick={() => fetchOrderItems(selectedOrder.id, true)}
+                                                className="mt-2 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 transition-colors"
+                                            >
+                                                <RefreshCw className="w-3 h-3" /> Retry
+                                            </button>
+                                        </div>
                                     ) : (
                                         <div className="glass border border-white/5 rounded-xl divide-y divide-white/5">
                                             {orderItems.map((item, idx) => (

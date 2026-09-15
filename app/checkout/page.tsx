@@ -89,15 +89,23 @@ export default function CheckoutPage() {
             const orderNumber = `CV-${randomCode}`;
             const total = totalPrice();
 
+            const orderItemsSummary = items.map((item) => ({
+                product_name: item.name,
+                quantity: item.quantity,
+                price_at_purchase: typeof item.price === "string" ? parseFloat(item.price) : item.price,
+            }));
+
             const shippingData = {
                 order_number: orderNumber,
                 name: formData.name,
+                customer_name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
                 city: formData.city,
                 address: formData.address,
                 notes: formData.notes,
                 payment_method: activePaymentMethod === "cash" ? "Cash on Delivery" : "Credit Card",
+                items: orderItemsSummary,
             };
 
             // 1. Insert order in Supabase
@@ -139,11 +147,7 @@ export default function CheckoutPage() {
                         total_amount: total,
                         status: "pending",
                         shipping_address: shippingData,
-                        items: items.map((item) => ({
-                            product_name: item.name,
-                            quantity: item.quantity,
-                            price_at_purchase: typeof item.price === "string" ? parseFloat(item.price) : item.price,
-                        })),
+                        items: orderItemsSummary,
                         created_at: new Date().toISOString(),
                     });
                     localStorage.setItem("clouds_local_orders", JSON.stringify(localOrders));
@@ -153,18 +157,21 @@ export default function CheckoutPage() {
             } else {
                 createdOrderId = order.id;
 
-                // 2. Insert order items if Supabase order was created
-                try {
-                    const orderItems = items.map((item) => ({
-                        order_id: order.id,
-                        product_id: isUuid(item.id) ? item.id : null,
-                        product_name: item.name,
-                        quantity: item.quantity,
-                        price_at_purchase: typeof item.price === "string" ? parseFloat(item.price) : item.price,
-                    }));
-                    await supabase.from("order_items").insert(orderItems);
-                } catch (itemsError) {
-                    console.warn("Notice: order_items insert warning:", itemsError);
+                // 2. Insert order items into order_items table
+                const orderItemsPayload = items.map((item) => ({
+                    order_id: order.id,
+                    product_id: isUuid(item.id) ? item.id : null,
+                    product_name: item.name,
+                    quantity: item.quantity,
+                    price_at_purchase: typeof item.price === "string" ? parseFloat(item.price) : item.price,
+                }));
+
+                const { error: itemsError } = await supabase
+                    .from("order_items")
+                    .insert(orderItemsPayload);
+
+                if (itemsError) {
+                    console.warn("order_items insert notice (items preserved in order shipping_address):", itemsError.message || itemsError);
                 }
             }
 
