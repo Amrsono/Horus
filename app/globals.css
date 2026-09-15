@@ -316,3 +316,157 @@ html[data-theme='neon-blue'] .border-\[\#c91c1c\] {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover, #00d4ff);
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   Pure White Theme — Global Text & Surface Overrides
+   These rules ensure all hardcoded text-white / gray classes and
+   semi-transparent dark surfaces become legible on a white background.
+   ───────────────────────────────────────────────────────────────── */
+
+/* TEXT — turn white/light text dark */
+html[data-theme='light'] .text-white {
+  color: var(--text-main) !important;        /* #0f172a */
+}
+html[data-theme='light'] .text-gray-100,
+html[data-theme='light'] .text-gray-200,
+html[data-theme='light'] .text-gray-300 {
+  color: #374151 !important;                 /* slate-700 */
+}
+html[data-theme='light'] .text-gray-400,
+html[data-theme='light'] .text-gray-500 {
+  color: #6b7280 !important;                 /* gray-500 */
+}
+html[data-theme='light'] .text-gray-600 {
+  color: #4b5563 !important;
+}
+html[data-theme='light'] .text-black\/40,
+html[data-theme='light'] .text-black\/60 {
+  color: var(--text-muted) !important;
+}
+
+/* BACKGROUNDS — dark semi-transparent surfaces become light */
+html[data-theme='light'] .bg-black\/40,
+html[data-theme='light'] .bg-black\/20,
+html[data-theme='light'] .bg-black\/60,
+html[data-theme='light'] .bg-black\/80 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+html[data-theme='light'] .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+html[data-theme='light'] .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+html[data-theme='light'] .bg-white\/20 {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+html[data-theme='light'] .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+html[data-theme='light'] .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* BORDERS — white-transparent borders become visible */
+html[data-theme='light'] .border-white\/5,
+html[data-theme='light'] .border-white\/10,
+html[data-theme='light'] .border-white\/20 {
+  border-color: #e2e8f0 !important;
+}
+html[data-theme='light'] .divide-white\/5 > * + * {
+  border-color: #e2e8f0 !important;
+}
+
+/* ADMIN SIDEBAR & GLASS surfaces */
+html[data-theme='light'] .glass {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+html[data-theme='light'] .glass-strong {
+  background: rgba(255, 255, 255, 0.97) !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* TABLE HEADS & ROWS */
+html[data-theme='light'] .bg-white\/5 {
+  background-color: #f8fafc !important;
+}
+html[data-theme='light'] thead.bg-white\/5,
+html[data-theme='light'] thead .bg-white\/5 {
+  background-color: #f1f5f9 !important;
+}
+html[data-theme='light'] .text-gray-500.uppercase {
+  color: #64748b !important;
+}
+
+/* INPUT FIELDS */
+html[data-theme='light'] input.bg-black\/40,
+html[data-theme='light'] textarea.bg-black\/40,
+html[data-theme='light'] select.bg-black\/40 {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+html[data-theme='light'] input[class*="bg-black"],
+html[data-theme='light'] textarea[class*="bg-black"],
+html[data-theme='light'] select[class*="bg-black"] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+html[data-theme='light'] input::placeholder,
+html[data-theme='light'] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* BUTTONS with dark transparent backgrounds */
+html[data-theme='light'] button.bg-white\/5,
+html[data-theme='light'] a.bg-white\/5 {
+  background-color: #f1f5f9 !important;
+  color: #374151 !important;
+}
+
+/* SCROLLBAR for light */
+html[data-theme='light'] ::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+html[data-theme='light'] ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+html[data-theme='light'] ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Pure White — Admin Dashboard Specific Fixes
+   ───────────────────────────────────────────────────────────────── */
+
+/* Page headings (h1, h2, h3 in admin) */
+html[data-theme='light'] h1.text-white,
+html[data-theme='light'] h2.text-white,
+html[data-theme='light'] h3.text-white,
+html[data-theme='light'] h4.text-white {
+  color: #0f172a !important;
+}
+
+/* Table header text (uppercase tracking labels) */
+html[data-theme='light'] th {
+  color: #64748b !important;
+  background-color: #f1f5f9 !important;
+}
+
+/* Table row hover in light mode */
+html[data-theme='light'] tr:hover td {
+  background-color: rgba(0,0,0,0.02) !important;
+}
+
+/* Font-mono numbers (order IDs, amounts) */
+html[data-theme='light'] .font-mono {
+  color: #0f172a !important;
+}
+
+/* Accent-colored mono values override (e.g. prices in plasma-pink) should keep their color */
+html[data-theme='light'] .text-\[var\(--color-plasma-pink\)\].font-mono {
+  color: var(--color-plasma-pink) !important;
+}
