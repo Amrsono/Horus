@@ -59,12 +59,12 @@ export default function Hero3D() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.6 }}
-                        className="flex flex-wrap items-center justify-center gap-4"
+                        className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto max-w-sm sm:max-w-none"
                     >
                         <Link
                             href="/shop"
                             style={{ color: "#ffffff" }}
-                            className="px-8 py-3.5 bg-[#c91c1c] text-white hover:bg-[#a51616] font-bold text-sm uppercase tracking-wider rounded-md transition-all shadow-lg hover:shadow-red-900/30 flex items-center gap-2 cursor-pointer"
+                            className="w-full sm:w-auto px-8 py-3.5 min-h-[48px] bg-[#c91c1c] text-white hover:bg-[#a51616] font-bold text-sm uppercase tracking-wider rounded-xl transition-all shadow-lg hover:shadow-red-900/30 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                         >
                             <span style={{ color: "#ffffff" }}>{isAr ? "تسوق الآن" : "Shop Now"}</span>
                             <ArrowRight className="w-4 h-4 rtl:rotate-180 text-white" />
@@ -72,7 +72,7 @@ export default function Hero3D() {
                         <Link
                             href="/track"
                             style={{ color: "#ffffff" }}
-                            className="px-7 py-3.5 bg-white/15 hover:bg-white/25 text-white font-bold text-sm uppercase tracking-wider rounded-md transition-all border border-white/30 hover:border-white/50 backdrop-blur-md flex items-center gap-2.5 shadow-md cursor-pointer group"
+                            className="w-full sm:w-auto px-7 py-3.5 min-h-[48px] bg-white/15 hover:bg-white/25 text-white font-bold text-sm uppercase tracking-wider rounded-xl transition-all border border-white/30 hover:border-white/50 backdrop-blur-md flex items-center justify-center gap-2.5 shadow-md cursor-pointer group active:scale-98"
                         >
                             <Truck className="w-4 h-4 text-[#c91c1c] group-hover:scale-110 transition-transform" />
                             <span style={{ color: "#ffffff" }} className="text-white font-bold tracking-wider">

@@ -131,10 +131,10 @@ export default function Navbar() {
                         {/* Language Switch */}
                         <button
                             onClick={toggleLanguage}
-                            className="hidden sm:flex items-center gap-1 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--primary-accent)] px-2.5 py-1.5 rounded-md hover:bg-[var(--surface-subtle)] transition-colors uppercase"
+                            className="flex items-center gap-1 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--primary-accent)] px-2 py-1.5 rounded-md hover:bg-[var(--surface-subtle)] transition-colors uppercase"
                         >
                             <Globe className="w-3.5 h-3.5" />
-                            {locale === "en" ? "AR" : "EN"}
+                            <span>{locale === "en" ? "AR" : "EN"}</span>
                         </button>
 
                         {/* User Profile / Admin */}
@@ -189,7 +189,7 @@ export default function Navbar() {
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            className="border-t border-slate-200 bg-slate-50 px-4 py-3 overflow-hidden"
+                            className="border-t border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-3 overflow-hidden"
                         >
                             <form onSubmit={handleSearchSubmit} className="max-w-2xl mx-auto flex gap-2">
                                 <div className="relative flex-1">
@@ -199,9 +199,9 @@ export default function Navbar() {
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         placeholder={isAr ? "ابحث عن السوائل، الأجهزة، الكويلات..." : "Search e-liquids, hardware, disposables..."}
                                         autoFocus
-                                        className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-300 rounded-md focus:outline-hidden focus:border-slate-800"
+                                        className="w-full pl-10 pr-4 py-2 text-sm bg-[var(--surface-subtle)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-md focus:outline-hidden focus:border-[var(--primary-accent)]"
                                     />
-                                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+                                    <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-3 pointer-events-none" />
                                 </div>
                                 <button
                                     type="submit"
@@ -212,7 +212,7 @@ export default function Navbar() {
                                 <button
                                     type="button"
                                     onClick={() => setIsSearchOpen(false)}
-                                    className="p-2 text-slate-400 hover:text-slate-700"
+                                    className="p-2 text-[var(--text-muted)] hover:text-[var(--text-main)]"
                                 >
                                     <X className="w-5 h-5" />
                                 </button>

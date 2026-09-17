@@ -89,7 +89,7 @@ export default function SaleSection() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                     {saleProducts.map((item, index) => (
                         <motion.div
                             key={item.id}
@@ -97,12 +97,12 @@ export default function SaleSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.08 }}
-                            className="group bg-white rounded-lg border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg hover:border-slate-300 hover:scale-[1.02]"
+                            className="group bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg hover:border-slate-300 hover:scale-[1.02]"
                         >
                             {/* Image & Discount Badge */}
-                            <div className="relative w-full aspect-square bg-white p-4 overflow-hidden">
-                                <div className="absolute top-3 left-3 z-10">
-                                    <span className="flex items-center gap-1 px-2.5 py-0.5 bg-[#c91c1c] text-white text-[11px] font-bold uppercase tracking-wide rounded shadow-xs">
+                            <div className="relative w-full aspect-square bg-white p-3 sm:p-4 overflow-hidden">
+                                <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
+                                    <span className="flex items-center gap-1 px-2 sm:px-2.5 py-0.5 bg-[#c91c1c] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-wide rounded shadow-xs">
                                         <Tag className="w-3 h-3" />
                                         {item.sale_badge_text || calculateDiscount(item.price, item.sale_price || item.price)}
                                     </span>
@@ -119,12 +119,12 @@ export default function SaleSection() {
                             </div>
 
                             {/* Details */}
-                            <div className="p-4 flex-1 flex flex-col justify-between border-t border-slate-100 bg-white">
+                            <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between border-t border-slate-100 bg-white">
                                 <div>
-                                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                                    <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5 sm:mb-1">
                                         {item.category}
                                     </span>
-                                    <h3 className="font-bold text-slate-900 text-sm md:text-base leading-snug line-clamp-2 group-hover:text-[#c91c1c] transition-colors">
+                                    <h3 className="font-bold text-slate-900 text-xs sm:text-base leading-snug line-clamp-2 group-hover:text-[#c91c1c] transition-colors">
                                         {item.name}
                                     </h3>
                                 </div>

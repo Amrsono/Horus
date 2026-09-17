@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero3D from "@/components/Hero3D";
+import MobilePromoBanners from "@/components/MobilePromoBanners";
 import SaleSection from "@/components/SaleSection";
 import ProductsSection from "@/components/ProductsSection";
 import DashboardSection from "@/components/DashboardSection";
@@ -10,6 +11,7 @@ export default function Home() {
     <main className="min-h-screen bg-[var(--background)] overflow-x-hidden">
       <Navbar />
       <Hero3D />
+      <MobilePromoBanners />
       <SaleSection />
       <ProductsSection />
       <DashboardSection />

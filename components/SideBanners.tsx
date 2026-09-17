@@ -15,6 +15,8 @@ export default function SideBanners() {
 
     const [leftVisible, setLeftVisible] = useState(true);
     const [rightVisible, setRightVisible] = useState(true);
+    const [mobilePromoOpen, setMobilePromoOpen] = useState(false);
+    const [mobileDismissed, setMobileDismissed] = useState(false);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -233,6 +235,183 @@ export default function SideBanners() {
                     )}
                 </AnimatePresence>
             </aside>
+
+            {/* ================= MOBILE / TABLET FLOATING PROMO PILL & MODAL (< 1400px) ================= */}
+            <div className="block min-[1400px]:hidden">
+                {/* Floating Mobile Promo Pill */}
+                <AnimatePresence>
+                    {!mobileDismissed && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 30, scale: 0.95 }}
+                            transition={{ delay: 1, duration: 0.4 }}
+                            className="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-4 sm:w-80 z-40 select-none"
+                            dir={isAr ? "rtl" : "ltr"}
+                        >
+                            <div className="glass p-2.5 rounded-2xl border border-[var(--primary-accent)]/40 shadow-[0_8px_30px_rgba(0,0,0,0.4)] flex items-center justify-between gap-3 bg-[var(--surface)]/95 backdrop-blur-md">
+                                <button
+                                    onClick={() => setMobilePromoOpen(true)}
+                                    className="flex items-center gap-2.5 flex-1 min-w-0 text-left rtl:text-right cursor-pointer"
+                                >
+                                    <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-cyan-500/40">
+                                        <img
+                                            src="/banners/banner-left.jpg"
+                                            alt="Vape Promo"
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-cyan-500/10" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-cyan-400">
+                                                {isAr ? "عروض حصرية ٢٠٢٦" : "SPECIAL DROPS"}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs font-bold text-[var(--text-main)] truncate">
+                                            {isAr ? "أجهزة المود 80W وسوائل فاخرة" : "80W Mods & Artisanal Juices"}
+                                        </p>
+                                    </div>
+                                </button>
+
+                                <div className="flex items-center gap-1 shrink-0">
+                                    <button
+                                        onClick={() => setMobilePromoOpen(true)}
+                                        className="px-2.5 py-1.5 bg-[var(--primary-accent)] text-[var(--primary-accent-text)] rounded-xl text-[11px] font-extrabold shadow-sm active:scale-95 transition-transform cursor-pointer"
+                                    >
+                                        {isAr ? "مشاهدة" : "View"}
+                                    </button>
+                                    <button
+                                        onClick={() => setMobileDismissed(true)}
+                                        className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-main)] rounded-lg cursor-pointer"
+                                        aria-label="Dismiss banner"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Mobile Full Promo Modal / Bottom Sheet */}
+                <AnimatePresence>
+                    {mobilePromoOpen && (
+                        <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0 sm:p-4" dir={isAr ? "rtl" : "ltr"}>
+                            {/* Backdrop */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setMobilePromoOpen(false)}
+                                className="fixed inset-0 bg-black/75 backdrop-blur-sm"
+                            />
+
+                            {/* Sheet Content */}
+                            <motion.div
+                                initial={{ y: "100%", opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: "100%", opacity: 0 }}
+                                transition={{ type: "spring", damping: 26, stiffness: 280 }}
+                                className="relative w-full sm:max-w-lg bg-[var(--surface)] border-t sm:border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl z-10"
+                            >
+                                {/* Sheet Header */}
+                                <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles className="w-4 h-4 text-[var(--primary-accent)]" />
+                                        <h3 className="font-extrabold text-base text-[var(--text-main)]">
+                                            {isAr ? "عروض ومنتجات حصرية" : "Exclusive Featured Banners"}
+                                        </h3>
+                                    </div>
+                                    <button
+                                        onClick={() => setMobilePromoOpen(false)}
+                                        className="p-1.5 rounded-full bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-[var(--text-main)] cursor-pointer"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                </div>
+
+                                {/* Banner 1: Hardware */}
+                                <div className="relative rounded-2xl overflow-hidden border border-cyan-500/40 bg-black p-4 min-h-[190px] flex flex-col justify-between">
+                                    <img
+                                        src="/banners/banner-left.jpg"
+                                        alt="Cyber Mods 80W"
+                                        className="absolute inset-0 w-full h-full object-cover opacity-75"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/30" />
+
+                                    <div className="relative z-10 flex justify-between items-center">
+                                        <span className="px-2 py-0.5 rounded-full bg-cyan-500/30 text-cyan-300 text-[10px] font-black uppercase">
+                                            {isAr ? "أجهزة أصلية ٢٠٢٦" : "PRO HARDWARE"}
+                                        </span>
+                                        <span className="text-[10px] font-mono font-bold text-cyan-400 bg-black/60 px-2 py-0.5 rounded">
+                                            SUB-OHM 80W
+                                        </span>
+                                    </div>
+
+                                    <div className="relative z-10 space-y-2 pt-4">
+                                        <div>
+                                            <h4 className="font-black text-white text-base">
+                                                {isAr ? "أجهزة المود والبودات الاحترافية" : "Cyber Mod 80W Series"}
+                                            </h4>
+                                            <p className="text-[11px] text-zinc-300 line-clamp-2">
+                                                {isAr ? "إشعال فوري 0.001 ثانية مع كود فحص أصلي وضمان ١٤ يوماً." : "Instant firing, military alloy build & scratch authentication."}
+                                            </p>
+                                        </div>
+                                        <Link
+                                            href="/shop"
+                                            onClick={() => setMobilePromoOpen(false)}
+                                            className="w-full py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-extrabold text-xs rounded-xl flex items-center justify-center gap-1.5 active:scale-98"
+                                        >
+                                            <ShoppingBag className="w-3.5 h-3.5" />
+                                            <span>{isAr ? "تسوق أجهزة المود" : "Shop Hardware"}</span>
+                                        </Link>
+                                    </div>
+                                </div>
+
+                                {/* Banner 2: E-Liquids */}
+                                <div className="relative rounded-2xl overflow-hidden border border-amber-500/40 bg-black p-4 min-h-[190px] flex flex-col justify-between">
+                                    <img
+                                        src="/banners/banner-right.jpg"
+                                        alt="Golden Amber Juices"
+                                        className="absolute inset-0 w-full h-full object-cover opacity-75"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/30" />
+
+                                    <div className="relative z-10 flex justify-between items-center">
+                                        <span className="px-2 py-0.5 rounded-full bg-amber-500/30 text-amber-300 text-[10px] font-black uppercase">
+                                            {isAr ? "نكهات فاخرة معتمدة" : "ARTISANAL RESERVE"}
+                                        </span>
+                                        <span className="text-[10px] font-mono font-bold text-amber-400 bg-black/60 px-2 py-0.5 rounded">
+                                            SALT & FREEBASE
+                                        </span>
+                                    </div>
+
+                                    <div className="relative z-10 space-y-2 pt-4">
+                                        <div>
+                                            <h4 className="font-black text-white text-base">
+                                                {isAr ? "سوائل جولدن آمبر الفاخرة" : "Golden Amber Reserve Juices"}
+                                            </h4>
+                                            <p className="text-[11px] text-zinc-300 line-clamp-2">
+                                                {isAr ? "وارد المعامل العالمية المعتمدة مع أعلى درجات النقاء الدوائي." : "Direct lab imports with pharmaceutical purity for dense aromatic clouds."}
+                                            </p>
+                                        </div>
+                                        <Link
+                                            href="/shop"
+                                            onClick={() => setMobilePromoOpen(false)}
+                                            className="w-full py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-black font-extrabold text-xs rounded-xl flex items-center justify-center gap-1.5 active:scale-98"
+                                        >
+                                            <ShoppingBag className="w-3.5 h-3.5" />
+                                            <span>{isAr ? "تسوق النكهات" : "Browse E-Liquids"}</span>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
+            </div>
         </>
     );
 }

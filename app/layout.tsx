@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,13 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SiteContentProvider } from "@/contexts/SiteContentContext";
 import CookieConsent from "@/components/CookieConsent";
 import SideBanners from "@/components/SideBanners";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#0a0a0f",
+};
 
 export const metadata: Metadata = {
   title: "Clouds - Leading Online Vape Store in Egypt",
