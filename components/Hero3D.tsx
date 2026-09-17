@@ -12,7 +12,7 @@ export default function Hero3D() {
     return (
         <div className="w-full bg-[var(--background)] text-[var(--foreground)] overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
             {/* Hero Main Banner */}
-            <div className="relative w-full min-h-[480px] md:min-h-[560px] bg-slate-950 flex items-center justify-center overflow-hidden">
+            <div data-force-dark="true" className="relative w-full min-h-[480px] md:min-h-[560px] bg-slate-950 flex items-center justify-center overflow-hidden">
                 {/* Background Image with Overlay */}
                 <div
                     className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity scale-105 transition-transform duration-1000 ease-out hover:scale-100"
@@ -27,7 +27,8 @@ export default function Hero3D() {
                     <motion.span
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="inline-block px-3 py-1 bg-white/10 backdrop-blur-xs text-white/90 text-xs uppercase font-bold tracking-widest rounded-full mb-6 border border-white/15"
+                        style={{ color: "#ffffff" }}
+                        className="inline-block px-3.5 py-1 bg-white/10 backdrop-blur-md text-white text-xs uppercase font-bold tracking-widest rounded-full mb-6 border border-white/20 shadow-sm"
                     >
                         {isAr ? "المتجر الأول للفيب في مصر" : "Egypt's Premier Vaping Destination"}
                     </motion.span>
@@ -36,7 +37,8 @@ export default function Hero3D() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1, duration: 0.6 }}
-                        className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-tight mb-6"
+                        style={{ color: "#ffffff" }}
+                        className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-tight mb-6 drop-shadow-lg"
                     >
                         {isAr ? "تصفح أحدث منتجاتنا" : "Browse our latest products"}
                     </motion.h1>
@@ -45,7 +47,8 @@ export default function Hero3D() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2, duration: 0.6 }}
-                        className="text-slate-300 text-base md:text-xl max-w-2xl mb-10 leading-relaxed font-normal"
+                        style={{ color: "#cbd5e1" }}
+                        className="text-slate-300 text-base md:text-xl max-w-2xl mb-10 leading-relaxed font-normal drop-shadow"
                     >
                         {isAr
                             ? "اكتشف تشكيلة مميزة من السوائل المستوردة والمحلية، البودات، والتانكات المبتكرة بأفضل جودة وسعر."
@@ -60,17 +63,21 @@ export default function Hero3D() {
                     >
                         <Link
                             href="/shop"
-                            className="px-8 py-3.5 bg-[#c91c1c] text-white hover:bg-[#a51616] font-bold text-sm uppercase tracking-wider rounded-md transition-all shadow-lg hover:shadow-red-900/30 flex items-center gap-2"
+                            style={{ color: "#ffffff" }}
+                            className="px-8 py-3.5 bg-[#c91c1c] text-white hover:bg-[#a51616] font-bold text-sm uppercase tracking-wider rounded-md transition-all shadow-lg hover:shadow-red-900/30 flex items-center gap-2 cursor-pointer"
                         >
-                            <span>{isAr ? "تسوق الآن" : "Shop Now"}</span>
-                            <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                            <span style={{ color: "#ffffff" }}>{isAr ? "تسوق الآن" : "Shop Now"}</span>
+                            <ArrowRight className="w-4 h-4 rtl:rotate-180 text-white" />
                         </Link>
                         <Link
                             href="/track"
-                            className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-sm uppercase tracking-wider rounded-md transition-all border border-white/20 backdrop-blur-xs flex items-center gap-2"
+                            style={{ color: "#ffffff" }}
+                            className="px-7 py-3.5 bg-white/15 hover:bg-white/25 text-white font-bold text-sm uppercase tracking-wider rounded-md transition-all border border-white/30 hover:border-white/50 backdrop-blur-md flex items-center gap-2.5 shadow-md cursor-pointer group"
                         >
-                            <Truck className="w-4 h-4 text-[#c91c1c]" />
-                            <span>{isAr ? "تتبع طلبك" : "Track Order"}</span>
+                            <Truck className="w-4 h-4 text-[#c91c1c] group-hover:scale-110 transition-transform" />
+                            <span style={{ color: "#ffffff" }} className="text-white font-bold tracking-wider">
+                                {isAr ? "تتبع طلبك" : "Track Order"}
+                            </span>
                         </Link>
                     </motion.div>
                 </div>
