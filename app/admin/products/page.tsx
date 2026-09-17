@@ -149,7 +149,15 @@ export default function ProductsPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="text-white font-mono font-bold">{formatCurrency(product.price)}</div>
+                                            {product.on_sale && product.sale_price ? (
+                                                <div>
+                                                    <div className="text-green-400 font-mono font-bold">{formatCurrency(product.sale_price)}</div>
+                                                    <div className="text-gray-500 font-mono text-xs line-through">{formatCurrency(product.price)}</div>
+                                                    <div className="text-[10px] text-red-400 font-bold uppercase tracking-wide">{product.sale_badge_text || "Sale"}</div>
+                                                </div>
+                                            ) : (
+                                                <div className="text-white font-mono font-bold">{formatCurrency(product.price)}</div>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
