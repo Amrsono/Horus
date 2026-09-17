@@ -50,6 +50,7 @@ export default function Footer() {
                         <ul className="space-y-2.5 text-xs font-medium">
                             <li><Link href="/" className="hover:text-[var(--primary-accent)] transition-colors">{isAr ? "الرئيسية" : "Home"}</Link></li>
                             <li><Link href="/shop" className="hover:text-[var(--primary-accent)] transition-colors">{isAr ? "المتجر" : "Shop All"}</Link></li>
+                            <li><Link href="/about" className="hover:text-[var(--primary-accent)] transition-colors">{isAr ? "من نحن" : "About Us"}</Link></li>
                             <li><Link href="/#sale" className="hover:text-[var(--primary-accent)] transition-colors">{isAr ? "عروض التخفيضات" : "Sale Offers"}</Link></li>
                             <li><Link href="/track" className="hover:text-[var(--primary-accent)] transition-colors font-bold text-[var(--text-main)] flex items-center gap-1.5"><Truck className="w-3.5 h-3.5 text-[var(--primary-accent)]" />{isAr ? "تتبع طلبك" : "Track Your Order"}</Link></li>
                         </ul>

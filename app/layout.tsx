@@ -15,6 +15,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SiteContentProvider } from "@/contexts/SiteContentContext";
 import CookieConsent from "@/components/CookieConsent";
+import SideBanners from "@/components/SideBanners";
 
 export const metadata: Metadata = {
   title: "Clouds - Leading Online Vape Store in Egypt",
@@ -44,6 +45,7 @@ export default async function RootLayout({
           <LanguageProvider>
             <AuthProvider>
               <SiteContentProvider>
+                <SideBanners />
                 {children}
                 <CookieConsent />
               </SiteContentProvider>

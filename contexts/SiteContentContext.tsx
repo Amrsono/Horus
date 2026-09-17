@@ -33,10 +33,26 @@ export interface ContactContent {
     working_hours_ar: string;
 }
 
+export interface AboutContent {
+    title_en: string;
+    title_ar: string;
+    subtitle_en: string;
+    subtitle_ar: string;
+    story_title_en: string;
+    story_title_ar: string;
+    story_en: string;
+    story_ar: string;
+    mission_en: string;
+    mission_ar: string;
+    vision_en: string;
+    vision_ar: string;
+}
+
 export interface SiteContent {
     privacy: PrivacyContent;
     terms: TermsContent;
     contact: ContactContent;
+    about: AboutContent;
 }
 
 const DEFAULT_SITE_CONTENT: SiteContent = {
@@ -126,6 +142,28 @@ Due to health and hygiene standards, opened e-liquids and used coils cannot be r
         address_ar: "مدينة نصر، القاهرة، مصر",
         working_hours_en: "Everyday 10:00 AM - 12:00 AM",
         working_hours_ar: "يومياً من 10:00 صباحاً حتى 12:00 منتصف الليل"
+    },
+    about: {
+        title_en: "About CLOUDS",
+        title_ar: "من نحن - كلودز",
+        subtitle_en: "Your premier destination for authentic vape hardware, premium e-liquids, and unparalleled customer service across Egypt.",
+        subtitle_ar: "وجهتك الأولى والأكثر ثقة لأجهزة الفيب الأصلية، أرقى النكهات العالمية، وأسرع خدمة توصيل في مصر.",
+        story_title_en: "The CLOUDS Story",
+        story_title_ar: "قصة كلودز",
+        story_en: `Founded with a passion for quality and smoking cessation alternatives, CLOUDS was created to bring transparency, authenticity, and premium service to the vaping community in Egypt.
+
+We recognized early on that finding genuine devices and certified juices was a challenge. That is why we committed to partnering exclusively with certified global manufacturers and authorized distributors.
+
+Every device in our store comes with verifiable scratch-off authentication codes, warranty against manufacturing defects, and our pledge of 100% authenticity. We are dedicated to providing adult smokers with safer, premium alternatives and an effortless shopping experience.`,
+        story_ar: `انطلقت علامة كلودز (CLOUDS) من شغف حقيقي بالتميز والرغبة في تقديم بدائل تدخين آمنة وموثوقة للمجتمع في مصر.
+
+أدركنا منذ البداية صعوبة العثور على أجهزة أصلية وسوائل مطابقة للمعايير الصحية العالمية في ظل انتشار المنتجات المقلدة. لذلك، أخذنا على عاتقنا عهداً بالتعامل المباشر مع المصانع والوكلاء المعتمدين عالمياً فقط.
+
+يأتي كل جهاز في متجرنا مع كود التحقق الأصلي، وضمان استبدال حقيقي ضد عيوب الصناعة، والتزام تام بالأصالة والجودة. نحن هنا لمساعدة البالغين على اختيار البدائل الأنسب لهم عبر استشارات موثوقة وتوصيل فوري وبأفضل الأسعار.`,
+        mission_en: "To empower adult smokers with 100% genuine, certified vaping products, transparent advice, and dependable service.",
+        mission_ar: "تمكين البالغين من الوصول إلى منتجات فيب أصلية ومعتمدة ١٠٠٪ مع تقديم الدعم الفني الصادق والتوصيل السريع.",
+        vision_en: "To be Egypt and the Middle East's most trusted, innovative, and customer-first vape destination.",
+        vision_ar: "أن نكون الوجهة الأولى والأكثر موثوقية وتميزاً لعشاق الفيب والبدائل الآمنة في مصر والشرق الأوسط."
     }
 };
 
@@ -151,6 +189,7 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
                     privacy: { ...prev.privacy, ...parsed.privacy },
                     terms: { ...prev.terms, ...parsed.terms },
                     contact: { ...prev.contact, ...parsed.contact },
+                    about: { ...prev.about, ...parsed.about },
                 }));
             }
         } catch {
@@ -186,6 +225,21 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
                                 working_hours_en: row.metadata?.working_hours_en || "Everyday 10:00 AM - 12:00 AM",
                                 working_hours_ar: row.metadata?.working_hours_ar || "يومياً من 10:00 صباحاً حتى 12:00 منتصف الليل",
                             };
+                        } else if (row.slug === "about") {
+                            newContent.about = {
+                                title_en: row.title_en,
+                                title_ar: row.title_ar,
+                                subtitle_en: row.metadata?.subtitle_en || DEFAULT_SITE_CONTENT.about.subtitle_en,
+                                subtitle_ar: row.metadata?.subtitle_ar || DEFAULT_SITE_CONTENT.about.subtitle_ar,
+                                story_title_en: row.metadata?.story_title_en || DEFAULT_SITE_CONTENT.about.story_title_en,
+                                story_title_ar: row.metadata?.story_title_ar || DEFAULT_SITE_CONTENT.about.story_title_ar,
+                                story_en: row.content_en || DEFAULT_SITE_CONTENT.about.story_en,
+                                story_ar: row.content_ar || DEFAULT_SITE_CONTENT.about.story_ar,
+                                mission_en: row.metadata?.mission_en || DEFAULT_SITE_CONTENT.about.mission_en,
+                                mission_ar: row.metadata?.mission_ar || DEFAULT_SITE_CONTENT.about.mission_ar,
+                                vision_en: row.metadata?.vision_en || DEFAULT_SITE_CONTENT.about.vision_en,
+                                vision_ar: row.metadata?.vision_ar || DEFAULT_SITE_CONTENT.about.vision_ar,
+                            };
                         }
                     });
 
@@ -194,6 +248,7 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
                             privacy: newContent.privacy ? { ...prev.privacy, ...newContent.privacy } : prev.privacy,
                             terms: newContent.terms ? { ...prev.terms, ...newContent.terms } : prev.terms,
                             contact: newContent.contact ? { ...prev.contact, ...newContent.contact } : prev.contact,
+                            about: newContent.about ? { ...prev.about, ...newContent.about } : prev.about,
                         };
                         try {
                             localStorage.setItem("clouds-site-content", JSON.stringify(merged));
@@ -253,6 +308,26 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
                             address_ar: sec.address_ar,
                             working_hours_en: sec.working_hours_en,
                             working_hours_ar: sec.working_hours_ar,
+                        },
+                        updated_at: new Date().toISOString(),
+                    };
+                } else if (section === "about") {
+                    const sec = data as AboutContent;
+                    payload = {
+                        slug: "about",
+                        title_en: sec.title_en,
+                        title_ar: sec.title_ar,
+                        content_en: sec.story_en,
+                        content_ar: sec.story_ar,
+                        metadata: {
+                            subtitle_en: sec.subtitle_en,
+                            subtitle_ar: sec.subtitle_ar,
+                            story_title_en: sec.story_title_en,
+                            story_title_ar: sec.story_title_ar,
+                            mission_en: sec.mission_en,
+                            mission_ar: sec.mission_ar,
+                            vision_en: sec.vision_en,
+                            vision_ar: sec.vision_ar,
                         },
                         updated_at: new Date().toISOString(),
                     };

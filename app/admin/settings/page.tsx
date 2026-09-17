@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useSiteContent, PrivacyContent, TermsContent, ContactContent } from "@/contexts/SiteContentContext";
+import { useSiteContent, PrivacyContent, TermsContent, ContactContent, AboutContent } from "@/contexts/SiteContentContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Sparkles, Palette, ShieldCheck, FileText, PhoneCall, Save, ExternalLink, Loader2 } from "lucide-react";
+import { Check, Sparkles, Palette, ShieldCheck, FileText, PhoneCall, Info, Save, ExternalLink, Loader2 } from "lucide-react";
 import Link from "next/link";
 
-type SettingsTab = "theme" | "privacy" | "terms" | "contact";
+type SettingsTab = "theme" | "privacy" | "terms" | "contact" | "about";
 
 export default function SettingsPage() {
     const { theme, setTheme } = useTheme();
@@ -25,6 +25,7 @@ export default function SettingsPage() {
     const [privacyForm, setPrivacyForm] = useState<PrivacyContent>(content.privacy);
     const [termsForm, setTermsForm] = useState<TermsContent>(content.terms);
     const [contactForm, setContactForm] = useState<ContactContent>(content.contact);
+    const [aboutForm, setAboutForm] = useState<AboutContent>(content.about);
 
     const themes = [
         {
@@ -97,8 +98,20 @@ export default function SettingsPage() {
         }
     };
 
+    const handleSaveAbout = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSaving(true);
+        const ok = await updateSection("about", aboutForm);
+        setIsSaving(false);
+        if (ok) {
+            setSaveSuccess(isAr ? "تم حفظ وتحديث صفحة من نحن بنجاح!" : "About Us page updated successfully!");
+            setTimeout(() => setSaveSuccess(null), 3500);
+        }
+    };
+
     const tabs: { id: SettingsTab; name: string; icon: any }[] = [
         { id: "theme", name: t.admin.settings.tabs?.theme || (isAr ? "المظهر والألوان" : "Theme & Aesthetics"), icon: Palette },
+        { id: "about", name: isAr ? "صفحة من نحن" : "About Us Page", icon: Info },
         { id: "privacy", name: t.admin.settings.tabs?.privacy || (isAr ? "سياسة الخصوصية" : "Privacy Policy"), icon: ShieldCheck },
         { id: "terms", name: t.admin.settings.tabs?.terms || (isAr ? "الشروط والأحكام" : "Terms of Service"), icon: FileText },
         { id: "contact", name: t.admin.settings.tabs?.contact || (isAr ? "بيانات التواصل والمتجر" : "Contact & Store Info"), icon: PhoneCall },
@@ -250,6 +263,205 @@ export default function SettingsPage() {
                         })}
                     </div>
                 </div>
+            )}
+
+            {/* About Us Tab */}
+            {activeTab === "about" && (
+                <form onSubmit={handleSaveAbout} className="glass p-6 md:p-8 rounded-2xl border border-[var(--border-subtle)] space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--border-subtle)]">
+                        <div>
+                            <h2 className="text-xl font-bold text-[var(--text-main)] mb-1 flex items-center gap-2">
+                                <Info className="w-5 h-5 text-[var(--primary-accent)]" />
+                                <span>{isAr ? "تعديل صفحة من نحن" : "Edit About Us Page"}</span>
+                            </h2>
+                            <p className="text-xs md:text-sm text-[var(--text-muted)]">
+                                {isAr ? "عدّل قصة المتجر ورؤيته ومحتوى صفحة /about" : "Customize brand story, mission, and content shown on /about"}
+                            </p>
+                        </div>
+
+                        <Link
+                            href="/about"
+                            target="_blank"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--primary-accent)] hover:underline self-start sm:self-auto"
+                        >
+                            <span>{isAr ? "معاينة الصفحة المباشرة" : "View Live Page"}</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "عنوان الصفحة (بالإنجليزية)" : "Page Title (English)"}
+                            </label>
+                            <input
+                                type="text"
+                                value={aboutForm.title_en}
+                                onChange={(e) => setAboutForm({ ...aboutForm, title_en: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "عنوان الصفحة (بالعربية)" : "Page Title (Arabic)"}
+                            </label>
+                            <input
+                                type="text"
+                                dir="rtl"
+                                value={aboutForm.title_ar}
+                                onChange={(e) => setAboutForm({ ...aboutForm, title_ar: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "الوصف التمهيدي (بالإنجليزية)" : "Hero Subtitle (English)"}
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={aboutForm.subtitle_en}
+                                onChange={(e) => setAboutForm({ ...aboutForm, subtitle_en: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "الوصف التمهيدي (بالعربية)" : "Hero Subtitle (Arabic)"}
+                            </label>
+                            <textarea
+                                rows={3}
+                                dir="rtl"
+                                value={aboutForm.subtitle_ar}
+                                onChange={(e) => setAboutForm({ ...aboutForm, subtitle_ar: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "عنوان قصة المتجر (بالإنجليزية)" : "Story Title (English)"}
+                            </label>
+                            <input
+                                type="text"
+                                value={aboutForm.story_title_en}
+                                onChange={(e) => setAboutForm({ ...aboutForm, story_title_en: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "عنوان قصة المتجر (بالعربية)" : "Story Title (Arabic)"}
+                            </label>
+                            <input
+                                type="text"
+                                dir="rtl"
+                                value={aboutForm.story_title_ar}
+                                onChange={(e) => setAboutForm({ ...aboutForm, story_title_ar: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "نص القصة (بالإنجليزية)" : "Story Content (English)"}
+                            </label>
+                            <textarea
+                                rows={6}
+                                value={aboutForm.story_en}
+                                onChange={(e) => setAboutForm({ ...aboutForm, story_en: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "نص القصة (بالعربية)" : "Story Content (Arabic)"}
+                            </label>
+                            <textarea
+                                rows={6}
+                                dir="rtl"
+                                value={aboutForm.story_ar}
+                                onChange={(e) => setAboutForm({ ...aboutForm, story_ar: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "المهمة (Mission - English)" : "Mission (English)"}
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={aboutForm.mission_en}
+                                onChange={(e) => setAboutForm({ ...aboutForm, mission_en: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "المهمة (Mission - بالعربية)" : "Mission (Arabic)"}
+                            </label>
+                            <textarea
+                                rows={3}
+                                dir="rtl"
+                                value={aboutForm.mission_ar}
+                                onChange={(e) => setAboutForm({ ...aboutForm, mission_ar: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "الرؤية (Vision - English)" : "Vision (English)"}
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={aboutForm.vision_en}
+                                onChange={(e) => setAboutForm({ ...aboutForm, vision_en: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-main)] mb-1.5">
+                                {isAr ? "الرؤية (Vision - بالعربية)" : "Vision (Arabic)"}
+                            </label>
+                            <textarea
+                                rows={3}
+                                dir="rtl"
+                                value={aboutForm.vision_ar}
+                                onChange={(e) => setAboutForm({ ...aboutForm, vision_ar: e.target.value })}
+                                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary-accent)]"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="pt-4 flex justify-end">
+                        <button
+                            type="submit"
+                            disabled={isSaving}
+                            className="px-6 py-3 bg-[var(--primary-accent)] text-[var(--primary-accent-text)] font-bold rounded-xl transition-all shadow-md hover:opacity-90 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                        >
+                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            <span>{isAr ? "حفظ التغييرات ونشرها" : "Save & Publish Changes"}</span>
+                        </button>
+                    </div>
+                </form>
             )}
 
             {/* 2. Privacy Policy Tab */}
