@@ -37,14 +37,9 @@ export default function ProductsPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this product?")) return;
 
-        const { error } = await supabase
-            .from('products')
-            .delete()
-            .eq('id', id);
-
-        if (error) {
+        const res = await fetch(`/api/admin/products?id=${id}`, { method: "DELETE" });
+        if (!res.ok) {
             alert("Error deleting product");
-            console.error(error);
         } else {
             fetchProducts();
         }

@@ -122,20 +122,23 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
             };
 
             if (productToEdit?.id) {
-                // Update existing
-                const { error } = await supabase
-                    .from('products')
-                    .update(productData)
-                    .eq('id', productToEdit.id);
-
-                if (error) throw error;
+                // Update existing via server-side API (bypasses RLS)
+                const res = await fetch("/api/admin/products", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: productToEdit.id, ...productData }),
+                });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.error || "Failed to update product");
             } else {
-                // Create new
-                const { error } = await supabase
-                    .from('products')
-                    .insert([productData]);
-
-                if (error) throw error;
+                // Create new via server-side API
+                const res = await fetch("/api/admin/products", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(productData),
+                });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.error || "Failed to create product");
             }
 
             onSave();
@@ -147,6 +150,7 @@ export default function ProductFormModal({ isOpen, onClose, productToEdit, onSav
             setIsLoading(false);
         }
     };
+
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
